@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<script type="text/javascript">
+	window.setTimeout(function() {
+	    $("#snError").fadeTo(500, 0).slideUp(500, function(){
+	        $(this).remove(); 
+	    });
+	}, 4000);
+	
+	window.setTimeout(function() {
+	    $("#snSuccess").fadeTo(500, 0).slideUp(500, function(){
+	        $(this).remove(); 
+	    });
+	}, 4000);
+	
+	function confirmAction(id){
+		var action = $("#action-select").val();
+		switch(action){
+		case 'APROBAR': $("#mensaje").html("Confirma la aprobaci&oacute;n de la solicitud?");
+			$("#aprobar").removeClass("d-none");
+			$("#botonReject").addClass("d-none");
+			$("#eliminarAprob").addClass("d-none");
+			$("#eliminarReject").addClass("d-none");$('#rejectModal').modal('show'); break;
+		case 'RECHAZAR': $("#mensaje").html("Confirma el rechazo de la solicitud?");
+			$("#aprobar").addClass("d-none");
+			$("#botonReject").removeClass("d-none");
+			$("#eliminarAprob").addClass("d-none");
+			$("#eliminarReject").addClass("d-none");$('#rejectModal').modal('show'); break;
+		case 'ELIMINARAPROB': $("#mensaje").html("Confirma que se debe eliminar una marca de aprobaci&oacute;n?");
+			$("#aprobar").addClass("d-none");
+			$("#eliminarAprob").removeClass("d-none");
+			$("#botonReject").addClass("d-none");
+			$("#eliminarReject").addClass("d-none");$('#rejectModal').modal('show'); break;
+		case 'ELIMINARRECHAZO': $("#mensaje").html("Confirma que se debe eliminar una marca de rechazo?");
+			$("#aprobar").addClass("d-none");
+			$("#eliminarAprob").addClass("d-none");
+			$("#botonReject").addClass("d-none");
+			$("#eliminarReject").removeClass("d-none");$('#rejectModal').modal('show'); break;
+		}		
+	}
+
+	function aprobarSolicitud(){
+		var params = {};
+		params["idfsolicitud"] = $("#idsolicit").val();
+		params["obsComision"] = $("#observs").val();
+			
+		$.ajax({
+	        type: "POST",
+	        url: "/fondoPrevision/actualizarSolicitud",
+	        
+	        contentType: "application/json",
+	        data: JSON.stringify(params),
+	        dataType: 'text',
+	        cache: false,
+	        timeout: 600000,
+	        
+	        success: function (data) {
+	            $('#rejectModal').modal('toggle');
+	            $('.modal-backdrop').hide();           
+
+				$("#successMessage").removeClass("d-none");
+	            $("#successMessage").html("La solicitud ha sido actualizada.");
+	            $("#successMessage").show();
+	            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+	            },
+	        error: function (e) {
+	            $("#errorMessage").removeClass( "d-none" );
+	            $("#successMessage").addClass( "d-none" );
+	            $("#errorMessage").html(e.responseText);
+	        }
+
+	    });
+	}
+
+	function rejectSolicitud(){
+		var params = {};
+		params["idfsolicitud"] = $("#idsolicit").val();
+		params["obsComision"] = $("#observs").val();
+			
+		$.ajax({
+	        type: "POST",
+	        url: "/fondoPrevision/rejectSolicitud",
+	        
+	        contentType: "application/json",
+	        data: JSON.stringify(params),
+	        dataType: 'text',
+	        cache: false,
+	        timeout: 600000,
+	        
+	        success: function (data) {
+	            $('#rejectModal').modal('toggle');
+	            $('.modal-backdrop').hide();           
+
+				$("#successMessage").removeClass("d-none");
+	            $("#successMessage").html("La solicitud se ha guardado como rechazada.");
+	            $("#successMessage").show();
+	            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+	            },
+	        error: function (e) {
+	            $("#errorMessage").removeClass( "d-none" );
+	            $("#successMessage").addClass( "d-none" );
+	            $("#errorMessage").html(e.responseText);
+	        }
+
+	    });
+
+	}
+
+	function eliminarAprob(){
+		var params = {};
+		params["idfsolicitud"] = $("#idsolicit").val();
+		params["obsComision"] = $("#observs").val();
+			
+		$.ajax({
+	        type: "POST",
+	        url: "/fondoPrevision/eliminarAprobacion",
+	        
+	        contentType: "application/json",
+	        data: JSON.stringify(params),
+	        dataType: 'text',
+	        cache: false,
+	        timeout: 600000,
+	        
+	        success: function (data) {
+	            $('#rejectModal').modal('toggle');
+	            $('.modal-backdrop').hide();           
+
+				$("#successMessage").removeClass("d-none");
+	            $("#successMessage").html("Se ha limpiado una marca de aprobaci&oacute;n.");
+	            $("#successMessage").show();
+	            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+	            },
+	        error: function (e) {
+	            $("#errorMessage").removeClass( "d-none" );
+	            $("#successMessage").addClass( "d-none" );
+	            $("#errorMessage").html(e.responseText);
+	        }
+
+	    });
+
+	}
+
+	function eliminarReject(){
+		var params = {};
+		params["idfsolicitud"] = $("#idsolicit").val();
+		params["obsComision"] = $("#observs").val();
+			
+		$.ajax({
+	        type: "POST",
+	        url: "/fondoPrevision/eliminarRechazo",
+	        
+	        contentType: "application/json",
+	        data: JSON.stringify(params),
+	        dataType: 'text',
+	        cache: false,
+	        timeout: 600000,
+	        
+	        success: function (data) {
+	            $('#rejectModal').modal('toggle');
+	            $('.modal-backdrop').hide();           
+
+				$("#successMessage").removeClass("d-none");
+	            $("#successMessage").html("Se ha eliminado una marca de rechazo.");
+	            $("#successMessage").show();
+	            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+	            },
+	        error: function (e) {
+	            $("#errorMessage").removeClass( "d-none" );
+	            $("#successMessage").addClass( "d-none" );
+	            $("#errorMessage").html(e.responseText);
+	        }
+
+	    });
+
+	}
+
+</script>
+	<form id="solicitForm" th:object="${solicitudPrstForm}" th:action="@{/devolverSolicitud}" method="post"
+		class="form" role="form" autocomplete="off">
+		<input type="hidden" th:field="*{user.id}">
+		<input type="hidden" th:field="*{user.tarjeta}">
+		<input type="hidden" th:field="*{idfuncionario}">
+		<input type="hidden" id="idsolicit" th:field="*{idfsolicitud}">
+		<div class="card">
+			<div class="card-header">
+				<h6><span th:text="'Solicitud de Prestamo ' + ${tipoPrestamo} + ' enviada por ' + ${funcionario.nombre}"></span></h6>
+			</div>
+			<div class="card-body">
+				<table class="table table-sm table-bordered">
+					<thead>
+						<tr>
+							<th class="text-center">Importe</th>
+							<th class="text-center">No. de Cuotas</th>
+							<th class="text-center">Tasa</th>
+							<th class="text-center">Importe Cuota</th>
+							<th class="text-center">Importe Neto a recibir</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="text-center" th:text="*{#numbers.formatDecimal(prestamo.capitalPrestamo,3,'POINT',2,'COMMA')}"></td>
+							<td class="text-center" th:text="*{prestamo.cantCuotas}"></td>
+							<td class="text-center" th:text="*{#numbers.formatDecimal(prestamo.interesPrestamo,1,'POINT',2,'COMMA')}"></td>
+							<td class="text-center" th:text="*{#numbers.formatDecimal(prestamo.cuota,1,'POINT',2,'COMMA')}"></td>
+							<td class="text-center" th:text="*{#numbers.formatDecimal(capitalNeto,1,'POINT',2,'COMMA')}"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-header">
+				<h6>Cuenta Individual</h6>
+			</div>
+			<div class="card-body">
+			<table class="table table-sm table-bordered">
+				<thead>
+					<tr>
+						<th class="text-center">Sueldo Base (USD)</th>
+						<th class="text-center">85% Cap. Integrado</th>
+						<th class="text-center">40% Sueldo Base</th>
+						<th class="text-center">Saldo no Comprometido</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="text-center" th:text="${#numbers.formatDecimal(sueldoBase, 3, 'POINT', 2, 'COMMA')}"></td>
+						<td class="text-center" th:text="${#numbers.formatDecimal(estadoDeCta.capDispOperable, 3, 'POINT', 2, 'COMMA')}"></td>
+						<td class="text-center" th:text="*{#numbers.formatDecimal(cuarentaPorCiento, 3, 'POINT',2,'COMMA')}"></td>
+						<td class="text-center" th:text="${#numbers.formatDecimal(estadoDeCta.saldoDisponible, 3, 'POINT', 2, 'COMMA')}"
+							title="NO INCLUYE EL CAPITAL SOLICITADO"></td>
+					</tr>
+				</tbody>
+			</table>
+			</div>
+		</div>
+		
+		<div class="card-deck">
+			<div class="card">
+				<div class="card-header">
+					<h6>Cancelaci&oacute;n de Prestamos Anteriores</h6>
+				</div>
+				<div class="card-body">
+					<table class="table table-sm table-bordered" th:if="${sinPrst==false}">
+						<thead>
+							<tr>
+								<th class="text-center">Nro. Prestamo</th>
+								<th class="text-center">Saldo</th>
+							</tr>
+						</thead>
+						<tbody th:if="${not(#lists.isEmpty(lstCancel))}">
+							<tr th:each="prst: ${lstCancel}">
+								<td class="text-center" th:text="${prst.nroprestamo}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(prst.saldoPrestamo,3,'POINT',2,'COMMA')}"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-header">
+					<h6>Operaciones Anteriores Pendientes</h6>
+				</div>
+				<div class="card-body">
+					<table class="table table-sm table-bordered" th:if="${sinPrst==false}">
+						<thead>
+							<tr>
+								<th class="text-center">Nro. Prestamo</th>
+								<th class="text-center">Saldo</th>
+								<th class="text-center">Cuotas</th>
+							</tr>
+						</thead>
+						<tbody th:if="${not(#lists.isEmpty(lstPendientes))}">
+							<tr th:each="prst: ${lstPendientes}">
+								<td class="text-center" th:text="${prst.nroprestamo}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(prst.saldoPrestamo,3,'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${prst.cuotasPagas}"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-header">
+					<h6>Observaciones</h6>
+				</div>
+				<div class="card-body">
+					<div class="input-group input-group-sm">
+						<textarea class="form-control" id="observs" rows="4" cols="12" th:field="*{obsComision}"></textarea>
+						<div class="alert-danger" th:if="${#fields.hasErrors('obsComision')}" th:errors="*{obsComision}">Motivo</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-body">
+				<table class="table table-sm table-bordered">
+					<tr>
+						<td>
+							<div class="form-group row">
+								<label class="col-lg-4 text-left">Acci&oacute;n a procesar</label>
+								<div class="col-lg-6">
+									<select th:field="*{accion}" id="action-select">
+										<option value="">Seleccionar opci&oacute;n</option>
+										<option th:each="acto:${T(org.mercosur.fondoPrevision.enums.AprobSolicitud).values()}"
+											th:value="${acto}" th:text="${acto.getDisplayValue()}"></option>
+									</select>
+								</div>
+							</div>
+						</td>
+						<td>
+						    <div id="error" class="alert alert-danger text-center" th:if="${formError}" 
+						    	th:text="${formError}">Error Message</div>
+						    <div id="success" class="col-lg-8 text-right" th:if="${formSuccess}" 
+						    	th:text="${formSuccess}">SuccessMessage</div>
+						</td>
+					</tr>
+				</table>
+				<div id="errorMessage"  class="card alert alert-danger text-center d-none" role="alert">Mensaje de Error</div>
+				<div id="successMessage" class="card alert alert-success text-center d-none" role="alert">Success Message</div>			
+				<div class="form-group  mx-auto group-margin">
+					<div class="col-lg-12 text-center">
+						<input type="button" class="btn btn-primary" value="Ejecutar Acci&oacute;n" 
+							th:onclick="'javascript:confirmAction(\''+ *{idfsolicitud} +'\');'">
+		<!-- 		   		<button class="btn btn-secondary" type="submit" name="rechazarSol">Rechazar Solicitud</button> -->
+<!-- 				   	    <button type="submit" class="btn btn-primary" name="aprobarSol" >Aprobar Solicitud </button> -->
+					 	<a href="#" th:href="@{'/home'}" class="btn btn-secondary" style="margin-left:2px;">
+					 	    <span> Cerrar </span> <span class="float-right" style="padding-left:6px;"><i class="fas fa-sign-out-alt"></i></span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+</html>

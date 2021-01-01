@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+<script type="text/javascript">
+function confirmDelete(id){
+	$('#deleteModal').modal('show');
+	$("#paramIdHiddenInput").val(id);
+}
+
+function deleteParam(){
+	var id = $("#paramIdHiddenInput").val();
+    window.location = "/fondoPrevision/deleteParam/"+id;
+}
+
+function confirmDeletePPrst(id){
+	$('#deleteParPrstModal').modal('show');
+	$("#parprstIdHiddenInput").val(id);
+}
+
+function deleteParPrst(){
+	var id = $("#parprstIdHiddenInput").val();
+	window.location="/fondoPrevision/deleteParamPrst/"+id;
+}
+</script>
+
+</head>
+<body>
+    <!-- Lista de parametros-->
+     <div class="table-responsive">
+         <table id="lstparamList" class="table table-sm table-bordered table-hover table-striped ">
+             <thead class="thead-light">
+             <tr>
+                 <th scope="col">#</th>
+                 <th scope="col">Mes Liq.</th>
+                 <th scope="col">Descripci&oacute;n</th>
+                 <th scope="col">Valor</th>
+                 <th></th>
+             </tr>
+             </thead>
+             <tbody>
+			<tr th:each="parametro: ${paramList}">
+				<td th:text="${parametro.idfparametros}"></td>
+				<td th:text="${parametro.mesliquidacion}"></td>
+				<td th:text="${parametro.descripcion}"></td>
+				<td class="text-right" th:text="${parametro.simbolo == '$'}? ${parametro.simbolo} + ' ' +${parametro.valor} : ${parametro.valor} + ' ' +${parametro.simbolo}"></td>
+				<td>
+					<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')} or (${#authorization.expression('hasRole(''ROLE_USER'')')} and ${#httpServletRequest.remoteUser==user.username})">
+   						<a href="#" th:href="@{'/editParam/'+ ${parametro.idfparametros}}"><i class="fas fa-edit"></i></a>
+					</span>
+					<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}" >
+						<a href="#" th:onclick="'javascript:confirmDelete(\''+ ${parametro.idfparametros} +'\');'"><i class="fas fa-trash"></i></a>
+					</span>	
+				</td>
+			</tr>
+             </tbody>
+         </table>
+     </div>
+     <div class="panel panel-default">
+     	<div class="panel-heading">
+     		<h4>Tasas seg&uacute;n Plazos de Pr&eacute;stamos</h4>
+     	</div>
+     	<div class="panel-body table-responsive">
+	         <table id="paramPrstList" class="table table-bordered table-hover table-striped table-sm">
+	             <thead class="thead-light">
+	             <tr>
+	                 <th scope="col">#</th>
+	                 <th scope="col">Mes Liq.</th>
+	                 <th scope="col">Descripci&oacute;n</th>
+	                 <th scope="col">Valor</th>
+	                 <th></th>
+	             </tr>
+	             </thead>
+	             <tbody>
+				<tr th:each="parprst: ${paramPrstList}">
+					<td th:text="${parprst.idfparamprst}"></td>
+					<td th:text="${parprst.mesliquidacion}"></td>
+					<td th:text="${parprst.descripcion}"></td>
+					<td th:text="${parprst.tasa} + ' %'"></td>
+					<td>
+						<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')} or (${#authorization.expression('hasRole(''ROLE_USER'')')} and ${#httpServletRequest.remoteUser==user.username})">
+	   						<a href="#" th:href="@{'/editParamPrst/'+ ${parprst.idfparamprst}}"><i class="fas fa-edit"></i></a>
+						</span>
+						<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}" >
+							<a href="#" th:onclick="'javascript:confirmDeletePPrst(\''+ ${parprst.idfparamprst} +'\');'"><i class="fas fa-trash"></i></a>
+						</span>	
+					</td>
+				</tr>
+	             </tbody>
+	         </table>
+     	</div>
+     </div>
+	<div id="deleteError" th:if="${listErrorMessage}" class="alert alert-danger text-center" role="alert">
+		<span th:text="${listErrorMessage}"></span>
+	</div>
+	<div id="successMessage" th:if="${listSuccessMessage}" class="alert alert-success text-center" role="alert">
+		<span th:utext="${listSuccessMessage}"></span>
+	</div>
+</body>
+</html>
+

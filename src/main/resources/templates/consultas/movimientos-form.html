@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Consulta Movimientos', plantilla='loglist')">
+</head>
+<head>
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        $('#plantaList').DataTable();
+	        $('#movimientosList').DataTable();
+	    } );
+	    
+		window.setTimeout(function() {
+		    $("#formError").fadeTo(500, 0).slideUp(500, function(){
+		        $(this).remove(); 
+		    });
+		}, 2000);
+
+	</script>
+</head>
+<body>
+	<div th:replace="${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? ~{/fragments/header::header-admin} : (${#authorization.expression('hasRole(''ROLE_USER'')')} ? ~{/fragments/header::header-user} : ~{/fragments/header::header-supervisor})"></div>
+ 	<div class="container main-section" th:object="${movimientosForm}">
+	 	<div class="a">
+	 		<a href="#" th:href="@{'/home'}" class="nav-link"><span><i class="fas fa-times close-button" style="font-size:30px;"></i></span></a>
+	 	</div>
+		<div class="panel-group">
+	 		<div class="panel panel-default">
+	 			<div class="panel-heading">
+		 			<h4>Movimientos Por Funcionario</h4>
+		 			
+	 			</div>
+	 			<div class="panel-body" >
+	 				<form id="movimform" th:action="@{/movimientosFuncionario}" th:object="${movimientosForm}" class="form" autocomplete="off" method="post" role="form">
+	 					<table style="width: 100%">
+	 						<tr>
+	 							<td>
+			 						<div class="form-group row" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') or #authorization.expression('hasRole(''ROLE_SUPERVISOR'')')}">
+						   				<label class="col-lg-3 col-form-label form-control-label">Funcionario</label>
+						   				<div class="col-lg-6" th:if="${outputMode==null or outputMode==false}">
+											<select th:field="${movimientosForm.idfuncionario}">
+												<option value=""> Seleccionar una opci&oacute;n </option>
+												<option th:each="funcionario :${plantaList}" th:value="${funcionario.idgplanta}" th:text="${funcionario.nombre}"></option>
+											</select>
+							           </div>
+							           <div class="col-lg-6" th:if="${outputMode==true}">
+							           		<input type="hidden" th:field="*{idfuncionario}" th:if="${editMode}">
+							           		<span th:text="${movimientosForm.funcionario.nombre}"></span>
+							           </div>
+									</div>
+									<div class="form-group row" th:if="${#authorization.expression('hasRole(''ROLE_USER'')')}">
+						   				<label class="col-lg-3 col-form-label form-control-label">Funcionario</label>
+							           <div class="col-lg-6" >
+							           		<input type="hidden" th:field="*{idfuncionario}" >
+							           		<span th:text="${movimientosForm.funcionario.nombre}"></span>
+							           </div>										
+									</div>
+	 							</td>
+								<td>
+									<div class="form-group row">
+										<label class="col-lg-3 col-form-label form-control-label">Desde</label>
+										<div class="col-lg-3" >
+											<select th:field="*{mesdesde}">
+												<option value="">Seleccionar...</option>
+												<option th:each="mesd :${meseslist}" th:value="${mesd}" th:text="${mesd}"></option>
+											</select>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group row">
+										<label class="col-lg-3 col-form-label form-control-label">Hasta</label>
+										<div class="col-lg-3" >
+											<select th:field="*{meshasta}">
+												<option value="">Seleccionar...</option>
+												<option th:each="mesd :${meseslist}" th:value="${mesd}" th:text="${mesd}"></option>
+											</select>
+										</div>
+									</div>
+								</td>
+	 						</tr>
+	 					</table>	 				
+						<div class="form-group  mx-auto ">
+							<div class="col-lg-12 text-center">
+								<a class="btn btn-secondary" th:if="${outputMode} and (${#authorization.expression('hasRole(''ROLE_ADMIN'')')} or ${#authorization.expression('hasRole(''ROLE_SUPERVISOR'')')})" th:href="@{'/movimientos/cancel'}">Ver Otro Funcionario</a>
+						   	    <button type="submit" class="btn btn-primary" th:if="${outputMode==null or outputMode==false}" name="getInfo" > 
+						   	    Traer Informaci&oacute;n</button>
+							</div>
+						</div>
+	 				</form>
+	 			</div>
+	 		</div>
+           <div class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+	 		<div class="panel-heading" th:if="${outputMode and #lists.isEmpty(movimientosList)}">
+	 			El funcionario no tiene movimientos en el per&iacute;odo
+	 		</div>
+	 		<div class="panel panel-default" th:if="${outputMode and not(#lists.isEmpty(movimientosList))}">
+	 			<div class="panel-heading" th:if="${outputMode}">
+	 				<h4>Movimientos del Per&iacute;odo</h4>
+	 			</div>
+	 			<div class="panel-body" th:if="${outputMode}">
+	 				<div class="a">
+          			    <a th:href="@{|/pdfMovimientosreport/${movimientosForm.idfuncionario}?desde=*{mesdesde}&hasta=*{meshasta}|}" 
+               			    class="card-link"> Export a Pdf <i class='fas fa-file-pdf' style='font-size:24px; margin-left: 6px;'></i>
+				        </a>
+	 				</div>
+			      <div class="table-responsive">
+			          <table id="movimientosList" class="table table-bordered table-hover table-striped table-sm">
+			              <thead class="thead-light">
+	 					<thead class="thead-light">
+	 						<tr>
+	 							<th class="thead-text" scope="col">Fecha</th>
+	 							<th class="thead-text" scope="col">Concepto</th>
+	 							<th class="thead-text" scope="col">Amortiz. / Aporte Sec. </th>
+	 							<th class="thead-text" scope="col">Interes / Aporte Func.</th>
+	 							<th class="thead-text" scope="col">Total Mov.</th>
+	 							<th class="thead-text" scope="col">Saldo Anterior</th>
+	 							<th class="thead-text" scope="col">Saldo Actual</th>
+	 						</tr>
+	 					</thead>
+	 					<tbody>
+	 						<tr th:each="mov : ${movimientosList}">
+	 							<td th:text="${#dates.format(mov.fecha, 'dd-MM-yyyy')}"></td>
+	 							<td th:text="${mov.concepto}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(mov.importeCapSec, 1, 'POINT', 2, 'COMMA')}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(mov.importeIntFun, 1, 'POINT', 2, 'COMMA')}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(mov.importeTotal, 2, 'POINT', 2, 'COMMA')}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(mov.saldoAnterior, 2, 'POINT', 2, 'COMMA')}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(mov.saldoActual, 2, 'POINT', 2, 'COMMA')}"></td>
+	 						</tr>
+	 					</tbody>
+			          </table>
+			      </div>
+	 			</div>
+	 		</div>
+		</div>
+	</div>
+</body>
+</html>

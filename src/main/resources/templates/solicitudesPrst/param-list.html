@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+     <div class="card">
+     	<div class="card-header">
+     		<h4>Tasas seg&uacute;n Plazos de Pr&eacute;stamos</h4>
+     	</div>
+     	<div class="card-body table-responsive">
+	         <table id="paramPrstList" class="table table-bordered table-hover table-striped table-sm">
+	             <thead class="thead-light">
+	             <tr>
+	                 <th scope="col">#</th>
+	                 <th scope="col">Mes Liq.</th>
+	                 <th scope="col">Descripci&oacute;n</th>
+	                 <th scope="col">Valor</th>
+	             </tr>
+	             </thead>
+	             <tbody>
+				<tr th:each="parprst: ${pprstList}">
+					<td th:text="${parprst.idfparamprst}"></td>
+					<td th:text="${#strings.substring(parprst.mesliquidacion, 4, 6) + '/' + #strings.substring(parprst.mesliquidacion, 0, 4)}"></td>
+					<td th:text="${parprst.descripcion}"></td>
+					<td th:text="${parprst.tasa} + ' %'"></td>
+				</tr>
+	             </tbody>
+	         </table>
+     	</div>
+     </div>
+    </body>
+</html>
+

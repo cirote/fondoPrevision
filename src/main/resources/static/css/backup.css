@@ -1,0 +1,46 @@
+
+body{
+    background: url(../img/fall-autumn-red-season.jpg) no-repeat center center fixed;
+    background-size: cover;
+}
+.main-section{
+    margin: 0 auto;
+    margin-top: 3%;
+}
+
+label{
+	font-weight: bold;
+}
+
+h1{
+	color: hsl(120,70%,60%);
+	font-style:italic;
+	text-align:center;
+}
+
+.close-button{
+	color: #b58250;
+}
+
+div.a{
+	text-align: right;
+}
+
+.card{
+	opacity: .95;
+}
+.card-body{
+    background-color: #f1e6de;
+    box-shadow: 0px 0px 3px #848484;
+}
+
+.panel{
+	opacity: .95;
+}
+
+.panel-body{
+	background: smokewhite;
+	opacity: 95;
+}
+
+

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Respaldo y Restauraci&oacute;n', plantilla='backup')">
+</head>
+<head>
+	<script th:inline="javascript">
+	function submitBackup(){
+		var params = {};
+		params["nameproc"] = [[${procname}]];
+	    $("#spinner").removeClass("d-none");
+	    
+		$.ajax({
+			type:"post",
+			url: "api/fondo/backup",
+			        
+	        contentType: "application/json",
+	        data: JSON.stringify(params),
+	        dataType: 'text',
+	        cache: false,
+	        timeout: 600000,
+	
+			success:function(data){
+				$("#spinner").addClass("d-none");
+				$("#successMessage").removeClass("d-none");
+	            $("#successMessage").html("El proceso de respaldo finaliz&oacute; exitosmante!.");
+	            $("#successMessage").show();
+	            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+			},
+			error: function (e){
+				$("#spinner").addClass("d-none");
+	            $("#errorMessage").removeClass( "d-none" );
+	            $("#successMessage").addClass( "d-none" );
+	            $("#errorMessage").html(e.responseText);
+				
+			}
+		});
+	}
+	
+	function submitRestore(){
+		var params = {};
+		params["nameproc"] = [[${procname}]];
+	    $("#spinner").removeClass("d-none");
+		$.ajax({
+			type:"post",
+			url: "api/fondo/restore",
+			        
+	        contentType: "application/json",
+	        data: JSON.stringify(params),
+	        dataType: 'text',
+	        cache: false,
+	        timeout: 600000,
+	
+			success:function(data){
+				$("#spinner").addClass("d-none");
+				$("#successMessage").removeClass("d-none");
+	            $("#successMessage").html("El proceso de restauraci&oacute;n finaliz&oacute; exitosmante!.");
+	            $("#successMessage").show();
+	            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+			},
+			error: function (e){
+				$("#spinner").addClass("d-none");
+	            $("#errorMessage").removeClass( "d-none" );
+	            $("#successMessage").addClass( "d-none" );
+	            $("#errorMessage").html(e.responseText);
+				
+			}
+		});
+	}
+</script>
+
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-user'"></div>
+	<div class="container mx-auto col-lg-10 main-section" >
+		<div class="card">
+			 	<div class="a">
+			 		<a href="#" th:href="@{'/home'}" class="nav-link"><span><i class="fas fa-times close-button" style="font-size:30px;"></i></span></a>
+			 	</div>
+			  <div class="card-body">
+			    <h4 class="card-title">Respaldo / Restauraci&oacute;n del Mes Anterior</h4>
+			      <div th:object="${help}" >
+			           <div class="text" id="textoAyuda" th:if="${help}" th:utext="${help.texto}"></div>  
+			      </div>
+
+				<table style="width:100%">
+					<tr>
+						<td style="text-align:left">
+							<a href="javascript:submitBackup()" class="card-link">Respaldo Mes Anterior 
+								<i class='fas fa-arrow-circle-down' style='font-size:24px;color:darkgreen'></i>
+							</a>
+						</td>
+						<td style="text-align:right">
+							<a href="javascript:submitRestore()" class="card-link">Restauraci&oacute;n Mes Anterior
+								<i class='fas fa-arrow-circle-up' style='font-size:24px;color:darkgreen'></i>
+							</a>
+						</td>
+					</tr>
+				</table>
+				<div class="row d-flex justify-content-center mt-100">
+					<div id="spinner" class="spinner-border text-success d-none" role="status">
+					  <span class="sr-only">Loading...</span>
+					</div>
+				</div>
+			  </div>
+		</div>
+
+		<div id="errorMessage"  class="card alert alert-danger text-center d-none" role="alert">Mensaje de Error</div>
+		<div id="successMessage" class="card alert alert-success text-center d-none" role="alert">Success Message</div>			
+	</div>		
+</body>
+</html>

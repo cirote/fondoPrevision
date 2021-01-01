@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Funcionarios MERCOSUR', plantilla='user-form')">
+</head>
+<head>
+	<!--  Nuestro js -->
+	<script th:inline="javascript">
+		function submitBackup(){
+			var params = {};
+			params["nameproc"] = [[${procname}]];
+		    $("#spinner").removeClass("d-none");
+		    
+			$.ajax({
+				type:"post",
+				url: "api/fondo/backup",
+				        
+		        contentType: "application/json",
+		        data: JSON.stringify(params),
+		        dataType: 'text',
+		        cache: false,
+		        timeout: 600000,
+		
+				success:function(data){
+					$("#spinner").addClass("d-none");
+					$("#successMessage").removeClass("d-none");
+		            $("#successMessage").html("El proceso de respaldo finaliz&oacute; exitosmante!.");
+		            $("#successMessage").show();
+		            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+				},
+				error: function (e){
+					$("#spinner").addClass("d-none");
+		            $("#errorMessage").removeClass( "d-none" );
+		            $("#successMessage").addClass( "d-none" );
+		            $("#errorMessage").html(e.responseText);
+					
+				}
+			});
+		}
+		
+		function submitRestore(){
+			var params = {};
+			params["nameproc"] = [[${procname}]];
+		    $("#spinner").removeClass("d-none");
+			$.ajax({
+				type:"post",
+				url: "api/fondo/restore",
+				        
+		        contentType: "application/json",
+		        data: JSON.stringify(params),
+		        dataType: 'text',
+		        cache: false,
+		        timeout: 600000,
+		
+				success:function(data){
+					$("#spinner").addClass("d-none");
+					$("#successMessage").removeClass("d-none");
+		            $("#successMessage").html("El proceso de restauraci&oacute;n finaliz&oacute; exitosmante!.");
+		            $("#successMessage").show();
+		            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+				},
+				error: function (e){
+					$("#spinner").addClass("d-none");
+		            $("#errorMessage").removeClass( "d-none" );
+		            $("#successMessage").addClass( "d-none" );
+		            $("#errorMessage").html(e.responseText);
+					
+				}
+			});
+		}
+	</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+        $('#plantaList').DataTable();
+        $('#cargos').DataTable();
+    } );
+    
+    window.setTimeout(function() {
+        $("#cnError").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 2000);
+
+    window.setTimeout(function() {
+        $("#cnSuccess").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 2000);
+   
+</script>
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-user'"></div>
+       <div class="mx-auto col-lg-12  main-section" id="funTab" role="tablist">
+           <ul class="nav nav-tabs justify-content-end">
+               <li class="nav-item">
+               <a class="nav-link" th:classappend=" ${formTab}" id="formTab" data-toggle="tab" href="#form" role="tab" aria-controls="form" aria-selected="false">Form</a>				   	
+               </li>
+               <li class="nav-item">
+               	<a class="nav-link" th:classappend=" ${plantaTab}" id="plantaTab" data-toggle="tab" href="#planta" role="tab" aria-controls="list" aria-selected="true">Lista de Planta</a>
+               </li>
+           </ul>
+           <div class="tab-content" id="funTabContent">
+               <div class="tab-pane fade show " th:classappend=" ${formTab}" id="form" role="tabpanel" aria-labelledby="form-tab">
+				<div class="card">
+					<div class="card-header">
+						<table style="width:100%">
+							<tr>
+								<td>
+									<h4 >Datos para abrir cuenta</h4>
+		          					<a href="#"  data-toggle="modal" data-target="#helpModal">
+	                        			<span aria-hidden="true"><i class="fas fa-info-circle"></i></span>Ayuda </a>
+								</td>
+								<td style="text-align:right">
+									<a href="javascript:submitBackup()" class="card-link">Respaldo Previo  
+										<i class='fas fa-arrow-circle-down' style='font-size:24px;color:darkgreen'></i>
+									</a><br>
+									<a href="javascript:submitRestore()" class="card-link">Restauraci&oacute;n a la situaci&oacute;n anterior
+										<i class='fas fa-arrow-circle-up' style='font-size:24px;color:darkgreen'></i>
+									</a>
+								</td>
+							</tr>
+						</table>
+						<div class="row d-flex justify-content-center mt-100">
+							<div id="spinner" class="spinner-border text-success d-none" role="status">
+							  <span class="sr-only">Loading...</span>
+							</div>
+						</div>
+						<div id="errorMessage"  class="card alert alert-danger text-center d-none" role="alert">Mensaje de Error</div>
+						<div id="successMessage" class="card alert alert-success text-center d-none" role="alert">Success Message</div>			
+					    <div id="cnError" class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+					    <div id="cnSuccess" class="alert alert-success text-center" th:if="${formSuccess}" th:text="${formSuccess}">Success Message</div>
+					</div>
+					<div class="card-body">
+						<div th:insert="funcionarios/newcuenta-form.html" th:remove="tag">
+						</div>
+					</div>
+				</div>
+               </div>
+               <div class="tab-pane fade show" th:classappend=" ${plantaTab}" id="planta" role="tabpanel" aria-labelledby="planta-tab">
+               	<div th:insert="funcionarios/planta-list.html" th:remove="tag"></div>
+               </div>
+           </div>
+       </div>
+	<div th:include="help-dialog.html" th:remove="tag"></div>       
+</body>
+</html>

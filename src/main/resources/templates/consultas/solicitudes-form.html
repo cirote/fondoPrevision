@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Consulta Solicitudes', plantilla='loglist')">
+</head>
+<head>
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        $('#solicitudesList').DataTable();
+	    } );
+	    
+		window.setTimeout(function() {
+		    $("#formError").fadeTo(500, 0).slideUp(500, function(){
+		        $(this).remove(); 
+		    });
+		}, 2000);
+
+	</script>
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-user'"></div>
+ 	<div class="container main-section" >
+	 	<div class="a">
+	 		<a href="#" th:href="@{'/home'}" class="nav-link"><span><i class="fas fa-times close-button" style="font-size:30px;"></i></span></a>
+	 	</div>
+		<div class="panel-group">
+	 		<div class="panel-heading" th:if="${outputMode and #lists.isEmpty(solicitudesList)}">
+	 			No hay solicitudes de Pr&eacute;stamo registradas a nombre de <span th:text="${funcionario.nombre}"></span>
+	 		</div>
+	 		<div class="panel panel-default" th:if="${outputMode and not(#lists.isEmpty(solicitudesList))}">
+	 			<div class="panel-heading" th:if="${outputMode}">
+	 				<h4>Solicitudes de Pr&eacute;stamo registradas a nombre de <span th:text="${funcionario.nombre}"></span></h4>
+	 			</div>
+	 			<div class="panel-body" th:if="${outputMode}">
+			      <div class="table-responsive">
+			          <table id="solicitudesList" class="table table-bordered table-hover table-striped table-sm">
+		              <thead class="thead-light">
+		              <tr>
+		                  <th scope="col">Fecha Sol.</th>
+		                  <th scope="col">Tipo Prst.</th>
+		                  <th scope="col" class="text-right">Capital</th>
+		                  <th scope="col" class="text-right">Tasa</th>
+		                  <th scope="col" class="text-right">Plazo</th>
+		                  <th scope="col" class="text-right">Cuota</th>
+		                  <th scope="col" class="text-right">Capital Neto</th>
+		                  <th scope="col">Cancela Prst.</th>
+		                  <th scope="col">Enviada al Fondo</th>
+		                  <th scope="col">Enviada a Com.</th>
+		                  <th scope="col">Aprobada</th>
+		                  <th scope="col">Rechazada</th>
+		                  <th scope="col">Procesada</th>
+		              </tr>
+		              </thead>
+		              <tbody>
+						<tr th:each="sol: ${solicitudesList}">
+							<td th:text="${#temporals.format(sol.fechaSolicitud, 'dd-MM-yyyy')}"></td>
+							<td th:text="${sol.tipoPrestamo.descripcion}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sol.capitalPrestamo,3,'POINT',2,'COMMA')}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sol.interesPrestamo, 1, 'POINT',2,'COMMA')}"></td>
+							<td class="text-right" th:text="${sol.cantCuotas}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sol.cuota,1, 'POINT', 2,'COMMA')}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sol.importeNeto, 3, 'POINT', 2, 'COMMA')}"></td>
+							<td class="text-right" th:text="${sol.cancelPrstNros}"></td>
+							<td class="text-center"><span th:if="${sol.enviadaAfondo}"><i class="fas fa-check-circle"></i></span></td>
+							<td class="text-center"><span th:if="${sol.enviadaAComision}"><i class="fas fa-check-circle"></i></span></td>
+							<td class="text-center">
+								<span th:if="${sol.aprobada}">
+									<i class="fas fa-check-circle"></i>
+								</span>
+								<span th:if="${sol.aprobada2}">
+									<i class="fas fa-check-circle"></i>
+								</span>
+								<span th:unless="${sol.aprobada}">
+								</span>
+							</td>
+							<td class="text-center">
+								<span th:if="${sol.rechazada}">
+									<i class="fas fa-check-circle"></i>
+								</span>
+								<span th:if="${sol.rechazada2}">
+									<i class="fas fa-check-circle"></i>
+								</span>
+								<span th:unless="${sol.rechazada}">
+								</span>
+							</td>
+							<td class="text-center"><span th:if="${sol.procesada}"><i class="fas fa-check-circle"></i></span></td>
+						</tr>
+		              </tbody>
+			          </table>
+			      </div>
+	 			</div>
+	 		</div>
+		</div>
+	</div>
+</body>
+</html>

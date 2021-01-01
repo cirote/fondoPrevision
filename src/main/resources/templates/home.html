@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/fragments/header :: head(titulo='Fondo Previsi&oacute;n Mercosur', plantilla='user-form')">
+</head>
+<head>
+
+<script type="text/javascript">
+function confirmDelete(id){
+	$('#deleteModal').modal('show');
+	$("#solIdHiddenInput").val(id);
+}
+
+function deleteSolicitud(){
+	var id = $("#solIdHiddenInput").val();
+    window.location = "/fondoPrevision/deleteSolicitud/"+id;
+}
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+        $('#lstSolicitudes').DataTable();
+        $('#lstSolComision').DataTable();
+    } );
+</script>
+</head>
+
+<body>
+ 
+	<div sec:authorize="hasRole('ROLE_ADMIN')">
+		<div th:replace="/fragments/header :: 'header-admin'"></div>
+	</div>
+	<div sec:authorize="hasRole('ROLE_SUPERVISOR')">
+		<div th:replace="/fragments/header :: 'header-supervisor'"></div>
+	</div>
+	<div sec:authorize="hasRole('ROLE_USER')">
+		<div th:replace="/fragments/header :: 'header-user'"></div>
+	</div>  
+	
+<!--	<div th:replace="/fragments/header :: ${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : [${#authorization.expression('hasRole(''ROLE_SUPERVISOR'')')} ? 'header-supervisor' : 'header-user']"></div> -->
+
+	<div class="container-fluid welcome-section" th:if="${#authorization.expression('hasRole(''ROLE_USER'')')}">
+		<h1 th:text="#{home.welcome}">Bienvenido(a)</h1>
+		<h1><span th:text="${loggedUser.nombre}"></span></h1>
+		<div class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+	</div>
+	<div class="container-fluid" th:if="${#authorization.expression('hasRole(''ROLE_SUPERVISOR'')')}">
+		<div class="group-margin text-center">
+			<h1 th:text="#{home.welcome}"></h1>
+			<h1><span th:text="${loggedUser.nombre}"></span></h1>
+		</div>
+		<div class="card">
+			<div class="card-header">
+				<div class="group-margin text-center" th:if="${sinSolicitudes}">
+					<h3 style="color: hsl(120,70%,60%); font-style: italic;">No hay Solicitudes Nuevas Enviadas</h3>
+					<div class="a">
+						<a href="#" th:href="@{/solicitudForm}">Ingresar Nueva Solicitud
+						<i class="fas fa-file"></i></a>
+					</div>
+				</div>	
+				<table style="width:100%" th:if="!${sinSolicitudes}">
+					<tr>
+						<td>
+							<h5>Solicitudes Enviadas para Autorizar</h5>
+						</td>
+						<td style="text-align:right">
+							<a href="#" th:href="@{/solicitudForm}">Ingresar Nueva Solicitud
+							<i class="fas fa-file"></i></a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="card-body group-margin" th:if="!${sinSolicitudes}">
+		      <div class="table-responsive">
+		          <table id="lstSolComision" class="table table-bordered table-hover table-striped table-sm ">
+		              <thead class="thead-light">
+		              <tr>
+		                  <th scope="col">Fecha Sol.</th>
+		                  <th scope="col">Funcionario</th>
+		                  <th scope="col">Tipo Prst.</th>
+		                  <th scope="col" class="text-right">Capital</th>
+		                  <th scope="col" class="text-right">Tasa</th>
+		                  <th scope="col" class="text-right">Plazo</th>
+		                  <th scope="col" class="text-right">Cuota</th>
+		                  <th scope="col" class="text-right">Capital Neto</th>
+		                  <th scope="col">Cancela Prst.</th>
+		                  <th scope="col">Aprobada</th>
+		                  <th scope="col">Rechazada</th>
+		                  <th></th>
+		              </tr>
+		              </thead>
+		              <tbody>
+						<tr th:each="sol: ${lstSolicitudes}">
+							<td th:text="${#temporals.format(sol.fechaSolicitud, 'dd-MM-yyyy')}"></td>
+							<td th:text="${sol.funcionario.nombre}"></td>
+							<td th:text="${sol.tipoPrestamo.descripcion}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sol.capitalPrestamo,3,'POINT',2,'COMMA')}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sol.interesPrestamo, 1, 'POINT',2,'COMMA')}"></td>
+							<td class="text-right" th:text="${sol.cantCuotas}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sol.cuota,1, 'POINT', 2,'COMMA')}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sol.importeNeto, 3, 'POINT', 2, 'COMMA')}"></td>
+							<td class="text-right" th:text="${sol.cancelPrstNros}"></td>
+							<td class="text-center">
+								<span th:if=${sol.aprobada}>
+									<i class="fas fa-check-circle"></i>
+								</span>
+								<span th:if=${sol.aprobada2}>
+									<i class="fas fa-check-circle"></i>
+								</span>
+								<span th:unless="${sol.aprobada}">
+									<br>
+								</span>
+							</td>
+							<td class="text-center">
+								<span th:if="${sol.rechazada}">
+									<i class="fas fa-check-circle"></i>
+								</span>
+								<span th:if="${sol.rechazada2}">
+									<i class="fas fa-check-circle"></i>
+								</span>
+								<span th:unless="${sol.rechazada}">
+									<br>
+								</span>
+							</td>
+							<td>
+								<span th:if="${#authorization.expression('hasRole(''ROLE_SUPERVISOR'')')}">
+									<a href="#" th:href="@{'/pdfSolicitudreport/' + ${sol.idfsolicitud}}"><i class="fas fa-print"></i></a>
+								</span>
+								<span th:if="${#authorization.expression('hasRole(''ROLE_SUPERVISOR'')')}">
+		    						 <a href="#" th:href="@{'/autorizarSolicitud/'+ ${sol.idfsolicitud}}"><i class="fas fa-edit"></i></a>
+								</span>
+							</td>
+							
+						</tr>
+		              </tbody>
+		          </table>
+		      </div>
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+		<div class="group-margin text-center">
+			<h1 th:text="#{home.welcome} "> </h1>
+	  		<h1><span  th:text="${loggedUser.nombre}"></span></h1> 
+	  		<br>
+	  		<h4 style="color: hsl(120,70%,60%); font-style: italic;" th:text="'Mes Liquidaci&oacute;n registrado ' + ${mesLiquidacion}"></h4>
+		</div>
+		<div class="card">
+			<div class="card-header">
+				<div class="group-margin text-center" th:if="${sinSolicitudes}">
+					<h3 style="color: hsl(120,70%,60%); font-style: italic;">No hay Solicitudes Nuevas Enviadas</h3>
+					<div class="a">
+						<a href="#" th:href="@{/newSolFormByAdmin}">Ingresar Nueva Solicitud
+						<i class="fas fa-file"></i></a>
+					</div>
+				</div>	
+				<table style="width:100%" th:if="!${sinSolicitudes}">
+					<tr>
+						<td>
+							<h5>Solicitudes de Pr&eacute;stamo</h5>
+						</td>
+						<td style="text-align:right">
+							<a href="#" th:href="@{/newSolFormByAdmin}">Ingresar Nueva Solicitud
+							<i class="fas fa-file"></i></a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="card-body group-margin" th:if="!${sinSolicitudes}">
+		      <div class="table-responsive" th:if="${ not #lists.isEmpty(lstSolicitudes)}">
+		      		<h5>Nuevas</h5></span>
+		          <table id="lstSolicitudes" class="table table-bordered table-hover table-striped table-sm ">
+		              <thead class="thead-light">
+		              <tr>
+		                  <th scope="col">Fecha Sol.</th>
+		                  <th scope="col">Funcionario</th>
+		                  <th scope="col">Tipo Prst.</th>
+		                  <th scope="col" class="text-right">Capital</th>
+		                  <th scope="col" class="text-right">Tasa</th>
+		                  <th scope="col" class="text-right">Plazo</th>
+		                  <th scope="col" class="text-right">Cuota</th>
+		                  <th scope="col" class="text-right">Capital Neto</th>
+		                  <th scope="col">Cancela Prst.</th>
+		                  <th></th>
+		              </tr>
+		              </thead>
+		              <tbody>
+						<tr th:each="sol: ${lstSolicitudes}">
+							<td th:text="${#temporals.format(sol.fechaSolicitud, 'dd-MM-yyyy')}"></td>
+							<td th:text="${sol.funcionario.nombre}"></td>
+							<td th:text="${sol.tipoPrestamo.descripcion}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sol.capitalPrestamo,3,'POINT',2,'COMMA')}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sol.interesPrestamo, 1, 'POINT',2,'COMMA')}"></td>
+							<td class="text-right" th:text="${sol.cantCuotas}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sol.cuota,1, 'POINT', 2,'COMMA')}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sol.importeNeto, 3, 'POINT', 2, 'COMMA')}"></td>
+							<td class="text-center" th:text="${sol.cancelPrstNros}"></td>
+							<td>
+								<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+									<a href="#" th:href="@{'/pdfSolicitudreport/' + ${sol.idfsolicitud}}"><i class="fas fa-print"></i></a>
+								</span>
+								<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+		    						 <a href="#" th:href="@{'/editSolicitud/'+ ${sol.idfsolicitud}}" title="Editar Sol."><i class="fas fa-edit"></i></a>
+								</span>
+								<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}" >
+									 <a href="#" th:onclick="'javascript:confirmDelete(\''+ ${sol.idfsolicitud} +'\');'"><i class="fas fa-eraser"></i></a>
+								</span>	
+							</td>
+							
+						</tr>
+		              </tbody>
+		          </table>
+		      </div>
+		      <div class="table-responsive" th:if="${ not #lists.isEmpty(lstDevueltas)}">
+		      		<h5>Devueltas por la Comisi&oacute;n</h5>
+		          <table id="lstDevueltas" class="table table-bordered table-hover table-striped table-sm ">
+		              <thead class="thead-light">
+		              <tr>
+		                  <th scope="col">Fecha Sol.</th>
+		                  <th scope="col">Funcionario</th>
+		                  <th scope="col">Tipo Prst.</th>
+		                  <th scope="col" class="text-right">Capital</th>
+		                  <th scope="col" class="text-right">Tasa</th>
+		                  <th scope="col" class="text-right">Plazo</th>
+		                  <th scope="col" class="text-right">Cuota</th>
+		                  <th scope="col" class="text-right">Capital Neto</th>
+		                  <th scope="col">Cancela Prst.</th>
+		                  <th scope="col">Aprobada</th>
+		                  <th scope="col">Rechazada</th>
+		                  <th></th>
+		              </tr>
+		              </thead>
+		              <tbody>
+						<tr th:each="sl: ${lstDevueltas}">
+							<td th:text="${#temporals.format(sl.fechaSolicitud, 'dd-MM-yyyy')}"></td>
+							<td th:text="${sl.funcionario.nombre}"></td>
+							<td th:text="${sl.tipoPrestamo.descripcion}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sl.capitalPrestamo,3,'POINT',2,'COMMA')}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sl.interesPrestamo, 1, 'POINT',2,'COMMA')}"></td>
+							<td class="text-right" th:text="${sl.cantCuotas}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sl.cuota,1, 'POINT', 2,'COMMA')}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(sl.importeNeto, 3, 'POINT', 2, 'COMMA')}"></td>
+							<td class="text-right" th:text="${sl.cancelPrstNros}"></td>
+							<td class="text-center">
+								<span th:if=${sl.aprobada}>
+									<i class="fas fa-check-circle"></i>
+								</span>
+								<span th:if=${sl.aprobada2}>
+									<i class="fas fa-check-circle"></i>
+								</span>
+								<span th:unless="${sl.aprobada}">
+									<br>
+								</span>
+							</td>
+							<td class="text-center">
+								<span th:if="${sl.rechazada}">
+									<i class="fas fa-check-circle"></i>
+								</span>
+								<span th:if="${sl.rechazada2}">
+									<i class="fas fa-check-circle"></i>
+								</span>
+								<span th:unless="${sl.rechazada}">
+									<br>
+								</span>
+							</td>
+							<td>
+								<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+									<a href="#" th:href="@{'/pdfSolicitudreport/' + ${sl.idfsolicitud}}"><i class="fas fa-print"></i></a>
+								</span>
+								<span>
+		          					| <a href="#" th:data-obs="${sl.motivo}" data-toggle="modal" data-target="#obsModal">
+		                        		<i class="fas fa-search"></i></a>
+								</span>
+								<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') && sl.aprobada && sl.aprobada2}">
+		    						| <a href="#" th:href="@{'/procesarSolicitud/'+ ${sl.idfsolicitud}}" title="Procesar Sol."><i class="fas fa-edit"></i></a>
+								</span>
+								<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') && sl.rechazada && sl.rechazada2}" >
+									| <a href="#" th:onclick="'javascript:confirmDelete(\''+ ${sl.idfsolicitud} +'\');'"><i class="fas fa-eraser"></i></a>
+								</span>	
+							</td>
+							
+						</tr>
+		              </tbody>
+		          </table>
+		      </div>
+			</div>
+		</div>
+	</div>
+	<div th:include="solicitudesPrst/confirm-delete-dialog.html" th:remove="tag"></div>
+	<div th:include="observ-dialog.html" th:remove="tag"></div>
+	<script type="text/javascript">
+		$('#obsModal').on('show.bs.modal', function(e){
+			var obs = $(e.relatedTarget).data('obs');
+			if(obs === undefined){
+				obs = 'No se agregaron observaciones';
+			}
+			$('#textoAyuda').html(obs);
+		});
+	</script>
+</body>
+</html>

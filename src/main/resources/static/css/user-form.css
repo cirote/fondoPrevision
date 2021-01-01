@@ -1,0 +1,133 @@
+body{
+    background: url(../img/fall-autumn-red-season.jpg) no-repeat center center fixed;
+    background-size: cover;
+}
+h1{
+	color: hsl(120,70%,60%);
+	font-style:italic;
+	text-align:center;
+}
+
+.welcome-section{
+	margin: 0 auto;
+	margin-top:20%;
+}
+.main-section{
+    margin: 0 auto;
+    margin-top: 3%;
+}
+
+.thead-text{
+	font-weight: normal;
+}
+
+.panel{
+	opacity: .95;
+}
+
+.panel-heading{
+	margin-block-start: 10px;
+	box-shadow: 0px 2px 3px #848484;
+}
+
+.panel-body{
+	margin-block-end: 10px;
+	padding: 25px;
+	box-shadow: 0px 2px 3px #848484;
+}
+
+.card{
+	opacity: .95;
+}
+.card-body{
+    background-color: #f1f0de;
+    box-shadow: 0px 0px 3px #848484;
+}
+
+.group-margin{
+	margin-top:2%;
+}
+
+div.a{
+	text-align: right;
+}
+
+.text-cuota{
+	color: #14b31c;
+}
+
+
+label{
+	font-weight: bold;
+}
+
+.con-margen{
+	margin-left:10px;
+}
+
+.close-tab{
+	background-color:#c4bbb3;
+}
+
+.nav-tabs .nav-item a:not(.active){
+	background-color: #d1d3d6;
+}
+
+.nav-tabs{
+	border-bottom:0px;
+}
+
+.nav-item{
+	font-size:16px;
+}
+
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 150%;
+  left: 50%;
+  margin-left: -60px;
+}
+
+.tooltip .tooltiptext::after {
+  content: " ";
+  position: absolute;
+  top: 100%; /* At the bottom of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+	/* shows a button like a link
+.btn-link {
+    border: none;
+    outline: none;
+    background: none;
+    cursor: pointer;
+    color: #0000EE;
+    padding: 0;
+    text-decoration: underline;
+    font-family: inherit;
+    font-size: inherit;
+}

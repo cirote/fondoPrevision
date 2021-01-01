@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+</head>
+<body>
+      <div class="table-responsive" >
+          <table id="lstDevueltas"  th:object="${solicitudesList}" class="table table-bordered table-hover table-striped table-sm ">
+              <thead class="thead-light">
+              <tr>
+                  <th scope="col">Fecha Sol.</th>
+                  <th scope="col">Funcionario</th>
+                  <th scope="col">Tipo Prst.</th>
+                  <th scope="col" class="text-right">Capital</th>
+                  <th scope="col" class="text-right">Tasa</th>
+                  <th scope="col" class="text-right">Plazo</th>
+                  <th scope="col" class="text-right">Cuota</th>
+                  <th scope="col" class="text-right">Capital Neto</th>
+                  <th scope="col">Cancela Prst.</th>
+                  <th scope="col">Aprobada</th>
+                  <th scope="col">Rechazada</th>
+                  <th></th>
+              </tr>
+              </thead>
+              <tbody>
+				<tr th:each="sl: ${solicitudesList}">
+					<td th:text="${#temporals.format(sl.fechaSolicitud, 'dd-MM-yyyy')}"></td>
+					<td th:text="${sl.funcionario.nombre}"></td>
+					<td th:text="${sl.tipoPrestamo.descripcion}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(sl.capitalPrestamo,3,'POINT',2,'COMMA')}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(sl.interesPrestamo, 1, 'POINT',2,'COMMA')}"></td>
+					<td class="text-right" th:text="${sl.cantCuotas}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(sl.cuota,1, 'POINT', 2,'COMMA')}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(sl.importeNeto, 3, 'POINT', 2, 'COMMA')}"></td>
+					<td class="text-right" th:text="${sl.cancelPrstNros}"></td>
+					<td class="text-center">
+						<span th:if=${sl.aprobada}>
+							<i class="fas fa-check-circle"></i>
+						</span>
+						<span th:if=${sl.aprobada2}>
+							<i class="fas fa-check-circle"></i>
+						</span>
+						<span th:unless="${sl.aprobada}">
+							<br>
+						</span>
+					</td>
+					<td class="text-center">
+						<span th:if="${sl.rechazada}">
+							<i class="fas fa-check-circle"></i>
+						</span>
+						<span th:if="${sl.rechazada2}">
+							<i class="fas fa-check-circle"></i>
+						</span>
+						<span th:unless="${sl.rechazada}">
+							<br>
+						</span>
+					</td>
+					<td>
+						<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+							<a href="#" th:href="@{'/pdfSolicitudreport/' + ${sl.idfsolicitud}}"><i class="fas fa-print"></i></a>
+						</span>
+						<span>
+          					| <a href="#" th:data-obs="${sl.motivo}" data-toggle="modal" data-target="#obsModal">
+                        		<i class="fas fa-search"></i></a>
+						</span>
+						<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+    						| <a href="#" th:href="@{'/procesarSolicitud/'+ ${sl.idfsolicitud}}" title="Procesar Sol."><i class="fas fa-edit"></i></a>
+						</span>
+					</td>
+					
+				</tr>
+              </tbody>
+          </table>
+      </div>
+
+</body>
+</html>

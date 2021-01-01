@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Cuenta Global', plantilla='loglist')">
+</head>
+<head>
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        $('#resumenList').DataTable();
+	        $('#lstDetalle').DataTable();
+	    } );
+	</script>
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-user'"></div>
+ 	<div class="container main-section" th:object="${cuentaGlobalForm}">
+	 	<div class="a">
+	 		<a href="#" th:href="@{'/home'}" class="nav-link"><span><i class="fas fa-times close-button" style="font-size:30px;"></i></span></a>
+	 	</div>
+ 		<div class="panel-group">
+	 		<div class="panel panel-default">
+	 			<div class="panel-heading">
+		 			<h4>Cuenta Global - Resumen por Mes</h4>
+	 			</div>
+	 			<div class="panel-body">
+	 				<form id="estadoform" th:action="@{/cuentaGlobalDetalle}" class="form" autocomplete="off" method="post" role="form">
+	 					<table style="width: 100%">
+	 						<tr>
+	 							<td>
+			 						<div class="form-group row">
+						   				<label class="col-lg-4 text-left">Total Anual Actual U$S</label>
+							           <div class="col-lg-3">
+							           		<span class="text" th:text="${#numbers.formatDecimal(cuentaGlobalForm.sumaTotal, 2, 'POINT', 2, 'COMMA')}"></span>
+							           </div>
+									</div>
+	 							</td>
+                       			<td style="text-align:right">
+								    <a th:href="@{/pdfCtaGlobalExport}" class="card-link"> Export a Pdf
+							           <i class='fas fa-file-pdf' style='font-size:24px;'></i>
+							        </a>
+								    <a th:href="@{/excelCtaGlobalExport}" class="card-link"> Export a Excel
+							           <i class='fas fa-file-excel' style='font-size:24px;'></i>
+							        </a>
+                       			</td>
+	 						</tr>
+	 					</table>
+	 				</form>
+			      <div class="table-responsive">
+			          <table id="lstResumen" class="table table-bordered table-hover table-striped table-sm">
+			              <thead class="thead-light">
+			              <tr>
+			                  <th scope="col">Fecha </th>
+			                  <th scope="col">Mes Liquidacion</th>
+			                  <th scope="col">Importe Total del Mes</th>
+			              </tr>
+			              </thead>
+			              <tbody>
+							<tr th:each="cg: ${cuentaGlobalForm.lstResumen}">
+								<td th:text="${#dates.format(cg.fecha, 'dd-MM-yyyy')}"></td>
+								<td><a  th:href="@{|/cuentaDetalle/${cg.mesliquidacion}|}" th:text="${#strings.substring(cg.mesliquidacion, 4, 6) + '/' + #strings.substring(cg.mesliquidacion, 0, 4)}"></a></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(cg.importe,2,'POINT',2,'COMMA')}"></td>
+							</tr>
+			              </tbody>
+			          </table>
+			      </div>
+	 			</div>
+	 		</div>
+	 		<div class="panel panel-default" th:if="${outputMode and not(#lists.isEmpty(cuentaGlobalForm.lstDetalle))}">
+	 			<div class="panel-heading" th:if="${outputMode}">
+	 				<h4>Detalle del Mes: <span th:text="${cuentaGlobalForm.mesLiquidacion}"></span></h4>
+	 			</div>
+	 			<div class="panel-body" th:if="${outputMode}">
+			      <div class="table-responsive">
+			          <table id="lstDetalle" class="table table-bordered table-hover table-striped table-sm">
+			              <thead class="thead-light">
+			              <tr>
+			                  <th scope="col">Fecha Prst.</th>
+			                  <th scope="col">Mes Liquidacion</th>
+			                  <th scope="col" class="text-right">Nro. Prst</th>
+			                  <th scope="col" class="text-center">Titular</th>
+			                  <th scope="col" class="text-right">Nro. Cuota</th>
+			                  <th scope="col" class="text-right">Importe</th>
+			              </tr>
+			              </thead>
+			              <tbody>
+							<tr th:each="detcg: ${cuentaGlobalForm.lstDetalle}">
+								<td th:text="${#dates.format(detcg.fecha, 'dd-MM-yyyy')}"></td>
+								<td th:text="${#strings.substring(detcg.mesliquidacion, 4, 6) + '/' + #strings.substring(detcg.mesliquidacion, 0, 4)}"></td>
+								<td class="text-right" th:text="${detcg.nroPrestamo}"></td>
+								<td th:text="${detcg.titular}">
+								<td class="text-right" th:text="${detcg.nroCuota}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(detcg.importe,1,'POINT',2,'COMMA')}"></td>
+							</tr>
+			              </tbody>
+			          </table>
+			      </div>
+	 			</div>
+	 		</div>
+		</div>
+	</div>
+</body>
+</html>

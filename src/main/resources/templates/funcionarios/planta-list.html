@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<script type="text/javascript">
+    $(document).ready(function() {
+        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+        $('#plantaSMList').DataTable();
+        $('#plantaUTFList').DataTale();
+    } );
+    
+</script>
+
+</head>
+<body>
+	<div id="accordion">
+		<div class="card">
+			<div class="card-header" id="headingOne">
+				<table>
+					<tr>
+						<td>
+							<h4 class="mb-0">
+								<button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+									aria-expanded="true" aria-controls="collapseOne">
+									Funcionarios de la SM
+								</button>
+							</h4>
+						</td>
+						<td>
+						    <div id="plError" class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+						    <div id="plSuccess" class="alert alert-success text-center" th:if="${formSuccess}" th:text="${formSuccess}">Success Message</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+				<div class="card-body table-responsive">	       <!-- Lista de funcionarios SM-->
+		           <table id="plantaSMList" class="table table-bordered table-hover table-striped table-sm">
+		               <thead class="thead-light">
+		               <tr>
+		                   <th scope="col">#</th>
+		                   <th scope="col">Nro. Func.</th>
+		                   <th scope="col">Nombre</th>
+		                   <th scope="col">Documento</th>
+		                   <th scope="col">Nacionalidad</th>
+		                   <th scope="col">Fecha Ingreso</th>
+		                   <th scope="col">Cargo</th>
+		                   <th></th>
+		               </tr>
+		               </thead>
+		               <tbody>
+							<tr th:each="gplanta: ${plantaSMList}">
+								<td th:text="${gplanta.idgplanta}"></td>
+								<td th:text="${gplanta.tarjeta}"></td>
+								<td th:text="${gplanta.nombre}"></td>
+								<td th:text="${gplanta.documento}"></td>
+								<td th:text="${gplanta.nacionalidad}"></td>
+								<td th:text="${#dates.format(gplanta.ingreso, 'dd-MM-yyyy')}"></td>
+								<td th:text="${gplanta.gcargo.descripCargo}"></td>
+								<td>
+									<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+										<a href="#" th:href="@{'/editCuenta/'+${gplanta.tarjeta}}">
+										<i class="fas fa-edit" title="editar informacion"></i></a>
+			    						<a href="#" th:href="@{'/creaCuenta/'+ ${gplanta.tarjeta}}">
+			    						<i class="fas fa-id-badge" title="crear cuenta"></i></a>
+									</span>
+								</td>
+							</tr>
+		               </tbody>
+		           </table>
+				</div>
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-header" id="headingTwo">
+				<h4 class="mb-0">
+					<button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo"
+						aria-expanded="false" aria-controls="collapseTwo">
+						Funcionarios de la UTF
+					</button>
+				</h4>
+			</div>
+			<div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+		       <div class="card-body table-responsive">
+		           <table id="plantaUTFList" class="table table-bordered table-hover table-striped table-sm">
+		               <thead class="thead-light">
+		               <tr>
+		                   <th scope="col">#</th>
+		                   <th scope="col">Nro. Tarjeta</th>
+		                   <th scope="col">Nombre</th>
+		                   <th scope="col">Documento</th>
+		                   <th scope="col">Nacionalidad</th>
+		                   <th scope="col">Fecha Ingreso</th>
+		                   <th scope="col">Cargo</th>
+		                   <th></th>
+		               </tr>
+		               </thead>
+		               <tbody>
+							<tr th:each="func: ${plantaUTFList}">
+								<td th:text="${func.idgplanta}"></td>
+								<td th:text="${func.tarjeta}"></td>
+								<td th:text="${func.nombre}"></td>
+								<td th:text="${func.documento}"></td>
+								<td th:text="${func.nacionalidad}"></td>
+								<td th:text="${#dates.format(func.ingreso, 'dd-MM-yyyy')}"></td>
+								<td th:text="${func.gcargo.descripCargo}"></td>
+								<td>
+									<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+										<a href="#" th:href="@{'/editCuenta/'+${func.tarjeta}}">
+										<i class="fas fa-edit" title="editar informacion"></i></a>
+			    						<a href="#" th:href="@{'/creaCuenta/'+ ${func.tarjeta}}">
+			    						<i class="fas fa-id-badge" title="crear cuenta"></i></a>
+									</span>
+								</td>
+							</tr>
+		               </tbody>
+		           </table>
+		       </div>
+			</div>
+		</div>
+	</div>	       <!-- Termina Accordion-->
+	
+	<div id="deleteError" th:if="${listErrorMessage}" class="alert alert-danger text-center" role="alert">
+		<span th:text="${listErrorMessage}"></span>
+	</div>
+</body>
+</html>
+

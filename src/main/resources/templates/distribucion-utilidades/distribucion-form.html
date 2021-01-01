@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Distribuci&oacute;n de Utilidades', plantilla='user-form')">
+</head>
+<head>
+	<script th:inline="javascript">
+	
+	function submitBackup(idproc){
+		var params = {};
+		params["nombreproc"] = [[${procname}]];
+		if(idproc === undefined){
+			idproc = 0;
+		}
+		else{
+			params["idproc"] = idproc;		
+		}
+	    $("#spinner").removeClass("d-none");
+	    
+		$.ajax({
+			type:"post",
+			url: "api/fondo/backup/intermedio",
+			        
+	        contentType: "application/json",
+	        data: JSON.stringify(params),
+	        dataType: 'text',
+	        cache: false,
+	        timeout: 600000,
+	
+			success:function(data){
+	            $("#spinner").addClass("d-none");
+				$("#successMessage").removeClass("d-none");
+	            $("#successMessage").html("El proceso de respaldo finaliz&oacute; exitosmante!.");
+	            $("#successMessage").show();
+	            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+	
+			},
+			error: function (e){
+				$("#spinner").addClass("d-none");
+	            $("#errorMessage").removeClass( "d-none" );
+	            $("#successMessage").addClass( "d-none" );
+	            $("#errorMessage").html(e.responseText);
+				
+			}
+		});
+	}
+	
+	function submitRestore(idproc){
+		var params = {};
+		params["nombreproc"] = [[${procname}]];
+		if(idproc === undefined){
+			idproc = 0;
+		}
+		else{
+			params["idproc"] = idproc;		
+		}
+	    $("#spinner").removeClass("d-none");
+		$.ajax({
+			type:"post",
+			url: "api/fondo/restore/intermedio",
+			        
+	        contentType: "application/json",
+	        data: JSON.stringify(params),
+	        dataType: 'text',
+	        cache: false,
+	        timeout: 600000,
+	
+			success:function(data){
+				$("#spinner").addClass("d-none");
+				$("#successMessage").removeClass("d-none");
+	            $("#successMessage").html("El proceso de restauraci&oacute;n finaliz&oacute; exitosmante!.");
+	            $("#successMessage").show();
+	            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+	 		},
+			error: function (e){
+				$("#spinner").addClass("d-none");
+	            $("#errorMessage").removeClass( "d-none" );
+	            $("#successMessage").addClass( "d-none" );
+	            $("#errorMessage").html(e.responseText);
+				
+			}
+		});
+	}
+	
+	window.setTimeout(function() {
+	    $("#ferror").fadeTo(500, 0).slideUp(500, function(){
+	        $(this).remove(); 
+	    });
+	}, 2000);
+	</script>
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        $('#resultadoList').DataTable();
+	    } );
+	</script>
+
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-user'"></div>
+	<div class="container" >
+		<div class="mx-auto col-lg-12 main-section">
+			<div class="card">
+				<div class="card-header">
+                   	<table style="width:100%">
+                   		<tr>
+                   			<td><h4>Distribuci&oacute;n de Utilidades</h4></td>
+							<td style="text-align:right">
+								<a href="javascript:submitBackup(1)" class="card-link"> Respaldo Previo a la Distribuci&oacute;n de Utilidades 
+									<i class='fas fa-arrow-circle-down' style='font-size:24px;color:darkgreen'></i>
+								</a>
+							</td>
+                   		</tr>
+                   		<tr>
+                   			<td>
+	          					<a href="#"  data-toggle="modal" data-target="#helpModal">
+                        			<span aria-hidden="true"><i class="fas fa-info-circle"></i></span>Ayuda </a>
+                   			</td>
+							<td style="text-align:right">
+								<a href="javascript:submitRestore(1)" class="card-link">Restauraci&oacute;n a la situaci&oacute;n anterior
+									<i class='fas fa-arrow-circle-up' style='font-size:24px;color:darkgreen'></i>
+								</a>
+							</td>
+                   		</tr>
+                   	</table>
+					<div class="row d-flex justify-content-center mt-100">
+						<div id="spinner" class="spinner-border text-success d-none" role="status">
+						  <span class="sr-only">Loading...</span>
+						</div>
+						<div id="errorMessage"  class="card alert alert-danger text-center d-none" role="alert">Mensaje de Error</div>
+						<div id="successMessage" class="card alert alert-success text-center d-none" role="alert">Success Message</div>			
+					</div>
+				</div>
+				<div class="card-body">
+					<form class="form" th:action="@{/ejecutarDistribucion}" th:object="${distribForm}"  method="post" role="form" autocomplete="off">
+						<table style="width: 100%">
+							<tr>
+								<td>
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h5>Per&iacute;odo</h5>
+										</div>
+										<div class="panel-body">
+											<div class="form-group row">
+												<label class="col-lg-4 col-form-label form-control-label">Mes Inicial</label>
+												<input class="col-lg-3 form-control" type="text" th:field="${distribForm.mesInicial}"
+													placeholder="mm/yyyy" title="se solicita ingresar respetando el formato">
+												<div class="alert-danger" th:if="${#fields.hasErrors('mesInicial')}" th:errors="*{mesInicial}">MesFinal</div>					
+											</div>
+											<div class="form-group row">					
+												<label class="col-lg-4 col-form-label form-control-label">Mes Final</label>
+												<input class="col-lg-3 form-control" id="mesfin" type="text" th:field="${distribForm.mesFinal}"
+													placeholder="mm/yyyy" title="se solicita ingresar respetando el formato">
+												<div class="alert-danger" th:if="${#fields.hasErrors('mesFinal')}" th:errors="*{mesFinal}">MesFinal</div>					
+											</div>
+										</div>
+									</div>								
+								</td>
+								<td>
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h5>Intereses y Cta. Global</h5>
+										</div>
+										<div class="panel-body">
+											<div class="form-group row">
+												<label class="col-lg-6 col-form-label form-control-label">Suma a Distribuir</label>
+												<input class="col-lg-4 form-control" type="text" th:field="${distribForm.totalAdistrib}">
+												<div class="alert-danger" th:if="${#fields.hasErrors('totalAdistrib')}" th:errors="*{totalAdistrib}">suma ingresada</div>
+											</div>
+											<div class="form-group row">
+												<label class="col-lg-6 col-form-label form-control-label">Saldo de la Cta. Global</label>
+												<div class="col-lg-4">
+													<span th:text="${distribForm.saldoCtaGlobal}"></span>
+												</div>
+											</div>
+										</div>
+									</div>								
+								</td>
+							</tr>
+						</table>
+						<div class="col-lg-12 text-center ">
+							<div class="col-lg-12 text-center">
+						   		<button class="btn btn-secondary" type="submit" name="saldoctaglobal">Saldo Cta. Global</button>
+ 						   	    <button id="boton" type="submit" class="btn btn-primary" name="distribuir" >Hacer Distrib.</button>
+							 	<a href="#" th:href="@{'/home'}" class="btn btn-secondary" style="margin-left:2px;">
+							 	    <span> Cerrar </span> <span class="float-right" style="padding-left:6px;"><i class="fas fa-sign-out-alt"></i></span>
+								</a>
+							</div>
+						</div>
+					</form>
+					<div id="fmess">
+					    <div id="ferror" class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+					    <div id="fsuccess" class="alert alert-success text-center" th:if="${formSuccess}" th:text="${formSuccess}">Success Message</div>
+					</div>					
+					<div class="panel panel-default table-responsive" th:if="${outputMode and not(#lists.isEmpty(resultadoList))}">
+						<div class="panel-heading">
+							<h5>Resultado de la Distribuci&oacute;n</h5>
+						</div>
+						<div class="panel-body">
+					          <table id="resultadoList" class="table table-bordered table-hover table-striped table-sm">
+					              <thead class="thead-light">
+					              <tr>
+					                  <th scope="col">Nro. Func.</th>
+					                  <th scope="col">Nombre</th>
+					                  <th scope="col">Cap. Disp. Anterior</th>
+					                  <th scope="col">Cap. Disp. Actual</th>
+					                  <th scope="col">Cap. Integ. Anterior</th>
+					                  <th scope="col">Cap. Integ. Actual</th>
+					                  <th scope="col">Pct. Funcionario</th>
+					                  <th scope="col">Resultado Distribuci&oacute;n</th>
+					              </tr>
+					              </thead>
+					              <tbody>
+									<tr th:each="rd: ${resultadoList}">
+										<td class="text-right" th:text="${rd.tarjeta}"></td>
+										<td th:text="${rd.nombre}"></td>
+										<td class="text-right" th:text="${#numbers.formatDecimal(rd.capitalDispAntes,3,'POINT',2,'COMMA')}"></td>
+										<td class="text-right" th:text="${#numbers.formatDecimal(rd.capitalDispActual, 3, 'POINT',2,'COMMA')}"></td>
+										<td class="text-right" th:text="${#numbers.formatDecimal(rd.capitalIntegAntes, 3, 'POINT',2,'COMMA')}"></td>
+										<td class="text-right" th:text="${#numbers.formatDecimal(rd.capitalIntegActual, 3, 'POINT',2,'COMMA')}"></td>
+										<td class="text-right" th:text="${#numbers.formatDecimal(rd.pctfuncionario,1, 'POINT', 2,'COMMA')}"></td>
+										<td class="text-right" th:text="${#numbers.formatDecimal(rd.resultadoDistrib,3,'POINT',2,'COMMA')}"></td>
+									</tr>
+					              </tbody>
+					          </table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:include="help-dialog.html" th:remove="tag"></div>
+</body>
+</html>

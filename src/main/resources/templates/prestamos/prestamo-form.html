@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<script type="text/javascript">
+	$("#prstNuevoForm :input").tooltip({
+		 
+	    // place tooltip on the right edge
+	    position: "center right",
+	
+	    // a little tweaking of the position
+	    offset: [-2, 10],
+	
+	    // use the built-in fadeIn/fadeOut effect
+	    effect: "fade",
+	
+	    // custom opacity setting
+	    opacity: 0.7
+	
+	    });
+	
+	window.setTimeout(function() {
+	    $("#pnError").fadeTo(500, 0).slideUp(500, function(){
+	        $(this).remove(); 
+	    });
+	}, 2000);
+
+	window.setTimeout(function() {
+	    $("#pnSuccess").fadeTo(500, 0).slideUp(500, function(){
+	        $(this).remove(); 
+	    });
+	}, 2000);
+
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+        $('#plantaList').DataTable();
+		$('#tiposPrstList').DataTable();
+    } );
+    
+</script>
+	
+</head>
+<body>
+	<div class="container ">
+		<form id="prstnuevoForm" th:object="${prstNuevoForm}" th:action="${editMode}? @{/editPrst}:@{/prestnuevoForm}" method="post"
+			class="form" role="form" autocomplete="off">
+			<input type="hidden" th:field="*{idfprestamos}" th:if="${editMode}">
+			<input type="hidden" th:field="*{idfuncionario}" th:if="${editMode}">
+			<input type="hidden" th:field="*{saldoPrst}" th:if="${editMode}">
+			<input type="hidden" th:field="*{cuotasPagas}" th:if="${editMode}">
+			<input type="hidden" th:field="*{idsolicitud}">
+			<table style="width:100%">
+				<tr>
+					<td>
+						<div class="form-group row">
+			   				<label class="col-lg-4 col-form-label form-control-label">Funcionario</label>
+			   				<div class="col-lg-6" th:if="${editMode==null or editMode==false}">
+								<select id="selfunc" th:field="${prstNuevoForm.idfuncionario}" >
+									<option value=""> Seleccionar una opci&oacute;n </option>
+									<option th:each="funcionario :${plantaList}" th:value="${funcionario.idgplanta}" 
+										th:text="${funcionario.nombre}"></option>
+								</select>
+				           </div>
+				           <div class="col-lg-6" th:if="${editMode==true}">
+				           		<input type="hidden" th:field="*{tarjeta}" th:if="${editMode}">
+				           		<span th:text="${funcionario.nombre}"></span>
+				           </div>
+						</div>
+					</td>
+					<td>
+						<div class="form-group row">
+							<label class="col-lg-4 card-text">Capital</label>
+							<div class="col-lg-6">
+								<input id="capital" class="form-control" type="text" th:field="*{capitalPrst}"
+									title="No usar separador de miles">
+								<div class="alert-danger" th:if="${#fields.hasErrors('capitalPrst')}" th:errors="*{capitalPrst}">Capital</div>
+							</div>
+						</div>
+					</td>
+				</tr>				
+				<tr>
+					<td>
+						<div class="form-group row">
+		    				<label class="col-lg-4 col-form-label form-control-label">Tipo Pr&eacute;stamo</label>
+		    				<div class="col-lg-6" th:if="${editMode==null or editMode==false}">
+		    					<select th:field="${prstNuevoForm.idtipoprst}">
+		    						<option value=""> Seleccionar una opci&oacute;n </option>
+		    						<option th:each="tipo :${tiposPrstList}" th:value="${tipo.idftipoprestamo}" th:text="${tipo.descripcion}"></option>
+		    					</select>
+		    				</div>
+		    				<div class="col-lg-6" th:if="${editMode==true}">
+		    					<input type="hidden" th:field="*{idtipoprst}" th:if="${editMode}">
+		           				<span th:text="${tipoPrst.descripcion}"></span>
+		    				</div>
+						</div>
+					</td>
+					<td>
+						<div class="form-group row">
+							<label class="col-lg-4 card-text">Cant. Cuotas</label>
+							<div class="col-lg-6">
+								<input class="form-control" id="ccuotas" type="text" th:field="*{cantCuotas}"
+									title="Se guardar&aacute; tal como se ingrese">
+								<div class="alert-danger" th:if="${#fields.hasErrors('cantCuotas')}" th:errors="*{cantCuotas}">CantidadDeCuotas</div>
+							</div>
+						</div>
+					</td>				
+				</tr>
+				<tr>
+				<td>
+					<div class="form-group row">
+		   				<label class="col-lg-4 col-form-label form-control-label">Nro. Pr&eacute;stamo</label>
+		   				<div class="col-lg-2">
+		   					<input type="hidden" th:field="*{nroprestamo}" th:if="${editMode}">
+		   					<span th:text="*{nroprestamo}"></span>
+		   				</div>
+					
+					</div>
+				</td>
+				<td>
+					<div class="form-group row">
+						<label class="col-lg-4 card-text">Tasa</label>
+						<div class="col-lg-6">
+							<input class="form-control" id="tasa" type="text" th:field="*{tasa}">
+							<div class="alert-danger" th:if="${#fields.hasErrors('tasa')}" th:errors="*{tasa}">Tasa</div>
+						</div>
+					</div>
+				</td>
+				</tr>
+				<tr>
+					<td>
+						<div class="form-group row">
+			   				<label class="col-lg-4 text-left">Fecha Prst.</label>
+							<div class="col-lg-5 input-group datetime-local">
+				               <input type="text" class="form-control" id="prstdate" th:value="*{fechaprestamo}" th:field="*{fechaprestamo}"/>
+								<div class="alert-danger" th:if="${#fields.hasErrors('fechaprestamo')}" th:errors="*{fechaprestamo}">fecha prestamo</div>
+							</div>
+						</div>
+					</td>
+					<td>
+						<div class="form-group row ">
+							<label class="col-lg-4 col-form-label form-control-label">Valor de la Cuota: </label>
+							<div class="col-lg-6">
+								<span th:text="*{cuotaPrst}" th:classappend="text-cuota"></span>
+								<input type="hidden" th:field="*{cuotaPrst}">
+							</div>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+						<div class="form-group row ">
+							<label class="col-lg-4 col-form-label form-control-label">Pr&eacute;stamos a Cancelar: </label>
+							<div class="col-lg-6">
+								<span th:text="*{prstAcancelar}" th:classappend="text-cuota"></span>
+								<input type="hidden" th:field="*{prstAcancelar}">
+							</div>
+						</div>
+					</td>
+				</tr>
+			</table>
+			<div class="form-group  mx-auto ">
+				<div class="col-lg-12 text-center">
+                   <a class="btn btn-secondary" th:href="@{'/editPrst/cancel'}">Cancel</a>
+                   	<button type="submit" class="btn btn-secondary" name="estadoCta">Ver Estado de Cuenta</button>
+			   		<button class="btn btn-secondary" type="submit" name="calcularCuota">Calcular Cuota</button>
+			   	    <button type="submit" class="btn btn-primary" name="savePrst" >
+			   	    	<span th:text="${editMode}? 'Salvar Prst.' : 'Ingresar Prst.'"></span>
+			   	    </button>
+				</div>
+			</div>
+		    <div id="pnError" class="alert alert-danger text-center" th:if="${prstNuevoForm.errorMessage}" th:text="${prstNuevoForm.errorMessage}">Error Message</div>
+		    <div id="pnSuccess" class="alert alert-success text-center" th:if="${prstNuevoForm.successMessage}" th:text="${prstNuevoForm.successMessage}">SuccessMessage</div>
+		</form>
+	 		<div id="estadoCta" class="panel panel-default" th:if="${outputMode}">
+	 			<div class="panel-heading">
+		 			<h4>Estado de Cuenta</h4>
+	 			</div>
+	 			<div class="panel-body" th:if="${outputMode}">
+	 				<table style="width: 100%">
+	 					<tr>
+	 						<td>
+	 							<div class="row d-flex">
+	 								<label class="col-lg-6 col-form-label form-control-label">Capital Integrado Actual: </label>
+	 								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.capIntegActual,3,'POINT',2,'COMMA')}"></span>
+	 							</div>
+	 						</td>
+	 						<td>
+	 							<div class="row d-flex">
+	 								<label class="col-lg-6 col-form-label form-control-label"> Pct. de Reserva</label>
+	 								<span class="col-lg-6" th:text="${#numbers.formatPercent(estadoDeCta.pctReserva,1,2)}"></span>
+	 							</div>
+	 						</td>
+	 					</tr>
+	 					<tr>
+	 						<td>
+	 							<div class="row d-flex">
+	 								<label class="col-lg-6 col-form-label form-control-label">Capital Disponible Operable: </label>
+	 								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.capDispOperable,3,'POINT',2,'COMMA')}"></span>
+	 							</div>
+	 						</td>
+	 						<td>
+	 							<div class="row d-flex">
+	 								<label class="col-lg-6 col-form-label form-control-label"> Saldo Disponible</label>
+	 								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.saldoDisponible,3,'POINT',2,'COMMA')}"></span>
+	 							</div>
+	 						</td>
+	 					</tr>
+	 					<tr>
+	 						<td>
+	 							<div class="row d-flex">
+	 								<label class="col-lg-6 col-form-label form-control-label">B&aacute;sico: </label>
+	 								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.basico,3,'POINT',2,'COMMA')}"></span>
+	 							</div>
+	 						</td>
+	 						<td>
+	 							<div class="row d-flex">
+	 								<label class="col-lg-6 col-form-label form-control-label"> 40% : </label>
+	 								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.cuarentaPorCiento,3,'POINT',2,'COMMA')}"></span>
+	 							</div>
+	 						</td>
+	 					</tr>
+	 				</table>
+	 			</div>
+	 		</div>
+	 		<div class="panel panel-default" th:if="${outputMode}">
+	 			<div class="panel-heading" th:if="${outputMode}">
+	 				<h4>Pr&eacute;stamos vigentes</h4>
+	 			</div>
+	 			<div class="panel-body" th:if="${outputMode}">
+			      <div class="table-responsive">
+			          <table id="lstPrst" class="table table-bordered table-hover table-striped table-sm">
+			              <thead class="thead-light">
+			              <tr>
+			                  <th scope="col">No. Prst.</th>
+			                  <th scope="col">Fecha Prst.</th>
+			                  <th scope="col">Tipo Prst.</th>
+			                  <th scope="col">Capital</th>
+			                  <th scope="col">Tasa</th>
+			                  <th scope="col">Cant.Cuotas</th>
+			                  <th scope="col">Importe Cuota</th>
+			                  <th scope="col">Cuotas Pagas</th>
+			                  <th scope="col">Saldo Prst.</th>
+			              </tr>
+			              </thead>
+			              <tbody>
+							<tr th:each="prst: ${estadoDeCta.lstPrst}">
+								<td class="text-right" th:text="${prst.nroprestamo}"></td>
+								<td th:text="${#dates.format(prst.fechaPrestamo, 'dd-MM-yyyy')}"></td>
+								<td th:text="${prst.tipoPrestamo.descripcion}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(prst.capitalPrestamo,3,'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(prst.interesPrestamo, 1, 'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${prst.cantCuotas}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(prst.cuota,1, 'POINT', 2,'COMMA')}"></td>
+								<td class="text-right" th:text="${prst.cuotasPagas}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(prst.saldoPrestamo,3,'POINT',2,'COMMA')}"></td>
+							</tr>
+			              </tbody>
+			          </table>
+			      </div>
+	 			</div>
+	 		</div>
+	</div>
+	<script type="text/javascript">
+	$('select').on('change', function() {
+		  $("#estadoCta").hide();
+		});
+	</script>
+</body>
+</html>

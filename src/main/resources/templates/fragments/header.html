@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(titulo, plantilla)">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="icon" href="favicon.ico" />
+    <title th:text="${titulo}"></title>
+ 	<!--JQUERY-->
+ 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<!-- FRAMEWORK BOOTSTRAP para el estilo de la pagina-->
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+			
+	<!-- Los iconos tipo Solid de Fontawesome-->
+	<link rel="stylesheet"
+		href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css">
+	<script src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>	
+	
+		<!-- DATA TABLE -->
+	<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css">	
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+	
+	<!-- Nuestro css-->
+	<link rel="stylesheet" type="text/css" href="static/css/user-form.css"
+		th:href="@{'/css/' + ${plantilla} + '.css'}">
+
+</head>
+
+<body>	
+	<header th:fragment="header-admin">
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark " th:fragment="header">
+		    <a href="#" class="navbar-brand">
+	            <img src="/fondoPrevision/img/logo-mercosur-blanco.svg" height="28" alt="CoolBrand">
+	        </a>
+		
+		    <a href="#" class="navbar-brand">Fondo Previsión MERCOSUR</a>
+		    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+		        <span class="navbar-toggler-icon"></span>
+		    </button>
+		
+			<div class="collapse navbar-collapse" id="navbarCollapse">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item">
+						<a href="#" th:href="@{'/home'}" class="nav-link">Home</a>
+					</li>
+					<li class="nav-item dropdown">
+						<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="#desplegable">
+						Mantenimientos</a>
+			            <div class="dropdown-menu ml-auto" id="desplegable">
+			            	<a href="#" th:href="@{'/backupForm?procname=mesPrevio'}" class="dropdown-item">Respaldo/Restauración Mes Anterior</a>
+			            	<a href="#" th:href="@{'/paramForm'}" class="dropdown-item">Actualización de Parámetros</a>
+			            	<a href="#" th:href="@{'/salarioForm'}" class="dropdown-item">Actualizaci&oacute;n de Salarios</a>
+			            	<a href="#" th:href="@{'/cargoForm'}" class="dropdown-item">Actualizaci&oacute;n de Cargo</a>
+			            	<a href="#" th:href="@{'/userForm'}" class="dropdown-item">Información de Usuarios</a>
+			            	<a href="#" th:href="@{'/logForm'}" class="dropdown-item">Registros de Log</a>
+<!--  			            	<a href="#" th:href="@{'/interfForm'}" class="dropdown-item">Carga De Datos</a>  -->
+			            </div>
+					</li>
+					<li class="nav-item dropdown">
+						<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="#mensuales"> Procs Mensuales</a>
+						<div class="dropdown-menu ml-auto" id="mensuales">
+				            <a href="#" th:href="@{'/prestForm'}" class="dropdown-item">Pr&eacute;stamos</a>
+							<a href="#" th:href="@{'/cuotasForm'}" class="dropdown-item">Pago de Cuotas</a>
+							<a href="#" th:href="@{'/aportesForm'}" class="dropdown-item">C&aacute;lculo de Aportes</a>
+							<a href="#" th:href="@{'/restoreForm'}" class="dropdown-item">Restauraci&oacute;n</a>
+						</div>
+					</li>
+					<li class="nav-item dropdown">
+						<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="#ademanda"> Procs A demanda</a>
+						<div class="dropdown-menu ml-auto" id="ademanda">
+							<a href="#" th:href="@{'/distribForm'}" class="dropdown-item">Distribuci&oacute;n de Utilidades</a>
+							<a href="#" th:href="@{'/newctaForm'}" class="dropdown-item">Apertura de Cuenta</a>
+							<a href="#" th:href="@{'/cierrectaForm'}" class="dropdown-item">Cierre de Cuenta</a>
+						</div>
+					</li>
+					<li class="nav-item dropdown">
+						<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="#consult">
+						Consultas</a>
+		                <div class="dropdown-menu" id="consult">
+		                    <a href="#" th:href="@{'/estadoDeCtaForm'}" class="dropdown-item">Estado de Cuenta Por Funcionario</a>
+		                    <a href="#" th:href="@{'/movimientosForm'}" class="dropdown-item">Movimientos Por Funcionario</a>
+		                    <a href="#" th:href="@{'/cuentaGlobalForm'}" class="dropdown-item">Cuenta Global</a>
+		                    <a href="#" th:href="@{'/consultaDistribucion'}" class="dropdown-item">Distribuci&oacute;n de Utilidades</a>
+		                    <a href="#" th:href="@{'/consultaCapitales'}" class="dropdown-item">Capitales Disponible y Numerales</a>
+		                    <a href="#" th:href="@{'/consultaAportes'}" class="dropdown-item">Aportes Integrados por mes</a>
+		                    <a href="#" th:href="@{'/descuentoCuotas'}" class="dropdown-item">Descuento de Cuotas</a>
+		                    <a href="#" th:href="@{'/aportesNomina'}" class="dropdown-item"> Aportes seg&uacute;n N&oacute;mina</a>
+		                    <a href="#" th:href="@{'/consultaCierre'}" class="dropdown-item">Resultado de Cierre de Cuenta</a>
+		                </div>
+					</li>
+				</ul>
+				<div class="navbar-nav">
+					<a href="#" class="nav-item nav-link" th:href="@{/oneUserForm}"><span class="navbar-text mr-sm-2" th:text="${#authentication.getPrincipal().getUsername()}"></span></a>
+		            <a href="#" class="nav-item nav-link active" th:href="@{/logout}">
+		             <span class="navbar-text mr-sm-2"> logout </span> <span class="float-right" style="margin-top:8px;" ><i class="fas fa-sign-out-alt"></i></span></a>
+		        </div>
+		    </div>
+		</nav>
+	</header>
+	<header th:fragment="header-supervisor">
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark " th:fragment="header">
+		    <a href="#" class="navbar-brand">
+	            <img src="/fondoPrevision/img/logo-mercosur-blanco.svg" height="28" alt="CoolBrand">
+	        </a>
+		
+		    <a href="#" class="navbar-brand">Fondo Previsión MERCOSUR</a>
+		    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+		        <span class="navbar-toggler-icon"></span>
+		    </button>
+		
+			<div class="collapse navbar-collapse" id="navbarCollapse">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item">
+						<a href="#" th:href="@{'/home'}" class="nav-link">Home</a>
+					</li>
+					<li class="nav-item">
+			            <a href="#" th:href="@{'/solicitudForm'}" class="nav-link">Solicitud de Pr&eacute;stamo</a>
+					</li>
+					<li class="nav-item dropdown">
+						<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="#consult">
+						Consultas</a>
+		                <div class="dropdown-menu" id="consult">
+		                    <a href="#" th:href="@{'/estadoDeCtaForm'}" class="dropdown-item">Estado de Cuenta Por Funcionario</a>
+		                    <a href="#" th:href="@{'/movimientosForm'}" class="dropdown-item">Movimientos Por Funcionario</a>
+		                    <a href="#" th:href="@{'/cuentaGlobalForm'}" class="dropdown-item">Cuenta Global</a>
+		                    <a href="#" th:href="@{'/consultaDistribucion'}" class="dropdown-item">Distribuci&oacute;n de Utilidades</a>
+		                    <a href="#" th:href="@{'/consultaCapitales'}" class="dropdown-item">Capitales Disponible y Numerales</a>
+		                    <a href="#" th:href="@{'/consultaAportes'}" class="dropdown-item">Aportes Integrados por mes</a>
+		                    <a href="#" th:href="@{'/descuentoCuotas'}" class="dropdown-item">Descuento de Cuotas</a>
+		                    <a href="#" th:href="@{'/aportesNomina'}" class="dropdown-item"> Aportes seg&uacute;n N&oacute;mina</a>
+		                </div>
+					</li>
+				</ul>
+				<div class="navbar-nav">
+					<a href="#" class="nav-item nav-link" th:href="@{/oneUserForm}"><span class="navbar-text mr-sm-2" th:text="${#authentication.getPrincipal().getUsername()}"></span></a>
+		            <a href="#" class="nav-item nav-link active" th:href="@{/logout}">
+		             <span class="navbar-text mr-sm-2"> logout </span> <span class="float-right" style="margin-top:8px;" ><i class="fas fa-sign-out-alt"></i></span></a>
+		        </div>
+		    </div>
+		</nav>
+	</header>
+	
+	<header th:fragment="header-user">
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark " th:fragment="header">
+		    <a href="#" class="navbar-brand">
+	            <img src="/fondoPrevision/img/logo-mercosur-blanco.svg" height="28" alt="CoolBrand">
+	        </a>
+		
+		    <a href="#" class="navbar-brand">Fondo Previsión MERCOSUR</a>
+		    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+		        <span class="navbar-toggler-icon"></span>
+		    </button>
+		
+			<div class="collapse navbar-collapse" id="navbarCollapse">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item">
+						<a href="#" th:href="@{'/home'}" class="nav-link">Home</a>
+					</li>
+					<li class="nav-item">
+			            <a href="#" th:href="@{'/solicitudForm'}" class="nav-link">Solicitud de Pr&eacute;stamo</a>
+					</li>
+					<li class="nav-item dropdown">
+						<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="#consult">
+						Consultas</a>
+		                <div class="dropdown-menu" id="consult">
+		                    <a href="#" th:href="@{'/estadoDeCtaUserForm'}" class="dropdown-item">Estado de Cuenta</a>
+		                    <a href="#" th:href="@{'/movimientosUserForm'}" class="dropdown-item">Mis Movimientos</a>
+		                    <a href="#" th:href="@{'/solicitudesUserForm'}" class="dropdown-item">Mis Solicitudes de Prst.</a>
+		                </div>
+					</li>
+				</ul>
+				<div class="navbar-nav">
+					<a href="#" class="nav-item nav-link" th:href="@{/oneUserForm}"><span class="navbar-text mr-sm-2" th:text="${#authentication.getPrincipal().getUsername()}"></span></a>
+		            <a href="#" class="nav-item nav-link active" th:href="@{/logout}">
+		             <span class="navbar-text mr-sm-2"> logout </span> <span class="float-right" style="margin-top:8px;" ><i class="fas fa-sign-out-alt"></i></span></a>
+		        </div>
+		    </div>
+		</nav>
+	</header>
+	<div class="container">
+	</div>
+ </body>
+</html>

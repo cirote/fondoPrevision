@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Actualizaci&oacute;n de Salarios', plantilla='user-form')">
+</head>
+<head>
+<script th:inline="javascript">
+	function submitBackup(){
+		var params = {};
+		params["nameproc"] = [[${procname}]];
+	    $("#spinner").removeClass("d-none");
+	    
+		$.ajax({
+			type:"post",
+			url: "api/fondo/backup",
+			        
+	        contentType: "application/json",
+	        data: JSON.stringify(params),
+	        dataType: 'text',
+	        cache: false,
+	        timeout: 600000,
+	
+			success:function(data){
+				$("#spinner").addClass("d-none");
+				$("#successMessage").removeClass("d-none");
+	            $("#successMessage").html("El proceso de respaldo finaliz&oacute; exitosmante!.");
+	            $("#successMessage").show();
+	            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+			},
+			error: function (e){
+				$("#spinner").addClass("d-none");
+	            $("#errorMessage").removeClass( "d-none" );
+	            $("#successMessage").addClass( "d-none" );
+	            $("#errorMessage").html(e.responseText);
+				
+			}
+		});
+	}
+	
+	function submitRestore(){
+		var params = {};
+		params["nameproc"] = [[${procname}]];
+	    $("#spinner").removeClass("d-none");
+		$.ajax({
+			type:"post",
+			url: "api/fondo/restore",
+			        
+	        contentType: "application/json",
+	        data: JSON.stringify(params),
+	        dataType: 'text',
+	        cache: false,
+	        timeout: 600000,
+	
+			success:function(data){
+				$("#spinner").addClass("d-none");
+				$("#successMessage").removeClass("d-none");
+	            $("#successMessage").html("El proceso de restauraci&oacute;n finaliz&oacute; exitosmante!.");
+	            $("#successMessage").show();
+	            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+			},
+			error: function (e){
+				$("#spinner").addClass("d-none");
+	            $("#errorMessage").removeClass( "d-none" );
+	            $("#successMessage").addClass( "d-none" );
+	            $("#errorMessage").html(e.responseText);
+				
+			}
+		});
+	}
+	
+	window.setTimeout(function() {
+	    $("#sError").fadeTo(500, 0).slideUp(500, function(){
+	        $(this).remove(); 
+	    });
+	}, 2000);
+	
+	window.setTimeout(function() {
+	    $("#sSuccess").fadeTo(500, 0).slideUp(500, function(){
+	        $(this).remove(); 
+	    });
+	}, 2000);
+
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+        $('#salariosListSM').DataTable();
+        $('#salariosListUTF').DataTable();
+
+    } );
+    
+</script>
+
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-user'"></div>
+	<div class="container" >
+		<div class="card mx-auto col-lg-12 main-section">
+           <div class="card-header">
+              	<table style="width:100%">
+              		<tr>
+              			<td><h4>Actualizaci&oacute;n de Salarios</h4></td>
+              			<td style="text-align:right">
+	     					<a href="#" th:href="@{'/ayuda/fsalr'}" data-toggle="modal" data-target="#helpModal">
+     	           			<span aria-hidden="true"><i class="fas fa-info-circle"></i></span>Ayuda </a>
+              			</td>
+              		</tr>
+              	</table>
+             </div>
+             <div class="card-body">
+				<form id="salariosFormId" th:action="@{/calculoSalario}" th:object="${salarioForm}" method="post"
+					class = "form" autocomplete="off" role="form">
+ 		      	   <input class="form-control" type="hidden" th:field="${salarioForm.complementoMayorquecero}">
+					<div class="d-flex flex-row justify-content-between">
+		              	<table style="width:100%">
+		              		<tr>
+		              			<td>
+		              				<div class="d-flex flex-row justify-content-left">
+										<div class="col-4-lg form-group row">
+											<label class="col-form-label form-control-label"> Pct. de Aumento</label>
+											<div class="col-lg-4">
+												<input class="form-control" id="pct" type="text" th:field="${salarioForm.pctAumento}">
+				 								<div class="alert-danger" th:if="${#fields.hasErrors('pctAumento')}" th:errors="*{pctAumento}">Pct Aumento</div>
+											</div>
+										</div>
+										<div class="col-8-lg form-group row">
+									   	    <button type="submit" class="btn btn-primary" >Ejecutar C&aacute;lculo</button>
+										 	<a href="#" th:href="@{'/home'}" class="btn btn-secondary" style="margin-left: 6px;">
+										 	    <span> Cerrar </span> <span class="float-right" style="padding-left:6px;"><i class="fas fa-sign-out-alt"></i></span>
+											</a>
+										</div>
+									</div>		              			
+								</td>
+		              			<td style="text-align:right">
+									<a href="javascript:submitBackup()" class="card-link">Respaldo de Salarios actuales 
+										<i class='fas fa-arrow-circle-down' style='font-size:24px;color:darkgreen'></i>
+									</a>
+		              			</td>
+		              		</tr>
+		              		<tr>
+		              			<td>
+									<div class="row d-flex justify-content-left">
+										<div id="spinner" class="spinner-border text-success d-none" role="status">
+										  <span class="sr-only">Loading...</span>
+										</div>
+									</div>
+		              			</td>
+		              			<td style="text-align:right">
+									<a href="javascript:submitRestore()" class="card-link">Restauraci&oacute;n de Salarios respaldados
+										<i class='fas fa-arrow-circle-up' style='font-size:24px;color:darkgreen'></i>
+									</a>
+		              			</td>
+		              		</tr>
+		              	</table>
+					</div>
+					<div class="row d-flex justify-content-center mt-100">
+						<div id="errorMessage"  class="card alert alert-danger text-center d-none" role="alert">Mensaje de Error</div>
+						<div id="successMessage" class="card alert alert-success text-center d-none" role="alert">Success Message</div>			
+					</div>
+				    <div id="sError" class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+				    <div id="sSuccess" class="alert alert-success text-center" th:if="${formSuccess}" th:text="${formSuccess}">Success Message</div>
+				</form>					
+            </div>
+            <div id="accordion">
+            	<div class="card">
+            		<div class="card-header" id="headingOne">
+	            		<table style="width:100%">
+	            			<tr>
+	            				<td style="text-align: left"><h5>
+	            					<button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+	            						aria-expanded="true" aria-controls="collapseOne">
+	            					Salarios actuales Secretar&iacute;a MERCOSUR
+	            					</button>
+	            					</h5>
+	            				</td>
+	            				<td style="text-align: right">
+	            					<a th:if="${salarioForm.complementoMayorquecero}" th:href="@{/actualizarBasico}">
+	            					Integrar B&aacute;sico y Complemento</a>
+	            			</tr>
+	            		</table>
+            		</div>
+            		<div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+            			<div class="card-body table-responsive">
+				           <table id="salariosListSM" class="table table-bordered table-hover table-striped table-sm">
+				               <thead class="thead-light">
+				               <tr>
+					             	<th scope="col">#</th>
+					             	<th scope="col">Cargo</th>
+					             	<th scope="col">Remuneraci&oacute;n</th>
+					             	<th scope="col">Complemento</th>
+				               </tr>
+				               </thead>
+				               <tbody>
+									<tr th:each="salary: ${salariosSMList}">
+										<td th:text="${salary.idgcargo}"></td>
+										<td th:text="${salary.descripCargo}"></td>
+										<td th:text="${#numbers.formatDecimal(salary.basico,3,'POINT',2,'COMMA')}"></td>
+										<td th:text="${#numbers.formatDecimal(salary.complemento,3,'POINT',2,'COMMA')}"></td>			             
+									</tr>
+				               </tbody>
+				           </table>
+            			</div>
+            		</div>
+            	</div>
+            	<div class="card">
+            		<div class="card-header" id="headingTwo">
+            			<h5 class="mb-0">
+            				<button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo"
+            					aria-expanded="false" aria-controls="collapseTwo"> 
+            					Salarios Actuales FOCEM
+            				</button>
+            			</h5>
+            		</div>
+            		<div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+            			<div class="card-body table-responsive">
+				           <table id="salariosListUTF" class="table table-bordered table-hover table-striped table-sm">
+				               <thead class="thead-light">
+				               <tr>
+					             	<th scope="col">#</th>
+					             	<th scope="col">Cargo</th>
+					             	<th scope="col">Remuneraci&oacute;n</th>
+					             	<th scope="col">Complemento</th>
+				               </tr>
+				               </thead>
+				               <tbody>
+									<tr th:each="salary: ${salariosUTFList}">
+										<td th:text="${salary.idgcargo}"></td>
+										<td th:text="${salary.descripCargo}"></td>
+										<td th:text="${#numbers.formatDecimal(salary.basico,3,'POINT',2,'COMMA')}"></td>
+										<td th:text="${#numbers.formatDecimal(salary.complemento,3,'POINT',2,'COMMA')}"></td>			             
+									</tr>
+				               </tbody>
+				           </table>
+            			</div>
+            		</div>
+            	</div>
+            </div>   <!-- Termina accordion -->	
+		</div>	<!-- Termina main-section -->	
+    </div>	<!-- Termina container -->	
+	<div th:include="help-dialog.html" th:remove="tag"></div>
+
+</body>
+</html>

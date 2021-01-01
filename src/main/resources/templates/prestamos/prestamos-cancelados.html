@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<script type="text/javascript">
+function confirmUndoCancel(nro){
+	$('#undoCancelModal').modal('show');
+	$("#prstNroHiddenInput").val(nro);
+}
+
+function undoCancelPrst(){
+	var id = $("#prstNroHiddenInput").val();
+	window.location = "/fondoPrevision/undoCancelPrst/" + id;
+}
+</script>
+
+</head>
+<body>
+      <!-- Lista de Prestamos Cancelados-->
+      <div class="table-responsive">
+          <table id="prstCancelList"  th:object="${prstCancelList}" class="table table-bordered table-hover table-striped table-sm">
+              <thead class="thead-light">
+              <tr>
+                  <th class="thead-text" scope="col">No. Func.</th>
+                  <th class="thead-text" scope="col">Nombre</th>
+                  <th class="thead-text" scope="col">No. Prst.</th>
+                  <th class="thead-text" scope="col">Fecha Prst.</th>
+                  <th class="thead-text" scope="col">Tipo Prst.</th>
+                  <th class="thead-text" scope="col">Capital</th>
+                  <th class="thead-text" scope="col">Tasa</th>
+                  <th class="thead-text" scope="col">Cant.Cuotas</th>
+                  <th class="thead-text" scope="col">Importe Cuota</th>
+                  <th class="thead-text" scope="col">Cuotas Pagas</th>
+                  <th class="thead-text" scope="col">Saldo Prst.</th>
+                  <th></th>
+              </tr>
+              </thead>
+              <tbody>
+				<tr th:each="prst: ${prstCancelList}">
+					<td class="text-right" th:text="${prst.tarjeta}"></td>
+					<td th:text="${prst.funcionario.nombre}"></td>
+					<td class="text-right" th:text="${prst.nroprestamo}"></td>
+					<td th:text="${#temporals.format(prst.fechaPrestamo, 'dd-MM-yyyy')}"></td>
+					<td th:text="${prst.tipoPrestamo.descripcion}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(prst.capitalPrestamo,3,'POINT',2,'COMMA')}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(prst.interesPrestamo, 1, 'POINT',2,'COMMA')}"></td>
+					<td class="text-right" th:text="${prst.cantCuotas}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(prst.cuota,1, 'POINT', 2,'COMMA')}"></td>
+					<td class="text-right" th:text="${prst.cuotasPagas}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(prst.saldoPrestamo,3,'POINT',2,'COMMA')}"></td>
+					<td>
+						<span  th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}" >
+							<a id="undo" href="#" th:onclick="'javascript:confirmUndoCancel(\''+ ${prst.nroprestamo} +'\');'">
+							<i class="fas fa-undo" title="Undo Cancelar Prst."></i></a>
+						</span>	
+					</td>
+				</tr>
+              </tbody>
+          </table>
+      </div>
+      <div id="undocancelSuccess" th:if="${cancelSuccessMessage}" class="alert alert-success text-center d-none" role="alert">
+      	<span th:text="${cancelSuccessMessage}"></span>
+      </div>
+      <div id="undocancelError" th:if="${cancelErrorMessage}" class="alert alert-danger text-center d-none" role="alert">
+		<span th:text="${cancelErrorMessage}"></span>
+	  </div>
+
+</body>
+</html>

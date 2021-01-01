@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/fragments/header :: head(titulo='C&aacute;lculo de Aportes', plantilla='user-form')">
+</head>
+<head>
+<script type="text/javascript">
+    $(document).ready(function() {
+        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+        $('#aportesList').DataTable();
+    } );
+</script>
+
+</head>
+<body>
+       <!-- Lista de Aportes-->
+       <div class="table-responsive">
+           <table id="aportesList" class="table table-bordered table-hover table-striped table-sm">
+               <thead class="thead-light">
+               <tr>
+                   <th scope="col">Nro. Func.</th>
+                   <th scope="col">Nombre</th>
+                   <th scope="col">Fecha</th>
+                   <th scope="col">Aporte Fun.</th>
+                   <th scope="col">Aporte Sec.</th>
+                   <th scope="col">Aporte Total</th>
+                   <th scope="col">Cap. Intg. Antes</th>
+                   <th scope="col">Cap. Intg. Actual</th>
+                   <th scope="col">Cap. Disp. Antes</th>
+                   <th scope="col">Cap. Disp. Actual</th>
+               </tr>
+               </thead>
+               <tbody>
+					<tr th:each="aporte: ${aportesList}">
+						<td class="text-right" th:text="${aporte.tarjeta}"></td>
+						<td th:text="${aporte.nombre}"></td>
+						<td th:text="${#dates.format(aporte.fecha, 'dd-MM-yyyy')}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(aporte.aporteFun,3,'POINT',2,'COMMA')}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(aporte.aporteSec,3,'POINT',2,'COMMA')}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(aporte.aporteTotal,3,'POINT',2,'COMMA')}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(aporte.capIntegAntes,3,'POINT',2,'COMMA')}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(aporte.capIntegActual,3,'POINT',2,'COMMA')}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(aporte.capDispAntes,3,'POINT',2,'COMMA')}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(aporte.capDispActual,3,'POINT',2,'COMMA')}"></td>
+					</tr>
+               </tbody>
+           </table>
+       </div>
+</body>
+</html>
+

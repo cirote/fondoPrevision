@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Solicitud Pr&eacute;stamos', plantilla='user-form')">
+</head>
+<head>
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+	        $('#listPendientes').DataTable();
+	        $('#plantaList').DataTable();
+	        $('#pprstList').DataTable();
+	    } );
+	</script>
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-user'"></div>
+    <div class="mx-auto col-lg-12" id="solictTab" role="tablist">
+       <ul class="nav nav-tabs justify-content-end">
+           <li class="nav-item">
+           		<a class="nav-link" th:classappend=" ${solnewTab}" id="solnew-tab" data-toggle="tab" href="#solnew" role="tab" aria-controls="solnew" aria-selected="false">Solicitud Pr&eacute;stamo Nuevo</a>
+           </li>
+           <li class="nav-item">
+           		<a class="nav-link" th:classappend=" ${plistTab}" id="plist-tab" data-toggle="tab" href="#plist" role="tab" aria-controls="plist" aria-selected="false">Plazos y Tasas</a>
+           </li>
+           <li class="nav-item">
+           		<a class="nav-link" th:classappend=" ${ectaTab}" id="ecta-tab" data-toggle="tab" href="#ecta" role="tab" aria-controls="ecta" aria-selected="false">Estado de Cuenta</a>
+           </li>
+           <li class="nav-item">
+           		<a class="nav-link" th:classappend=" ${lstsolTab}" id="lstsol-tab" data-toggle="tab" href="#lstsol" role="tab" aria-controls="lstsol" aria-selected="false">Solicitudes en Borrador</a>
+           </li>
+           <li>
+				<a href="#" th:href="@{'/home'}" class="nav-link close-tab" role="tab"><span><i class="fas fa-times close-button" ></i></span></a>
+           </li>          				   	
+       </ul>
+       <div class="tab-content" id="ltContent">
+       	   <div class="tab-pane fade show" th:classappend=" ${solNewTab}" id="solnew" role="tabpanel" aria-labelledby="solnew-tab">
+		       <div class="card">
+					<div class="card-header">
+						<table style="width:100%">
+							<tr>
+								<td>
+									<h5>Solicitud de Pr&eacute;stamo</h5>
+								</td>
+								<td class="text-right">
+								 	<div class="a form-group ">
+				       					<a href="#" style="margin-right: 4px" data-toggle="modal" data-target="#helpModal">
+			                    			<span aria-hidden="true"><i class="fas fa-info-circle"></i></span>Ayuda </a>
+								 	</div>							
+								</td>
+							</tr>
+						</table>
+					</div>
+					<div class="card-body">
+			 			<div class="panel panel-default" th:if= "${#authorization.expression('hasRole(''ROLE_USER'')')}">
+			 				<div class="panel-heading">
+				           		<input type="hidden" th:field="${tarjeta}" >
+				           		<h5><span th:text="'Solicitud Nueva de ' + ${nombre}"></span></h5>
+			 				</div>
+			 				<div class="panel-body">
+								<div th:include="solicitudesPrst/solicitud-form.html" th:remove="tag"></div>
+			 				</div>
+			 			</div>
+			 			<div class="panel panel-default" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+			 				<div class="panel-body">
+			 					<div th:include="solicitudesPrst/solicitud-form-admin.html" th:remove="tag"></div>
+			 				</div>
+			 			</div>
+			 			<div class="panel panel-default" th:if="${#authorization.expression('hasRole(''ROLE_SUPERVISOR'')')}">
+			 				<div class="panel-heading" th:if="${solicitpersonal}">
+				           		<input type="hidden" th:field="${tarjeta}" >
+				           		<h5><span th:text="'Solicitud Nueva de ' + ${nombre}"></span></h5>
+			 				</div>
+							<div class="panel-body" th:if="${solicitpersonal}">
+								<div th:include="solicitudesPrst/solicitud-form.html" th:remove="tag"></div>
+							</div>
+			 				<div class="panel-body" th:if="${!solicitpersonal}">
+			 					<div th:include="solicitudesPrst/solicitud-form-superv.html" th:remove="tag"></div>
+			 				</div>
+			 			</div>
+					</div>       	   
+			    </div>
+       	   </div>
+       	   <div class="tab-pane fade show" th:classappend=" ${plistTab}" id="plist" role="tabpanel" aria-labelledby="plist-tab">
+       	   		<div th:include="solicitudesPrst/param-list.html" th:remove="tag">
+       	   		</div>
+       	   </div>
+       	   <div class="tab-pane fade show" th:classappend=" ${ectaTab}" id="ecta" role="tabpanel" aria-labelledby="ecta-tab">
+       	   		<div th:include="solicitudesPrst/estCtaFunc-form.html" th:remove="tag">
+       	   		</div>
+       	   </div>
+       	   <div class="tab-pane fade show" th:classappend=" ${lstsolTab}" id="lstsol" role="tabpanel" aria-labelledby="lstsol-tab">
+				<div th:include="solicitudesPrst/solicitudes-borrador.html" th:remove="tag">
+				</div>
+			</div>       	
+       </div>
+       
+ 	</div>
+	<div th:include="help-dialog.html" th:remove="tag"></div>
+	<div th:include="solicitudesPrst/confirm-delete-dialog.html" th:remove="tag"></div>
+	<div th:include="solicitudesPrst/confirm-rechazo-dialog.html" th:remove="tag"></div>
+</body>
+</html>

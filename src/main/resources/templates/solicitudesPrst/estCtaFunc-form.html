@@ -1,0 +1,114 @@
+
+     <div class="card">
+		<div class="card-body" th:if="${estadoDeCta}">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+				    <h5>Estado de Cuenta</h5>
+					<a class="nav-link" data-toggle="collapse" href="#estadoCta" role="button" aria-expanded="true" aria-controls="estadoCta">
+					</a>	 				
+				</div>
+			</div>
+			<div id="estadoCta" class="panel-body collapse show">
+				<table style="width: 100%">
+					<tr>
+						<td>
+							<div class="row d-flex">
+								<label class="col-lg-6 col-form-label form-control-label">Capital Integrado Actual: </label>
+								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.capIntegActual,3,'POINT',2,'COMMA')}"></span>
+							</div>
+						</td>
+						<td>
+							<div class="row d-flex">
+								<label class="col-lg-6 col-form-label form-control-label"> Pct. de Reserva</label>
+								<span class="col-lg-6" th:text="${#numbers.formatPercent(estadoDeCta.pctReserva,1,2)}"></span>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<div class="row d-flex">
+								<label class="col-lg-6 col-form-label form-control-label">Capital Disponible Operable: </label>
+								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.capDispOperable,3,'POINT',2,'COMMA')}"></span>
+							</div>
+						</td>
+						<td>
+							<div class="row d-flex">
+								<label class="col-lg-6 col-form-label form-control-label"> Saldo Disponible</label>
+								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.saldoDisponible,3,'POINT',2,'COMMA')}"></span>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<div class="row d-flex">
+								<label class="col-lg-6 col-form-label form-control-label">B&aacute;sico: </label>
+								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.basico,3,'POINT',2,'COMMA')}"></span>
+							</div>
+						</td>
+						<td>
+							<div class="row d-flex">
+								<label class="col-lg-6 col-form-label form-control-label"> 40% : </label>
+								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.cuarentaPorCiento,3,'POINT',2,'COMMA')}"></span>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<div class="row d-flex">
+								<label class="col-lg-6 col-form-label form-control-label" th:unless="${#lists.isEmpty(estadoDeCta.lstPrst)}">Saldo de Pr&eacute;stamos Acumulado: </label>
+								<span class="col-lg-6" th:unless="${#lists.isEmpty(estadoDeCta.lstPrst)}" th:text="${#numbers.formatDecimal(estadoDeCta.saldoPrstAcum,3,'POINT',2,'COMMA')}"></span>
+							</div>
+						</td>
+						<td>
+							<div class="row d-flex">
+								<label class="col-lg-6 col-form-label form-control-label" th:unless="${#lists.isEmpty(estadoDeCta.lstPrst)}">Suma de Cuotas Comprometidas: </label>
+								<span class="col-lg-6" th:unless="${#lists.isEmpty(estadoDeCta.lstPrst)}" th:text="${#numbers.formatDecimal(estadoDeCta.sumaDeCuotas,3,'POINT',2,'COMMA')}"></span>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+	 		<div class="panel-heading" th:if="${#lists.isEmpty(estadoDeCta.lstPrst)}">
+	 			Sin pr&eacute;stamos pendientes
+	 		</div>
+	 		<div class="panel panel-default" th:if="${not(#lists.isEmpty(estadoDeCta.lstPrst))}">
+	 			<div class="panel-heading" >
+					<a class="nav-link" data-toggle="collapse" href="#prstPendientes" role="button" aria-expanded="true" aria-controls="prstPendientes">
+		 				<h5>Sus Pr&eacute;stamos vigentes</h5>
+					</a>	 				
+	 			</div>
+	 			<div id="prstPendientes" class="panel-body collapse show" >
+			      <div class="table-responsive">
+			          <table id="lstPrst" class="table table-bordered table-hover table-striped table-sm">
+			              <thead class="thead-light">
+			              <tr>
+			                  <th scope="col">No. Prst.</th>
+			                  <th scope="col">Fecha Prst.</th>
+			                  <th scope="col">Tipo Prst.</th>
+			                  <th scope="col">Capital</th>
+			                  <th scope="col">Tasa</th>
+			                  <th scope="col">Cant.Cuotas</th>
+			                  <th scope="col">Importe Cuota</th>
+			                  <th scope="col">Cuotas Pagas</th>
+			                  <th scope="col">Saldo Prst.</th>
+			              </tr>
+			              </thead>
+			              <tbody>
+							<tr th:each="prst: ${estadoDeCta.lstPrst}">
+								<td th:text="${prst.nroprestamo}"></td>
+								<td th:text="${#temporals.format(prst.fechaPrestamo, 'dd-MM-yyyy')}"></td>
+								<td th:text="${prst.tipoPrestamo.descripcion}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(prst.capitalPrestamo,3,'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(prst.interesPrestamo, 1, 'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${prst.cantCuotas}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(prst.cuota,1, 'POINT', 2,'COMMA')}"></td>
+								<td class="text-right" th:text="${prst.cuotasPagas}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(prst.saldoPrestamo,3,'POINT',2,'COMMA')}"></td>
+							</tr>
+			              </tbody>
+			          </table>
+			      </div>
+	 			</div>
+			</div>
+		</div>
+	</div>

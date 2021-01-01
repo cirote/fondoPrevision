@@ -1,0 +1,22 @@
+	<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog" aria-labelledby="rejectModalTitle" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="exampleModalLongTitle">Confirmarci&oacute;n</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true"><i class="fas fa-window-close"></i></span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	      	<div id="mensaje" class="text-center"></div>	        
+	      </div>
+	      <div class="modal-footer">
+		        <button class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+		        <button id="aprobar" class="btn btn-primary" th:onclick="aprobarSolicitud()">Aprobar Solicitud</button>
+		        <button id="botonReject" class="btn btn-primary" th:onclick="rejectSolicitud()">Rechazar Solicitud</button>
+		        <button id="eliminarAprob" class="btn btn-primary" th:onclick="eliminarAprob()">Eliminar Marca Aprobaci&oacute;n</button>
+		        <button id="eliminarReject" class="btn btn-primary" th:onclick="eliminarReject()">Eliminar Marca Rechazo</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>

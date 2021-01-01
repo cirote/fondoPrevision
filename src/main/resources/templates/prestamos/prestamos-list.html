@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+<script type="text/javascript">
+function confirmDelete(id){
+	$('#deleteModal').modal('show');
+	$("#prstIdHiddenInput").val(id);
+}
+
+function deletePrst(){
+	var id = $("#prstIdHiddenInput").val();
+    window.location = "/fondoPrevision/deletePrst/"+id;
+}
+</script>
+<script type="text/javascript">
+function confirmCancel(id){
+	$('#cancelModal').modal('show');
+	$("#prstIdHiddenInput").val(id);
+}
+
+function cancelPrst(){
+	var id = $("#prstIdHiddenInput").val();
+    window.location="/fondoPrevision/cancelPrst/"+id;
+}
+</script>
+
+</head>
+<body>
+      <!-- Lista de Prestamos-->
+      <div class="table-responsive">
+          <table id="prestamosList" class="table table-bordered table-hover table-striped table-sm">
+              <thead class="thead-light">
+              <tr>
+                  <th class="thead-text" scope="col">No. Func.</th>
+                  <th class="thead-text" scope="col">Nombre</th>
+                  <th class="thead-text" scope="col">No. Prst.</th>
+                  <th class="thead-text" scope="col">Fecha Prst.</th>
+                  <th class="thead-text" scope="col">Tipo Prst.</th>
+                  <th class="thead-text" scope="col">Capital</th>
+                  <th class="thead-text" scope="col">Tasa</th>
+                  <th class="thead-text" scope="col">Cant.Cuotas</th>
+                  <th class="thead-text" scope="col">Importe Cuota</th>
+                  <th class="thead-text" scope="col">Cuotas Pagas</th>
+                  <th class="thead-text" scope="col">Saldo Prst.</th>
+                  <th></th>
+              </tr>
+              </thead>
+              <tbody>
+				<tr th:each="prst: ${prestamosList}">
+					<td class="text-right" th:text="${prst.tarjeta}"></td>
+					<td th:text="${prst.funcionario.nombre}"></td>
+					<td class="text-right" th:text="${prst.nroprestamo}"></td>
+					<td th:text="${#temporals.format(prst.fechaPrestamo, 'dd-MM-yyyy')}"></td>
+					<td th:text="${prst.tipoPrestamo.descripcion}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(prst.capitalPrestamo,3,'POINT',2,'COMMA')}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(prst.interesPrestamo, 1, 'POINT',2,'COMMA')}"></td>
+					<td class="text-right" th:text="${prst.cantCuotas}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(prst.cuota,1, 'POINT', 2,'COMMA')}"></td>
+					<td class="text-right" th:text="${prst.cuotasPagas}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(prst.saldoPrestamo,3,'POINT',2,'COMMA')}"></td>
+					<td>
+						<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')} and ${prst.prestamoNuevo}">
+    						<a href="#" th:href="@{'/editPrst/'+ ${prst.idfprestamos}}">
+    						<i class="fas fa-edit" title="Editar Prst."></i></a>
+						</span>
+						<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')} and ${prst.prestamoNuevo}" >
+							<a href="#" th:onclick="'javascript:confirmDelete(\''+ ${prst.idfprestamos} +'\');'">
+							<i class="fas fa-trash" title="Eliminar Prst."></i></a>
+						</span>	
+						<span  th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')} and ${!prst.prestamoNuevo}" >
+							<a id="unlink" href="#" th:onclick="'javascript:confirmCancel(\''+ ${prst.idfprestamos} +'\');'">
+							<i class="fas fa-unlink" title="Cancelar Prst."></i></a>
+						</span>	
+					</td>
+				</tr>
+              </tbody>
+          </table>
+      </div>
+	<div id="deleteError" th:if="${listErrorMessage}" class="alert alert-danger text-center" role="alert">
+		<span th:text="${listErrorMessage}"></span>
+	</div>
+	<div id="cancelError" th:if="${cancelErrorMessage}" class="alert alert-danger text-center" role="alert">
+		<span th:text="${cancelErrorMessage}"></span>
+	</div>
+</body>
+</html>

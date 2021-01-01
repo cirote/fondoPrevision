@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Pr&eacute;stamos', plantilla='user-form')">
+</head>
+<head>
+	<!--  Nuestro js -->
+	<script th:inline="javascript">
+		function submitBackup(idproc){
+			var params = {};
+			params["nombreproc"] = [[${procname}]];
+			if(idproc === undefined){
+				idproc = 0;
+			}
+			else{
+				params["idproc"] = idproc;		
+			}
+		    $("#spinner").removeClass("d-none");
+		    
+			$.ajax({
+				type:"post",
+				url: "api/fondo/backup/intermedio",
+				        
+		        contentType: "application/json",
+		        data: JSON.stringify(params),
+		        dataType: 'text',
+		        cache: false,
+		        timeout: 600000,
+	
+				success:function(data){
+		            $("#spinner").addClass("d-none");
+					$("#successMessage").removeClass("d-none");
+		            $("#successMessage").html("El proceso de respaldo finaliz&oacute; exitosmante!.");
+		            $("#successMessage").show();
+		            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+	
+				},
+				error: function (e){
+					$("#spinner").addClass("d-none");
+		            $("#errorMessage").removeClass( "d-none" );
+		            $("#successMessage").addClass( "d-none" );
+		            $("#errorMessage").html(e.responseText);
+					
+				}
+			});
+		}
+		
+		function submitRestore(idproc){
+			var params = {};
+			params["nombreproc"] = [[${procname}]];
+			if(idproc === undefined){
+				idproc = 0;
+			}
+			else{
+				params["idproc"] = idproc;		
+			}
+		    $("#spinner").removeClass("d-none");
+			$.ajax({
+				type:"post",
+				url: "api/fondo/restore/intermedio",
+				        
+		        contentType: "application/json",
+		        data: JSON.stringify(params),
+		        dataType: 'text',
+		        cache: false,
+		        timeout: 600000,
+	
+				success:function(data){
+					$("#spinner").addClass("d-none");
+					$("#successMessage").removeClass("d-none");
+		            $("#successMessage").html("El proceso de restauraci&oacute;n finaliz&oacute; exitosmante!.");
+		            $("#successMessage").show();
+		            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+		 		},
+				error: function (e){
+					$("#spinner").addClass("d-none");
+		            $("#errorMessage").removeClass( "d-none" );
+		            $("#successMessage").addClass( "d-none" );
+		            $("#errorMessage").html(e.responseText);
+					
+				}
+			});
+		}
+		
+	</script>
+
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+	        $('#plantaList').DataTable();
+			$('#prestamosList').DataTable();
+			$('#prstCancelList').DataTable();
+			$('#solicitudesList').DataTable();
+	    } );
+	    window.setTimeout(function() {
+	        $("#prError").fadeTo(500, 0).slideUp(500, function(){
+	            $(this).remove(); 
+	        });
+	    }, 2000);
+
+	    window.setTimeout(function() {
+	        $("#prSuccess").fadeTo(500, 0).slideUp(500, function(){
+	            $(this).remove(); 
+	        });
+	    }, 2000);
+	</script>
+
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-user'"></div>
+        <div class="mx-auto col-lg-12 main-section" id="prmTab" role="tablist">
+            <ul class="nav nav-tabs justify-content-end">
+                <li class="nav-item">
+                <a class="nav-link" th:classappend=" ${listTab}" id="list-tab" data-toggle="tab" href="#list" role="tab" aria-controls="list" aria-selected="false">Lista</a>
+                </li>
+                <li class="nav-item">
+                	<a class="nav-link" th:classappend=" ${prstNewTab}" id="prstnew-tab" data-toggle="tab" href="#prstnew" role="tab" aria-controls="list" aria-selected="false">Pr&eacute;stamo Nuevo</a>
+                </li>
+                <li class="nav-item">
+                	<a class="nav-link" th:classappend="${prstCancelTab}" id="prstcancel-tab" data-toggle="tab" href="#prstcancel" role="tab" aria-controls="lstcancel" aria-selected="false">Prst. Cancelados</a>
+                </li>
+                <li class="nav-item">
+                	<a class="nav-link" th:classappend="${solTab}" id="sol-tab" data-toggle="tab" href="#sollist" role="tab" aria-controls="lstsol" aria-selected="false">Sol. de Comisi&oacute;n</a>
+                </li>
+                <li>
+			 		<a href="#" th:href="@{'/home'}" class="nav-link close-tab" role="tab"><span><i class="fas fa-times close-button" ></i></span></a>
+                </li>          				   	
+            </ul>
+            <div class="tab-content" id="lstTabContent">
+                <div class="tab-pane fade show " th:classappend=" ${listTab}" id="list" role="tabpanel" aria-labelledby="list-tab">
+                    <div class="card">
+                        <div class="card-header">
+				          	<table style="width:100%">
+				          		<tr>
+                        			<td><h4>Pr&eacute;stamos Vigentes</h4></td>
+									<td style="text-align:right">
+										<a href="javascript:submitBackup(3)" class="card-link">Respaldo Previo  
+											<i class='fas fa-arrow-circle-down' style='font-size:24px;color:darkgreen'></i>
+										</a>
+									</td>
+				           		</tr>
+				           		<tr>
+				           			<td>
+				       					<a href="#"  data-toggle="modal" data-target="#helpModal">
+				                    			<span aria-hidden="true"><i class="fas fa-info-circle"></i></span>Ayuda </a>
+				           			</td>
+									<td style="text-align:right">
+										<a href="javascript:submitRestore(3)" class="card-link">Restauraci&oacute;n a la situaci&oacute;n anterior
+											<i class='fas fa-arrow-circle-up' style='font-size:24px;color:darkgreen'></i>
+										</a>
+									</td>
+				           		</tr>
+				           	</table>
+							<div class="row d-flex justify-content-center mt-100">
+								<div id="spinner" class="spinner-border text-success d-none" role="status">
+								  <span class="sr-only">Loading...</span>
+								</div>
+								<div id="errorMessage"  class="card alert alert-danger text-center d-none" role="alert">Mensaje de Error</div>
+								<div id="successMessage" class="card alert alert-success text-center d-none" role="alert">Success Message</div>			
+							    <div id="prError" class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+							    <div id="prSuccess" class="alert alert-success text-center" th:if="${formSuccess}" th:text="${formSuccess}">Success Message</div>
+							</div>
+                        </div>
+                        <div class="card-body">
+							<div class="a">
+                   			    <a th:href="@{/pdfPrstreport}" class="card-link"> Export a Pdf
+						           <i class='fas fa-file-pdf' style='font-size:24px;'></i>
+						        </a>
+							</div>                        
+                        	<div th:include="prestamos/prestamos-list.html" th:remove="tag"></div>
+                        </div>
+                        <div class="card-footer">
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade show" th:classappend=" ${prstNewTab}" id="prstnew" role="tabpanel" aria-labelledby="prstnew-tab">
+                	<div class="card">
+				   		<div class="card-header">
+				   			<h4>Pr&eacute;stamo Nuevo</h4>
+				   		</div>
+				   		<div class="card-body">
+                			<div th:insert="prestamos/prestamo-form.html" th:remove="tag"></div>
+				   		</div>
+                	</div>
+                </div>
+                <div class="tab-pane fade show" th:classappend=" ${prstCancelTab}" id="prstcancel" role="tabpanel" aria-labelledby="prstcancel-tab">
+                	<div class="card">
+				   		<div class="card-header">
+				   			<h4>Pr&eacute;stamos Cancelados</h4>
+				   		</div>
+				   		<div class="card-body">
+                			<div th:insert="prestamos/prestamos-cancelados.html" th:remove="tag"></div>
+				   		</div>
+                	</div>
+                </div>
+                <div class="tab-pane fade show" th:classappend=" ${solTab}" id="sollist" role="tabpanel" aria-labelledby="sol-tab">
+                	<div class="card">
+				   		<div class="card-header">
+				   			<h4>Solicitudes Devueltas por Comisi&oacute;n</h4>
+				   		</div>
+				   		<div class="card-body">
+                			<div th:insert="prestamos/solicitudes-devueltas.html" th:remove="tag"></div>
+				   		</div>
+                	</div>
+                </div>
+            </div>
+        </div>
+	<div th:include="help-dialog.html" th:remove="tag"></div>
+	<div th:include="prestamos/confirm-delete-dialog.html" th:remove="tag"></div>
+	<div th:include="prestamos/confirm-cancel-dialog.html" th:remove="tag"></div>
+	<div th:include="prestamos/confirm-undocancel-dialog.html" th:remove="tag"></div>
+</body>
+
+</html>

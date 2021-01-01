@@ -1,0 +1,126 @@
+<script type="text/javascript">
+$("#cargoNuevoForm :input").tooltip({
+	 
+    // place tooltip on the right edge
+    position: "center right",
+
+    // a little tweaking of the position
+    offset: [-2, 10],
+
+    // use the built-in fadeIn/fadeOut effect
+    effect: "fade",
+
+    // custom opacity setting
+    opacity: 0.7
+
+    });
+
+$('.input-group.date').datepicker({
+    autoclose: true,
+    todayHighlight: true
+});
+
+window.setTimeout(function() {
+    $("#cnfError").fadeTo(500, 0).slideUp(500, function(){
+        $(this).remove(); 
+    });
+}, 2000);
+
+window.setTimeout(function() {
+    $("#cnfSuccess").fadeTo(500, 0).slideUp(500, function(){
+        $(this).remove(); 
+    });
+}, 2000);
+
+</script>
+	<form class="form" th:object="${cargoNuevoForm}" th:action="@{/nuevoCargo}"  role="form" method="post" autocomplete="off">
+<!-- 	 -->
+		<div class="card-deck">
+			<div class="card">
+				<div class="card-body text-center">
+					<div class="form-group row">
+		   				<label class="col-lg-5 text-left">Funcionario</label>
+		   				<div class="col-lg-6" >
+							<select th:field="${cargoNuevoForm.idgplanta}" onchange="submitfuncionario()" id="func-select">
+								<option value=""> Seleccionar una opci&oacute;n </option>
+								<option th:each="funcionario :${plantaList}" th:value="${funcionario.idgplanta}" th:text="${funcionario.nombre}"></option>
+							</select>
+			           </div>
+					</div>
+					<div class="form-group row" th:if="${conInformacion}">
+						<label class="col-lg-5 text-left">Cargo Actual</label>
+						<span th:text="*{cargoActual.descripCargo} + ' - ' + *{cargoActual.unidad}" th:if="${conInformacion}"></span>
+						<input type="hidden" th:field="${cargoNuevoForm.idcargoactual}">
+					</div>
+					<div class="form-group row" th:if="${conInformacion}">
+						<label class="col-lg-5 text-left">B&aacute;sico Actual</label>
+						<span th:text="*{#numbers.formatDecimal(cargoActual.basico,3,'POINT',2,'COMMA')}" th:if="${conInformacion}"></span>
+					</div>
+					<div class="form-group row" th:if="${conInformacion}">
+						<label class="col-lg-5 text-left">Complemento Actual</label>
+						<span th:text="*{#numbers.formatDecimal(cargoActual.complemento,3,'POINT',2,'COMMA')}" th:if="${conInformacion}"></span>
+					</div>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-body text-center">
+					<div class="form-group row">
+						<label class="col-lg-5 text-left">Cargo Nuevo</label>
+						<div class="col-lg-4">
+							<select th:field="${cargoNuevoForm.idgcargo}" id="cargo-select">
+								<option value="">Seleccionar una opci&oacute;n </option>
+								<option th:each="cargo : ${cargosList}" th:value="${cargo.idgcargo}" th:text="${cargo.descripCargo} + '-' + ${cargo.unidad}"></option>
+							</select>
+							<input type="hidden" th:field="*{idgcargo}">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-lg-5 text-left">Acceso al Cargo</label>
+						<div class="col-lg-6 input-group date">
+			               <input type="date" class="form-control" id="accesodate" autocomplete="off" th:field="*{fechaDeAcceso}"
+			               	placeholder="dd/MM/yyyy"/>
+			               <div class="input-group-append">
+			                   <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+			               </div>
+							<div class="alert-danger" th:if="${#fields.hasErrors('fechaDeAcceso')}" th:errors="*{fechaDeAcceso}">Fecha de Acceso</div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-lg-6 text-left">Basico 1er. Mes</label>
+						<input class="col-lg-4 form-control" type="text" th:field="*{basico}" 
+							placeholder="ddddd.dd "
+							title="Es el sueldo por el 1er. mes, ingresarlo sin separador de miles y .dd opcional.">
+						<div class="alert-danger" th:if="${#fields.hasErrors('basico')}" th:errors="*{basico}">Basico</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-lg-6 text-left">Complemento 1er. Mes</label>
+						<input class="col-lg-4 form-control" type="text" th:field="*{complemento}" 
+							placeholder="ddddd.dd "
+							title="Es el complemento por el 1er. mes (si corresponde), ingresarlo sin separador de miles y .dd opcional.">
+						<div class="alert-danger" th:if="${#fields.hasErrors('complemento')}" th:errors="*{complemento}">Complemento</div>
+					</div>
+				</div>
+			</div>
+		</div>	
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="form-group  mx-auto ">
+					<div class="col-lg-12 text-center">
+				   	    <button type="submit" class="btn btn-primary" name="guardar">Guardar Actualizaci&oacute;n</button>
+					 	<a href="#" th:href="@{'/home'}" class="btn btn-secondary" style="margin-left:2px;">
+					 	    <span> Cerrar </span> <span class="float-right" style="padding-left:6px;"><i class="fas fa-sign-out-alt"></i></span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	    <div id="cnfError" class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+	    <div id="cnfSuccess" class="alert alert-success text-center" th:if="${formSuccess}" th:text="${formSuccess}">Success Message</div>
+	</form>
+	<script type="text/javascript">
+		$('#func-select').change(function submitfuncionario(){
+			var idfunc = $(this).val();
+			window.location = "getInfo/"+idfunc;
+		}
+		);
+	</script>

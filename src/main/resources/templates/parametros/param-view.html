@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Informaci&oacute;n de Par&aacute;metros de la Aplicaci&oacute;n', plantilla='user-form')">
+</head>
+<head>
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+	        $('#paramList').DataTable();
+	    } );
+	</script>
+	<script th:inline="javascript">
+		function submitBackup(){
+			var params = {};
+			params["nameproc"] = [[${procname}]];
+		    $("#spinner").removeClass("d-none");
+		    
+			$.ajax({
+				type:"post",
+				url: "api/fondo/backup",
+				        
+		        contentType: "application/json",
+		        data: JSON.stringify(params),
+		        dataType: 'text',
+		        cache: false,
+		        timeout: 600000,
+		
+				success:function(data){
+					$("#spinner").addClass("d-none");
+					$("#successMessage").removeClass("d-none");
+		            $("#successMessage").html("El proceso de respaldo finaliz&oacute; exitosmante!.");
+		            $("#successMessage").show();
+		            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+				},
+				error: function (e){
+					$("#spinner").addClass("d-none");
+		            $("#errorMessage").removeClass( "d-none" );
+		            $("#successMessage").addClass( "d-none" );
+		            $("#errorMessage").html(e.responseText);
+					
+				}
+			});
+		}
+		
+		function submitRestore(){
+			var params = {};
+			params["nameproc"] = [[${procname}]];
+		    $("#spinner").removeClass("d-none");
+			$.ajax({
+				type:"post",
+				url: "api/fondo/restore",
+				        
+		        contentType: "application/json",
+		        data: JSON.stringify(params),
+		        dataType: 'text',
+		        cache: false,
+		        timeout: 600000,
+		
+				success:function(data){
+					$("#spinner").addClass("d-none");
+					$("#successMessage").removeClass("d-none");
+		            $("#successMessage").html("El proceso de restauraci&oacute;n finaliz&oacute; exitosmante!.");
+		            $("#successMessage").show();
+		            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+				},
+				error: function (e){
+					$("#spinner").addClass("d-none");
+		            $("#errorMessage").removeClass( "d-none" );
+		            $("#successMessage").addClass( "d-none" );
+		            $("#errorMessage").html(e.responseText);
+					
+				}
+			});
+		}
+	</script>
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-user'"></div>
+    <div class="container">
+        <div class="mx-auto col-lg-10 main-section" id="prmTab" role="tablist">
+            <ul class="nav nav-tabs justify-content-end">
+                <li class="nav-item">
+                <a class="nav-link" th:classappend=" ${listTab}" id="list-tab" data-toggle="tab" href="#list" role="tab" aria-controls="list" aria-selected="false">Lista</a>
+                </li>
+                <li class="nav-item">
+                	<a class="nav-link" th:classappend=" ${aniomesTab}" id="aniomes-tab" data-toggle="tab" href="#aniomes" role="tab" aria-controls="list" aria-selected="false">Actualizaci&oacute;n Mes Liquidaci&oacute;n</a>
+                </li>
+                <li class="nav-item">
+	                <a class="nav-link" th:classappend=" ${formTab}" id="form-tab" data-toggle="tab" href="#form" role="tab" aria-controls="form" aria-selected="true">Actualizaci&oacute;n Par&aacute;metro</a>
+                </li>  
+                <li class="nav-item">
+	                <a class="nav-link" th:classappend=" ${tasasTab}" id="tasas-tab" data-toggle="tab" href="#tasas" role="tab" aria-controls="tasas" aria-selected="true">Actualizaci&oacute;n Tasas/Plazos Pr&eacute;stamos</a>
+                </li>  
+                <li>
+			 		<a href="#" th:href="@{'/home'}" class="nav-link close-tab" role="tab"><span><i class="fas fa-times close-button" ></i></span></a>
+                </li>          				   	
+            </ul>
+            <div class="tab-content" id="prmTabContent">
+                <div class="tab-pane fade show" th:classappend=" ${listTab}" id="list" role="tabpanel" aria-labelledby="list-tab">
+                    <div class="card">
+                        <div class="card-header">
+                        	<table style="width:100%">
+                        		<tr>
+                        			<td><h4>Par&aacute;metros Registrados</h4></td>
+                        			<td style="text-align:right">
+										<a href="javascript:submitBackup()" class="card-link">Respaldo de Par&aacute;metros actuales 
+											<i class='fas fa-arrow-circle-down' style='font-size:24px;color:darkgreen'></i>
+										</a>
+                        			</td>
+                        		</tr>
+                        		<tr>
+                        			<td>
+			          					<a href="#" th:href="@{'/ayuda/fpar'}" data-toggle="modal" data-target="#helpModal">
+		                        			<span aria-hidden="true"><i class="fas fa-info-circle"></i></span>Ayuda </a>
+                        			</td>
+                        			<td style="text-align:right">
+										<a href="javascript:submitRestore()" class="card-link">Restauraci&oacute;n de Par&aacute;metros respaldados
+											<i class='fas fa-arrow-circle-up' style='font-size:24px;color:darkgreen'></i>
+										</a>
+                        			</td>
+                        		</tr>
+                        	</table>
+							<div class="row d-flex justify-content-center mt-100">
+								<div id="spinner" class="spinner-border text-success d-none" role="status">
+								  <span class="sr-only">Loading...</span>
+								</div>
+								<div id="errorMessage"  class="card alert alert-danger text-center d-none" role="alert">Mensaje de Error</div>
+								<div id="successMessage" class="card alert alert-success text-center d-none" role="alert">Success Message</div>			
+							</div>
+                        </div>
+                        <div class="card-body">
+                        	<div th:include="parametros/param-list.html" th:remove="tag"></div>
+                        </div>
+                        <div class="card-footer">
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade show" th:classappend=" ${aniomesTab}" id="aniomes" role="tabpanel" aria-labelledby="aniomes-tab">
+                	<div class="card">
+                		<div class="card-header">
+                			<h4>Actualizaci&oacute;n del Mes Liquidaci&oacute;n</h4>
+                		</div>
+                		<div class="card-body">
+                			<div th:insert="parametros/change-aniomes.html" th:remove="tag"></div>
+                		</div>
+                	</div>
+                </div>
+                <div class="tab-pane fade show" th:classappend=" ${formTab}" id="form" role="tabpanel" aria-labelledby="form-tab">
+                    <div class="card"> 
+                        <div class="card-header">
+                            <h4>Informaci&oacute;n del Par&aacute;metro</h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Formulario de parametros-->
+                         	<div th:include="parametros/param-form.html" th:remove="tag"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade show" th:classappend=" ${tasasTab}" id="tasas" role="tabpanel" aria-labelledby="tasas-tab">
+                    <div class="card"> 
+                        <div class="card-header">
+                            <h4>Informaci&oacute;n del Par&aacute;metro</h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Formulario de parametros tasas/plazos-->
+                         	<div th:include="parametros/param-prst-form.html" th:remove="tag"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	<div th:include="help-dialog.html" th:remove="tag"></div>
+	<div th:include="parametros/confirm-delete-dialog.html" th:remove="tag"></div>
+	<div th:include="parametros/confirm-delete-parPrst.html" th:remove="tag"></div>
+</body>
+</html>
+

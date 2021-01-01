@@ -1,0 +1,63 @@
+<script type="text/javascript">
+	window.setTimeout(function() {
+	    $("#formError").fadeTo(500, 0).slideUp(500, function(){
+	        $(this).remove(); 
+	    });
+	}, 2000);
+
+	window.setTimeout(function() {
+	    $("#formSuccess").fadeTo(500, 0).slideUp(500, function(){
+	        $(this).remove(); 
+	    });
+	}, 2000);
+
+
+</script>
+<div th:with="disableFields=!${editMode} and ${#authorization.expression('hasRole(''ROLE_USER'')')}">
+       <!-- Formulario de usuarios-->
+       <form id="paramForm" th:object="${paramForm}" th:action="${signup}?@{/signup}:(${editMode}?@{/editParam}:@{/paramForm})" method="post" class="form" role="form" autocomplete="off">
+       	   <input class="form-control" type="hidden" th:field="*{parametro.idfparametros}" th:if="${editMode}">
+  			<div class="panel panel-default">
+				<div class="panel-body" >
+		           <div class="form-group row">
+		               <label class="col-lg-3 col-form-label form-control-label">Mes Liquidaci&oacute;n</label>
+		               <div class="col-lg-3">
+		                   <input class="form-control" type="text" th:field="*{parametro.mesliquidacion}" th:disabled=${disableFields}>
+		                   <div class="alert-danger" th:if="${#fields.hasErrors('parametro.mesliquidacion')}" th:errors="*{parametro.mesliquidacion}">Mesliquidación Error</div>
+		               </div>
+		           </div>
+		           <div class="form-group row">
+		               <label class="col-lg-3 col-form-label form-control-label">Descripci&oacute;n</label>
+		               <div class="col-lg-8">
+		                   <input class="form-control" type="text" th:field="*{parametro.descripcion}" th:disabled=${disableFields}>
+		                   <div class="alert-danger" th:if="${#fields.hasErrors('parametro.descripcion')}" th:errors="*{parametro.descripcion}">Descripcion Error</div>
+		               </div>
+		           </div>
+		           <div class="form-group row" >
+			           	<label class="col-lg-3 col-form-label form-control-label">Valor</label>
+			           	<div class="col-lg-2">
+			           		<input class="form-control" type="text" th:field="*{parametro.valor}" th:disabled=${disableFields}>
+			           		<div class="alert-danger" th:if="${#fields.hasErrors('parametro.valor')}" th:errors="*{parametro.valor}">Valor Error</div>
+			           	</div>
+		           	</div>
+		           	<div class="form-group row">
+		               <label class="col-lg-3 col-form-label form-control-label">S&iacute;mbolo</label>
+		               <div class="col-lg-2">
+		                   <input class="form-control" type="text" th:field="*{parametro.simbolo}" th:disabled=${disableFields}>
+		                   <div class="alert-danger" th:if="${#fields.hasErrors('parametro.simbolo')}" th:errors="*{parametro.simbolo}">Simbolo Error</div>
+		               </div>
+		           </div>
+	           </div>
+           </div>
+           <div class="form-group row">
+               <div class="col-lg-12 text-center">
+               		<a class="btn btn-secondary" th:href="@{'/editParam/cancel'}">Cancelar</a>
+					<input type="submit" class="btn btn-primary"
+                       value="Save Changes" th:value="${editMode}?'Salvar Param':'Crear Param'">
+               </div>
+           </div>
+           <div class="alert alert-danger text-center" id="formError" th:if="${formError}" th:text="${formError}">Error Message</div>
+           	<div class="alert alert-success text-center" id="formSuccess" th:if="${formSuccess}" th:text="${formSuccess}" >Success MEssage</div>
+       </form>
+</div>
+

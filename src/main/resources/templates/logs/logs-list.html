@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Registros de Log', plantilla='loglist')">
+</head>
+<head>
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+	        $('#logLista').DataTable();
+	    } );
+	</script>
+</head>
+
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-user'"></div>
+	<div class="container mx-auto col-lg-12 main-section " >
+	 	<div class="a">
+	 		<a href="#" th:href="@{'/home'}" class="nav-link"><span><i class="fas fa-times close-button" style="font-size:30px;"></i></span></a>
+	 	</div>
+		<div class="panel panel-default">
+			<div class="panel-heading ">
+				<h4>Registros de Log</h4>
+			</div>
+	       <!-- Lista de registros de Log-->
+	       <div class="panel-body table-responsive" >
+	           <table id="logLista" class="table table-bordered table-hover table-striped table-sm">
+	               <thead class="thead-light">
+	               <tr>
+	                   <th scope="col">#</th>
+	                   <th scope="col">Procedimiento</th>
+	                   <th scope="col">Fechahora</th>
+	                   <th scope="col">Usuario</th>
+	                   <th scope="col">Categoria</th>
+	               </tr>
+	               </thead>
+	               <tbody>
+						<tr th:each="logfondo : ${listLog}">
+							<td th:text="${logfondo.idlogfondo}"></td>
+							<td th:text="${logfondo.procedimiento}"></td>
+							<td th:text="${#dates.format(logfondo.fechahora, 'dd-MM-yyyy HH:mm')}"></td>
+							<td th:text="${logfondo.username}"></td>
+							<td th:text="${logfondo.categoriaLog.descripcion}"></td>
+						</tr>
+	               </tbody>
+	           </table>
+	       </div>
+       	</div>       
+	</div>
+</body>
+</html>
+

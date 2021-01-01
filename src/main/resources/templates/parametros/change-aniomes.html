@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<script type="text/javascript">
+$("#changeAniomesForm :input").tooltip({
+	 
+    // place tooltip on the right edge
+    position: "center right",
+
+    // a little tweaking of the position
+    offset: [-2, 10],
+
+    // use the built-in fadeIn/fadeOut effect
+    effect: "fade",
+
+    // custom opacity setting
+    opacity: 0.7
+
+    });
+
+window.setTimeout(function() {
+    $("#amError").fadeTo(500, 0).slideUp(500, function(){
+        $(this).remove(); 
+    });
+}, 2000);
+
+window.setTimeout(function() {
+    $("#amSuccess").fadeTo(500, 0).slideUp(500, function(){
+        $(this).remove(); 
+    });
+}, 2000);
+
+</script>
+</head>
+<body>
+<div class="container" >
+	<form id="changeAniomesForm" th:object="${aniomesForm}" method="post" th:action="@{/aniomesForm}" class="form" 
+      	role="form" autocomplete="off">
+ 		<input class="form-control" type="hidden" th:field="${aniomesForm.id}"> 
+		<div class="form-group row">
+			<label class="col-lg-4 col-form-label 	form-control-label">Mes Liquidaci&oacute;n</label>
+			<div class="col-lg-3">
+				<input class="form-control" type="text" th:field="${aniomesForm.mesliquidacion}"
+					placeholder="mm/yyyy" title="se solicita ingresar respetando el formato">
+				<div class="alert-danger" th:if="${#fields.hasErrors('mesliquidacion')}" th:errors="*{mesliquidacion}">MesLiquidacion</div>
+			</div>
+		</div>
+		<div class="form-group row mx-auto">
+			<div class="col-lg-12 text-center">
+           		<a class="btn btn-secondary" th:href="@{'/aniomesForm/cancel'}">Cerrar</a>
+		        <button type="submit"  id="btnSave" value="Salvar Cambio" class="btn btn-primary" >Salvar cambios</button>
+		    </div>
+		</div>
+		<div class="col-lg-12">
+			<div id="amError" class="alert alert-danger text-center" th:if="${aniomesErrorMessage}" th:text="${aniomesErrorMessage}">Error Message</div>
+	       	<div id="amSuccess" class="alert alert-success text-center" th:if="${formSuccess}" th:text="${formSuccess}">Success MEssage</div>
+		</div>
+   </form>
+</div>
+</body>
+</html>

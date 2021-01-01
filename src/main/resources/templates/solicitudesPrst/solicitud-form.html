@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<script type="text/javascript">
+	window.setTimeout(function() {
+	    $("#snError").fadeTo(500, 0).slideUp(500, function(){
+	        $(this).remove(); 
+	    });
+	}, 2000);
+	
+	window.setTimeout(function() {
+	    $("#snSuccess").fadeTo(500, 0).slideUp(500, function(){
+	        $(this).remove(); 
+	    });
+	}, 2000);
+</script>
+	<form id="solicitudnuevaForm" th:object="${solicitudPrstForm}" th:action="${editMode}? @{/editSolicitud}:@{/solicitudNuevaForm}" method="post"
+		class="form" role="form" autocomplete="off">
+		<input type="hidden" th:field="*{user.id}">
+		<input type="hidden" th:field="*{user.tarjeta}">
+		<input type="hidden" th:field="*{idfuncionario}">
+		<input type="hidden" th:field="*{idfsolicitud}" th:if="${editMode}">
+	    <div id="snError" class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+	    <div id="snSuccess" class="alert alert-success text-center" th:if="${formSuccess}" th:text="${formSuccess}">SuccessMessage</div>
+		<div class="card-deck">
+			<div class="card">
+				<div class="card-body text-center">
+					<div class="form-group row">
+	    				<label class="col-lg-4 text-left">Tipo Pr&eacute;stamo</label>
+	    				<div class="col-lg-6" >
+	    					<select th:field="*{idTipoPrestamo}">
+	    						<option value=""> Seleccionar una opci&oacute;n </option>
+	    						<option th:each="tipo :${tiposPrstList}" th:value="${tipo.idftipoprestamo}" th:text="${tipo.descripcion}"></option>
+	    					</select>
+	    				</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-lg-4 text-left">Capital</label>
+						<div class="col-lg-6">
+							<input id="capital" class="form-control" th:field="*{prestamo.capitalPrestamo}"
+								title="No usar separador de miles. Utilizar el punto como separador decimal">
+							<div class="alert-danger" th:if="${#fields.hasErrors('prestamo.capitalPrestamo')}" th:errors="*{prestamo.capitalPrestamo}">Capital</div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-lg-4 text-left">Plazo</label>
+						<div class="col-lg-6">
+							<select th:field="*{idparamPrst}" onchange="submitparametro()" id="par-select" >
+								<option value=""> Seleccionar una opci&oacute;n </option>
+								<option th:each="parametro :${pprstList}" th:value="${parametro.idfparamprst}" th:text="${parametro.descripcion}" ></option>
+							</select>
+						</div>
+						<input type="hidden" id="plazo" th:field="*{prestamo.cantCuotas}">
+					</div>				
+					<div class="form-group row">
+						<label class="col-lg-4 text-left">Tasa</label>
+						<div class="col-lg-6">
+							<div id="valorTasa"  th:classappend="text-cuota" th:text="*{prestamo.interesPrestamo} + ' %'"></div>
+						</div>
+						<input type="hidden" id="tasa" th:field="*{prestamo.interesPrestamo}">
+					</div>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-body ">
+					<div class="form-group" th:if="not ${sinPrst}">
+						<label class="col-lg-8 ">Pr&eacute;stamos a Cancelar....</label>
+	    				<div class="col-lg-10" th:if="not ${sinPrst}">
+	    					<select id="selprsttocancel" class="form-control " multiple  th:field="*{cancelPrst}">
+	    						<option th:each="p : ${estadoDeCta.lstPrst}" th:value="${p.nroprestamo}" 
+	    						th:text="${p.nroprestamo} +' - saldo: ' + ${#numbers.formatDecimal(p.saldoPrestamo,3,'POINT',2,'COMMA')}"></option>
+	    					</select>
+	    				</div>
+	    				<input type="hidden" th:field="*{cancelPrst}">
+					</div>
+					<div class="form-group" th:if="not ${sinPrst}">
+						<label class="col-lg-8 ">Pr&eacute;stamos a Cancelar seleccionados....</label>
+						<span th:text="*{cancelPrst}" th:classappend="text-cuota"></span>					
+					</div>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-body text-center">
+					<div class="form-group row">
+						<label class="col-lg-6 col-form-label form-control-label">40% sobre sueldo: </label>
+						<div class="col-lg-6">
+							<span th:text="*{cuarentaPorCiento}" th:classappend="text-cuota"></span>
+							<input type="hidden" th:field="*{cuarentaPorCiento}">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-lg-6 col-form-label form-control-label">Valor de la Cuota: </label>
+						<div class="col-lg-6">
+							<span th:text="*{prestamo.cuota}" th:classappend="text-cuota"></span>
+							<input type="hidden" th:field="*{prestamo.cuota}">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-lg-6 col-form-label form-control-label">Capital a recibir: </label>
+						<div class="col-lg-6">
+							<span th:text="*{capitalNeto}" th:classappend="text-cuota"></span>
+							<input type="hidden" th:field="*{capitalNeto}">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-lg-6 col-form-label form-control-label">Suma de cuotas comprometidas: </label>
+						<div class="col-lg-6">
+							<span th:text="*{totalCuotas}" th:classappend="text-cuota"></span>
+							<input type="hidden" th:field="*{totalCuotas}">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group  mx-auto group-margin">
+			<div class="col-lg-12 text-center">
+ 		   		<button class="btn btn-secondary" type="submit" name="calculoCuota">Calcular Cuota</button>
+		   		<button class="btn btn-secondary" type="submit" name="borrador">Guardar Borrador</button>
+		   	    <button type="submit" class="btn btn-primary" name="saveSol" >Enviar Solicitud </button>
+			</div>
+		</div>
+	</form>
+	<script th:inline="javascript">
+		$('#par-select').change(function submitparametro(){   
+		    var id = $(this).val();
+			
+		    var lst = [[${pprstList}]];
+		    for(let i = 0; i < lst.length; i++){
+		    	if(lst[i]["idfparamprst"] == id){
+				    $('#valorTasa').html([[${pprstList}]][i]["tasa"]);
+					$('#tasa').val([[${pprstList}]][i]["tasa"]);
+					$('#plazo').val([[${pprstList}]][i]["meses"]);
+					var tasa = [[${pprstList}]][i]["tasa"];		    		
+		    	}
+		    }
+			
+		});		
+	</script>
+
+</html>

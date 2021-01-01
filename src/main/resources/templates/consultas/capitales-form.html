@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Consulta Capitales', plantilla='loglist')">
+</head>
+<head>
+	<script src="/js/exceldownload.js"></script>	
+
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        $('#capitalesList').DataTable();
+	        var anio = $('#selec').val().substring(3, 7);
+	        var mes = $('#selec').val().substring(0,2);
+	        var mesliq = anio+mes;
+	        var table = $('#capitalesList').DataTable();
+	        $('#capitalesList').on('click', 'tr', function(){
+				//console.log(table.row(this).data());
+				var fila = table.row(this).data();
+				var nro = fila[0];
+				var nombre = fila[1];
+				var ind = fila.length - 2;
+				var integ = fila[ind].replace('.', '');
+				integ = integ.replace(',', '.');
+				var disp = fila[ind - 1].replace('.', '');
+				disp = disp.replace(',', '.');
+				$('#nrofunc').val(nro);
+				$('#nombre').text(nombre);
+				$('#cdispAct').val(disp);
+				$('#cintAct').val(integ);
+				$('#mesliq').val(mesliq);
+	        })
+	    } );
+	    
+		window.setTimeout(function() {
+		    $("#formError").fadeTo(500, 0).slideUp(500, function(){
+		        $(this).remove(); 
+		    });
+		}, 2000);
+	</script>
+	<script th:inline="javascript">
+		function submitBackup(){
+			var params = {};
+			params["nameproc"] = [[${procname}]];
+		    $("#spinner").removeClass("d-none");
+		    
+			$.ajax({
+				type:"post",
+				url: "api/fondo/backup",
+				        
+		        contentType: "application/json",
+		        data: JSON.stringify(params),
+		        dataType: 'text',
+		        cache: false,
+		        timeout: 600000,
+		
+				success:function(data){
+					$("#spinner").addClass("d-none");
+					$("#successMessage").removeClass("d-none");
+		            $("#successMessage").html("El proceso de respaldo finaliz&oacute; exitosmante!.");
+		            $("#successMessage").show();
+		            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+				},
+				error: function (e){
+					$("#spinner").addClass("d-none");
+		            $("#errorMessage").removeClass( "d-none" );
+		            $("#successMessage").addClass( "d-none" );
+		            $("#errorMessage").html(e.responseText);
+					
+				}
+			});
+		}
+		
+		function submitRestore(){
+			var params = {};
+			params["nameproc"] = [[${procname}]];
+		    $("#spinner").removeClass("d-none");
+			$.ajax({
+				type:"post",
+				url: "api/fondo/restore",
+				        
+		        contentType: "application/json",
+		        data: JSON.stringify(params),
+		        dataType: 'text',
+		        cache: false,
+		        timeout: 600000,
+		
+				success:function(data){
+					$("#spinner").addClass("d-none");
+					$("#successMessage").removeClass("d-none");
+		            $("#successMessage").html("El proceso de restauraci&oacute;n finaliz&oacute; exitosmante!.");
+		            $("#successMessage").show();
+		            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+				},
+				error: function (e){
+					$("#spinner").addClass("d-none");
+		            $("#errorMessage").removeClass( "d-none" );
+		            $("#successMessage").addClass( "d-none" );
+		            $("#errorMessage").html(e.responseText);
+					
+				}
+			});
+		}
+		
+	</script>
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-supervisor'"></div>
+ 	<div class="container main-section" th:object="${capitalesForm}">
+	 	<div class="a">
+	 		<a href="#" th:href="@{'/home'}" class="nav-link"><span><i class="fas fa-times close-button" style="font-size:30px;"></i></span></a>
+	 	</div>
+		<div class="panel-group">
+	 		<div class="panel panel-default">
+	 			<div class="panel-heading">
+		 			<h4>Capitales Disponibles y Numerales</h4>
+		 			
+	 			</div>
+	 			<div class="panel-body" >
+	 				<form id="capform" th:action="@{/getCapitales}"  class="form" autocomplete="off" method="post" role="form">
+						<div class="form-group row">
+							<label class="col-lg-3 col-form-label form-control-label">Mes Liquidaci&oacute;n</label>
+							<div class="col-lg-3" >
+								<select id="selec" th:field="*{mesliquidacion}">
+									<option value="">Seleccionar...</option>
+									<option th:each="mesd :${meseslist}" th:value="${mesd}" th:text="${mesd}"></option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group  mx-auto ">
+							<div class="col-lg-12 text-center">
+						   	    <button type="submit" class="btn btn-primary" name="getInfo" > 
+						   	    Traer Informaci&oacute;n</button>
+							</div>
+						</div>
+	 				</form>
+	 			</div>
+	 		</div>
+           <div class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+	 		<div class="panel-heading" th:if="${outputMode and #lists.isEmpty(capitalesList)}">
+	 			No se encontraron movimientos de capitales para el mes elegido
+	 		</div>
+	 		<div class="panel panel-default" th:if="${outputMode and not(#lists.isEmpty(capitalesList))}">
+				<div class="panel-heading" th:if="${outputMode and not(#lists.isEmpty(capitalesList))}">
+					<h4><span th:text="'Mes Elegido: ' + ${capitalesForm.mesliquidacion}"></span></h4>
+				</div>
+	 			<div class="panel-body" th:if="${outputMode}">
+	              	<table style="width:100%">
+	              		<tr>
+	              			<td>
+								<a href="javascript:submitBackup()" class="card-link">Respaldo de Capitales actuales 
+									<i class='fas fa-arrow-circle-down' style='font-size:24px;color:darkgreen'></i>
+								</a>
+	              			</td>
+	              			<td style="text-align:right">
+				   			    <a th:href="@{|/pdfCapitalesReport?mesliquidacion=*{mesliquidacion}|}" class="card-link"> Export a Pdf
+									<i class='fas fa-file-pdf' style='font-size:24px;'></i></a>	
+									
+		<!-- 			 			<a href="#" th:data-mes="*{mesliquidacion}" style="margin-left: 10px;" -->
+		<!-- 			 			th:onclick="|tableToExcel(capitalesList, 'capitales' + this.getAttribute('data-mes'))|"> Export a Excel -->
+		<!-- 			 				<i class='fas fa-file-excel' style='font-size:24px;'></i></a> -->
+	              			</td>
+	              		</tr>
+	              		<tr>
+	              			<td>
+								<a href="javascript:submitRestore()" class="card-link">Restauraci&oacute;n de Capitales respaldados
+									<i class='fas fa-arrow-circle-up' style='font-size:24px;color:darkgreen'></i>
+								</a>
+	              			</td>
+	              			<td style="text-align:right">
+				   			    <a th:href="@{|/excelCapitales?mesliquidacion=*{mesliquidacion}|}" class="card-link"> Export a Excel
+									<i class='fas fa-file-excel' style='font-size:24px;'></i></a>	
+	              			</td>
+	              		</tr>
+	              	</table>
+					<div class="row d-flex justify-content-center mt-100">
+						<div id="spinner" class="spinner-border text-success d-none" role="status">
+						  <span class="sr-only">Loading...</span>
+						</div>
+						<div id="errorMessage"  class="card alert alert-danger text-center d-none" role="alert">Mensaje de Error</div>
+						<div id="successMessage" class="card alert alert-success text-center d-none" role="alert">Success Message</div>			
+					</div>
+					<br>
+			      <div class="table-responsive">
+			          <table id="capitalesList" class="table table-bordered table-hover table-striped table-sm">
+	 					<thead class="thead-light">
+	 						<tr>
+	 							<th class="thead-text" scope="col">Nro</th>
+	 							<th class="thead-text" scope="col">Nombre</th>
+	 							<th class="thead-text" scope="col">Cap. Disp. Anterior</th>
+	 							<th class="thead-text" scope="col" th:if="${conDistribucion}">Result. Distrib</th>
+	 							<th class="thead-text" scope="col">Amortiz.</th>
+	 							<th class="thead-text" scope="col">Cancelaci&oacute;n</th>
+	 							<th class="thead-text" scope="col">Prst. Nuevo</th>
+	 							<th class="thead-text" scope="col">Total Mov.</th>
+	 							<th class="thead-text" scope="col">Total Mov. Nominal</th>
+	 							<th class="thead-text" scope="col">Cap. Disp. Actual</th>
+	 							<th class="thead-text" scope="col">Cap. Integrado</th>
+	 							<th></th>
+	 						</tr>
+	 					</thead>
+	 					<tbody>
+	 						<tr th:each="cap : ${capitalesList}">
+	 							<td th:text="${cap.nrofuncionario}"></td>
+	 							<td th:text="${cap.nombre}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.capitalDispAnterior, 2, 'POINT', 2, 'COMMA')}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.importeDistribucion, 2, 'POINT', 2, 'COMMA')}"
+	 								th:if="${conDistribucion}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.amortizacion, 1, 'POINT', 2, 'COMMA')}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.cancelaciones, 1, 'POINT', 2, 'COMMA')}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.prstnuevos, 2, 'POINT', 2, 'COMMA')}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.totalMovPrst, 2, 'POINT', 2, 'COMMA')}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.totalMovAportes, 2, 'POINT', 2, 'COMMA')}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.capitalDispActual, 2, 'POINT', 2, 'COMMA')}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.capitalIntegActual, 2, 'POINT', 2, 'COMMA')}"></td>
+	 							<td>
+	 								<button type="button" id="editFila" data-toggle="modal" data-target="#ajustesCapModal"><i class="fas fa-edit"></i></button>
+	 							</td>
+	 						</tr>
+	 					</tbody>
+			          </table>
+<!-- 						<script src="/js/script.js"></script> -->
+			      </div>
+	 			</div>
+	 		</div>
+		</div>
+	</div>
+	<div th:include="/consultas/ajustes-capitales-form.html" th:remove="tag"></div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/fragments/header :: head(titulo='C&aacute;lculo de Aportes', plantilla='loglist')">
+</head>
+<head>
+
+	<script src="/js/exceldownload.js"></script>	
+
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+	        $('#aportesList').DataTable();
+	    } );
+	</script>
+
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-supervisor'"></div>
+ 	<div class="container main-section" th:object="${capitalesForm}">
+	 	<div class="a">
+	 		<a href="#" th:href="@{'/home'}" class="nav-link"><span><i class="fas fa-times close-button" style="font-size:30px;"></i></span></a>
+	 	</div>
+		<div class="panel-group">
+	 		<div class="panel panel-default">
+	 			<div class="panel-heading">
+		 			<h4>Resultados de Integraci&oacute;n de Aportes</h4>
+		 			
+	 			</div>
+	 			<div class="panel-body" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') or #authorization.expression('hasRole(''ROLE_SUPERVISOR'')')}">
+	 				<form id="consultaAportesform" th:action="@{/resultAportes}" class="form" autocomplete="off" method="post" role="form">
+	 					<table style="width: 100%">
+	 						<tr>
+	 							<td>
+			 						<div class="form-group row">
+						   				<label class="col-lg-3 col-form-label form-control-label">mes/anio Integraci&oacute;n</label>
+						   				<div class="col-lg-6" >
+											<select th:field="*{mesliquidacion}">
+												<option value="">Seleccionar...</option>
+												<option th:each="mesd :${meseslist}" th:value="${mesd}" th:text="${mesd}"></option>
+											</select>
+							           </div>
+									</div>
+	 							</td>
+								<td>
+									<div class="form-group row text-center">
+								   	    <button type="submit" class="btn btn-primary" name="getInfo" > Traer Informaci&oacute;n
+								   	    </button>
+									</div>
+								</td>
+	 						</tr>
+	 					</table>
+	 				
+	 				</form>
+	 			</div>
+	 		</div>
+           <div class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+	 		<div class="panel panel-default" th:if="${outputMode and not(#lists.isEmpty(aportesList))}">
+	 			<div class="panel-heading" th:if="${outputMode}">
+	 				<h4>Integraci&oacute;n por funcionario en el mes: <span th:text="*{mesliquidacion}"></span></h4>
+	 			</div>
+	 			<div class="panel-body" th:if="${outputMode}">
+	 				<div class="a">
+		   			    <a th:href="@{|/pdfConsultaReport?mesliquidacion=*{mesliquidacion}|}" class="card-link"> Export a Pdf
+							<i class='fas fa-file-pdf' style='font-size:24px;'></i></a>								
+		   			    <a th:href="@{|/excelConsulta?mesliquidacion=*{mesliquidacion}|}" class="card-link"> Export a Excel
+							<i class='fas fa-file-excel' style='font-size:24px;'></i></a>								
+	 				</div>
+				       <!-- Lista de Aportes-->
+			       <div class="table-responsive">
+			           <table id="aportesList" class="table table-bordered table-hover table-striped table-sm">
+			               <thead class="thead-light">
+			               <tr>
+			                   <th scope="col">Nro.</th>
+			                   <th scope="col">Nombre</th>
+			                   <th scope="col">Fecha</th>
+			                   <th scope="col">Aporte Fun.</th>
+			                   <th scope="col">Aporte Sec.</th>
+			                   <th scope="col">Aporte Total</th>
+			                   <th scope="col">Cap. Intg. Anterior</th>
+			                   <th scope="col">Cap. Intg. Actual</th>
+			                   <th scope="col">Cap. Disp. Anterior</th>
+			                   <th scope="col">Cap. Disp. Actual</th>
+			               </tr>
+			               </thead>
+			               <tbody>
+								<tr th:each="aporte: ${aportesList}">
+									<td class="text-right" th:text="${aporte.tarjeta}"></td>
+									<td th:text="${aporte.nombre}"></td>
+									<td th:text="${#dates.format(aporte.fecha, 'dd-MM-yyyy')}"></td>
+									<td class="text-right" th:text="${#numbers.formatDecimal(aporte.aporteFun,3,'POINT',2,'COMMA')}"></td>
+									<td class="text-right" th:text="${#numbers.formatDecimal(aporte.aporteSec,3,'POINT',2,'COMMA')}"></td>
+									<td class="text-right" th:text="${#numbers.formatDecimal(aporte.aporteTotal,3,'POINT',2,'COMMA')}"></td>
+									<td class="text-right" th:text="${#numbers.formatDecimal(aporte.capIntegAntes,3,'POINT',2,'COMMA')}"></td>
+									<td class="text-right" th:text="${#numbers.formatDecimal(aporte.capIntegActual,3,'POINT',2,'COMMA')}"></td>
+									<td class="text-right" th:text="${#numbers.formatDecimal(aporte.capDispAntes,3,'POINT',2,'COMMA')}"></td>
+									<td class="text-right" th:text="${#numbers.formatDecimal(aporte.capDispActual,3,'POINT',2,'COMMA')}"></td>
+								</tr>
+			               </tbody>
+			           </table>
+			       </div>
+	       		</div>
+	      </div>
+       </div>
+    </div>
+</body>
+</html>
+

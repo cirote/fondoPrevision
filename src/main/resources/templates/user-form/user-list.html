@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+        $('#userList').DataTable();
+    } );
+</script>
+<script type="text/javascript">
+function confirmDelete(id){
+	$('#deleteModal').modal('show');
+	$("#userIdHiddenInput").val(id);
+}
+
+function deleteUser(){
+	var id = $("#userIdHiddenInput").val();
+    window.location = "/fondoPrevision/deleteUser/"+id;
+}
+</script>
+</head>
+<body>
+       <!-- Lista de usuarios-->
+       <div class="table-responsive">
+           <table id="userList" class="table table-bordered table-hover table-striped table-sm">
+               <thead class="thead-light">
+               <tr>
+                   <th scope="col">Nombre</th>
+                   <th scope="col">Apellido</th>
+                   <th scope="col">Username</th>
+                   <th scope="col">E-mail</th>
+                   <th></th>
+               </tr>
+               </thead>
+               <tbody>
+					<tr th:each="user: ${userList}">
+						<td th:text="${user.nombre}"></td>
+						<td th:text="${user.apellido}"></td>
+						<td th:text="${user.username}"></td>
+						<td th:text="${user.email}"></td>
+						<td>
+							<span>
+	    						<a href="#" th:href="@{'/editUser/'+ ${user.id}}"><i class="fas fa-edit"></i></a>
+							</span>
+							<span >
+								| <a href="#" th:onclick="'javascript:confirmDelete(\''+ ${user.id} +'\');'"><i class="fas fa-user-times"></i></a>
+							</span>	
+						</td>
+					</tr>
+               </tbody>
+           </table>
+       </div>
+	<div id="deleteError" th:if="${listErrorMessage}" class="alert alert-danger text-center" role="alert">
+		<span th:text="${listErrorMessage}"></span>
+	</div>
+</body>
+</html>
+

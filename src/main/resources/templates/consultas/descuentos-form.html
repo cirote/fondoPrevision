@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Consulta Desc.Cuotas', plantilla='loglist')">
+</head>
+<head>
+	<script src="/js/exceldownload.js"></script>	
+
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        $('#cuotasListSM').DataTable();
+	        $('#cuotasListUTF').DataTable();
+	    } );
+	    
+		window.setTimeout(function() {
+		    $("#formError").fadeTo(500, 0).slideUp(500, function(){
+		        $(this).remove(); 
+		    });
+		}, 2000);
+	</script>
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-supervisor'"></div>
+ 	<div class="container main-section" th:object="${consultaForm}">
+	 	<div class="a">
+	 		<a href="#" th:href="@{'/home'}" class="nav-link"><span><i class="fas fa-times close-button" style="font-size:30px;"></i></span></a>
+	 	</div>
+ 		<div class="panel panel-default">
+ 			<div class="panel-heading">
+	 			<h4>Descuento de Cuotas - N&oacute;mina</h4>
+	 			
+ 			</div>
+ 			<div class="panel-body" >
+ 				<form id="capform" th:action="@{/descuentoCuotas}"  class="form" autocomplete="off" method="post" role="form">
+					<div class="form-group row">
+						<label class="col-lg-3 col-form-label form-control-label">Mes Liquidaci&oacute;n</label>
+						<div class="col-lg-3" >
+							<select th:field="*{mesliquidacion}">
+								<option value="">Seleccionar...</option>
+								<option th:each="mesd :${meseslist}" th:value="${mesd}" th:text="${mesd}"></option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group  mx-auto ">
+						<div class="col-lg-12 text-center">
+					   	    <button type="submit" class="btn btn-primary" name="getInfo" > 
+					   	    Traer Informaci&oacute;n</button>
+						</div>
+					</div>
+ 				</form>
+ 			</div>
+ 		</div>
+        <div class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+ 		<div class="alert alert-danger text-center" th:if="${outputMode and (#lists.isEmpty(cuotasListSM) or #lists.isEmpty(cuotasListUTF))}">
+ 			No se encontraron movimientos de pago de cuotas para el mes elegido
+ 		</div>
+		<div class="a" th:if="${outputMode}">
+  			    <a th:href="@{|/pdfCuotasPagas?mesliquidacion=*{mesliquidacion}|}" class="card-link"> Export a Pdf
+				<i class='fas fa-file-pdf' style='font-size:24px;'></i></a>	
+  			    <a th:href="@{|/excelCuotasPagas?mesliquidacion=*{mesliquidacion}|}" class="card-link"> Export a Excel
+				<i class='fas fa-file-excel' style='font-size:24px;'></i></a>	
+		</div>
+ 		<div id="accordion" th:if="${outputMode}">
+ 			<div class="panel panel-default">
+ 				<div class="panel-heading" id="headingOne">
+					<table>
+						<tr>
+							<td>
+								<h4 class="mb-0">
+									<button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+										aria-expanded="true" aria-controls="collapseOne">
+										Funcionarios de la SM
+									</button>
+								</h4>
+							</td>
+							<td>
+								<div class="a">
+									<h6><span th:text="'Mes Elegido: ' + ${capitalesForm.mesliquidacion}"></span></h6>
+								</div>
+							</td>
+						</tr>
+					</table>
+ 				</div>
+	 			<div class="panel-body collapse show" th:if="${outputMode}" id="collapseOne" aria-labelledby="headingOne" data-parent="#accordion">
+			      <div class="table-responsive">
+			          <table id="cuotasListSM" class="table table-bordered table-hover table-striped table-sm">
+	 					<thead class="thead-light">
+	 						<tr>
+	 							<th class="thead-text" scope="col">Nombre</th>
+	 							<th class="thead-text" scope="col">Nro. Prst.</th>
+	 							<th class="thead-text" scope="col">Fecha Prst.</th>
+	 							<th class="thead-text" scope="col">Cuota Nro.</th>
+	 							<th class="thead-text" scope="col">Importe U$S</th>
+	 						</tr>
+	 					</thead>
+	 					<tbody>
+	 						<tr th:each="c : ${cuotasListSM}">
+	 							<td th:text="${c.nombre}"></td>
+	 							<td class="text-right" th:text="${c.nroPrestamo}"></td>
+								<td class="text-right" th:text="${#temporals.format(c.fechaPrestamo, 'dd-MM-yyyy')}"></td>
+	 							<td class="text-right" th:text="${c.cuotasPagas}+'/'+${c.cantCuotas}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(c.cuotaTotal, 1, 'POINT', 2, 'COMMA')}"></td>
+	 						</tr>
+	 					</tbody>
+			          </table>
+	 				</div>
+ 				</div>
+ 			</div>
+	 		<div class="panel panel-default">
+				<div class="panel-heading" id="headingTwo">
+					<table>
+						<tr>
+							<td>
+								<h4 class="mb-0">
+									<button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo"
+										aria-expanded="true" aria-controls="collapseTwo">
+										Funcionarios de la UTF
+									</button>
+								</h4>
+							</td>
+							<td>
+								<div class="a">
+									<h6><span th:text="'Mes Elegido: ' + ${capitalesForm.mesliquidacion}"></span></h6>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+	 			<div class="panel-body collapse show" th:if="${outputMode}" id="collapseTwo" aria-labelledby="headingTwo" data-parent="#accordion">
+			      <div class="table-responsive">
+			          <table id="cuotasListUTF" class="table table-bordered table-hover table-striped table-sm">
+	 					<thead class="thead-light">
+	 						<tr>
+	 							<th class="thead-text" scope="col">Nombre</th>
+	 							<th class="thead-text" scope="col">Nro. Prst.</th>
+	 							<th class="thead-text" scope="col">Fecha Prst.</th>
+	 							<th class="thead-text" scope="col">Cuota Nro.</th>
+	 							<th class="thead-text" scope="col">Importe U$S</th>
+	 						</tr>
+	 					</thead>
+	 					<tbody>
+	 						<tr th:each="c : ${cuotasListUTF}">
+	 							<td th:text="${c.nombre}"></td>
+	 							<td class="text-right" th:text="${c.nroPrestamo}"></td>
+								<td class="text-right" th:text="${#temporals.format(c.fechaPrestamo, 'dd-MM-yyyy')}"></td>
+	 							<td class="text-right" th:text="${c.cuotasPagas}+'/'+${c.cantCuotas}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(c.cuotaTotal, 1, 'POINT', 2, 'COMMA')}"></td>
+	 						</tr>
+	 					</tbody>
+			          </table>
+	 				</div>
+ 				</div>
+	 		</div>
+		</div>
+	</div>
+</body>
+</html>

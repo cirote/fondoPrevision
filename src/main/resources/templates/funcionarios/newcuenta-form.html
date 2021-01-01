@@ -1,0 +1,200 @@
+
+<script type="text/javascript">
+$("#ctanuevaForm :input").tooltip({
+	 
+    // place tooltip on the right edge
+    position: "center right",
+
+    // a little tweaking of the position
+    offset: [-2, 10],
+
+    // use the built-in fadeIn/fadeOut effect
+    effect: "fade",
+
+    // custom opacity setting
+    opacity: 0.7
+
+    });
+
+$('.input-group.date').datepicker({
+    autoclose: true,
+    todayHighlight: true
+});
+
+
+</script>
+
+<form id="ctanuevaForm" th:object="${cuentaNuevaForm}" th:action="@{/cuentanuevaForm}" method="post"
+	class="form" role="form" autocomplete="off">
+	<div class="card-deck">
+		<div class="card">
+			<div class="card-body">
+				<div class="form-group row">
+	   				<label class="col-lg-4 text-left">Nro. Funcionario</label>
+	   				<div class="col-lg-4" >
+						<input class="form-control" type="text" th:field="${cuentaNuevaForm.funcionario.tarjeta}">
+						<div class="alert-danger" th:if="${#fields.hasErrors('funcionario.tarjeta')}" th:errors="*{funcionario.tarjeta}">Tarjeta</div>
+		           </div>
+				</div>
+				<div class="form-group row">
+	   				<label class="col-lg-4 text-left">Nombre</label>
+	   				<div class="col-lg-8" >
+						<input class="form-control" type="text" th:field="${cuentaNuevaForm.funcionario.nombre}">
+						<div class="alert-danger" th:if="${#fields.hasErrors('funcionario.nombre')}" th:errors="*{funcionario.nombre}">Tarjeta</div>
+		           </div>
+				</div>
+				<div class="form-group row">
+	   				<label class="col-lg-4 text-left">Nacionalidad</label>
+	   				<div class="col-lg-8" >
+						<input class="form-control" type="text" th:field="${cuentaNuevaForm.funcionario.nacionalidad}">
+						<div class="alert-danger" th:if="${#fields.hasErrors('funcionario.nacionalidad')}" th:errors="*{funcionario.nacionalidad}">Nacionalidad</div>
+		           </div>
+				</div>
+				<div class="form-group row">
+	   				<label class="col-lg-4 text-left">Doc. Identidad</label>
+	   				<div class="col-lg-8" >
+						<input class="form-control" type="text" th:field="${cuentaNuevaForm.funcionario.documento}"
+							title="Se guardar&aacute; tal como se ingrese">
+						<div class="alert-danger" th:if="${#fields.hasErrors('funcionario.documento')}" th:errors="*{funcionario.documento}">Documento</div>
+		           </div>
+				</div>
+				<div class="form-group row">
+	   				<label class="col-lg-4 text-left">Sexo</label>
+	   				<div class="col-lg-8" >
+						<div class="form-check-inline">
+							<label class="form-check-label">
+							    <input type="radio" class="form-check-input" name="optradio" value="F" th:field="${cuentaNuevaForm.funcionario.sexo}">F
+							</label>
+						</div>
+						<div class="form-check-inline">
+							<label class="form-check-label">
+								<input type="radio" class="form-check-input" name="optradio" value="M" th:field="${cuentaNuevaForm.funcionario.sexo}" >M
+							</label>
+						</div>
+		           </div>
+				</div>
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-body">
+				<div class="form-group row">
+	   				<label class="col-lg-4 text-left">Ingreso</label>
+					<div class="col-lg-8 input-group date">
+		               <input type="date" class="form-control" id="ingresodate" autocomplete="off" th:field="${cuentaNuevaForm.funcionario.ingreso}"/>
+		               <div class="input-group-append">
+		                   <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+		               </div>
+						<div class="alert-danger" th:if="${#fields.hasErrors('funcionario.ingreso')}" th:errors="*{funcionario.ingreso}">Ingreso</div>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-lg-4 text-left">Cargos</label>
+					<div class="col-lg-8 ">
+						<select th:field="${cuentaNuevaForm.idcargo}">
+							<option value=""> Seleccionar una opci&oacute;n </option>
+							<option th:each="cargo :${cargos}" th:value="${cargo.idgcargo}" th:text="${cargo.descripCargo} + '-' + ${cargo.unidad}"></option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-lg-4 text-left">Sectores</label>
+					<div class="col-lg-8 ">
+						<select th:field="${cuentaNuevaForm.idorganigrama}">
+							<option value=""> Seleccionar una opci&oacute;n </option>
+							<option th:each="sector :${sectores}" th:value="${sector.idgorganigrama}" th:text="${sector.siglaSector}"></option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-lg-6 col-form-label form-control-label">Basico 1er. Mes</label>
+					<div class="col-lg-6">
+						<input class="form-control" type="text" th:field="${cuentaNuevaForm.basico}" 
+							placeholder="ddddd.dd "
+							title="Es el sueldo por el 1er. mes, ingresarlo sin separador de miles y .dd opcional.">
+						<div class="alert-danger" th:if="${#fields.hasErrors('basico')}" th:errors="*{basico}">Basico</div>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-lg-6 col-form-label form-control-label">Complemento 1er. Mes</label>
+					<div class="col-lg-6">
+						<input class="form-control" type="text" th:field="${cuentaNuevaForm.complemento}" 
+							placeholder="ddddd.dd "
+							title="Es el complemento por el 1er. mes, ingresarlo sin separador de miles y .dd opcional.">
+						<div class="alert-danger" th:if="${#fields.hasErrors('complemento')}" th:errors="*{complemento}">Basico</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-body">
+				<div class="form-group row">
+	   				<label class="col-lg-4 text-left">e-mail</label>
+	   				<div class="col-lg-8" >
+	                   <input class="form-control" type="email" th:field="${cuentaNuevaForm.usuario.email}" th:disabled=${disableFields}>
+	                   <div class="alert-danger" th:if="${#fields.hasErrors('usuario.email')}" th:errors="*{usuario.email}">Email Error</div>
+		           </div>
+				</div>
+				<div class="form-group row">
+	   				<label class="col-lg-4 text-left">Username</label>
+	   				<div class="col-lg-8" >
+						<input class="form-control" type="text" th:field="${cuentaNuevaForm.usuario.username}"
+							title="Se guardar&aacute; tal como se ingrese">
+						<div class="alert-danger" th:if="${#fields.hasErrors('usuario.username')}" th:errors="*{usuario.username}">Username</div>
+		           </div>
+				</div>
+	           <div class="form-group row">
+				 <label th:text="Roles" class="col-lg-4 text-left"></label>
+				 <div class="col-lg-6">
+					<select th:size="${signup}?1:3" th:field="${cuentaNuevaForm.roles}" class="form-control" size="3">
+						<option th:each="role :${allRoles}" th:value="${role.id}" th:text="${role.name}" th:disabled=${disableFields}>
+						</option>
+					</select>
+				 </div>
+				</div>
+	           <div class="form-group row "  th:if="${editMode==null or editMode==false}">
+	               <label class="col-lg-4 text-left">Password</label>
+	               <div class="col-lg-8">
+	                   <input class="form-control" type="password" th:field="${cuentaNuevaForm.usuario.password}" th:disabled=${disableFields}>
+	                   <div class="alert-danger" th:if="${#fields.hasErrors('usuario.password')}" th:errors="*{usuario.password}">Email Error</div>
+	               </div>
+	           </div>
+	           <div class="form-group row"  th:if="${editMode==null or editMode==false}">
+	               <label class="col-lg-4 text-left">Confirm</label>
+	               <div class="col-lg-8">
+	                   <input class="form-control" type="password" th:field="${cuentaNuevaForm.usuario.confirmPassword}" th:disabled=${disableFields}>
+	               </div>
+	           </div>
+			</div>
+		</div>
+	</div>
+	<div class="panel-body form-group ">
+		<div class="col-lg-12 text-center">
+	   		<a class="btn btn-secondary" role="button" th:href="@{'/cuentanuevaform/cancel'}">Cancelar</a>
+	   	    <button type="submit" class="btn btn-primary" >Abrir Cuenta</button>
+		 	<a href="#" th:href="@{'/home'}" class="btn btn-secondary" style="margin-left:2px;">
+		 	    <span> Cerrar </span> <span class="float-right" style="padding-left:6px;"><i class="fas fa-sign-out-alt"></i></span>
+			</a>
+		</div>
+	</div>
+</form>
+
+<div class="panel panel-default" th:if="${outputMode}">
+	<div class="panel-body" th:if="${outputMode}">
+	<table style="width: 100%">
+		<tr>
+			<td>
+				<div class="row d-flex">
+					<label class="col-lg-6 col-form-label form-control-label">Capital Integrado Inicial: </label>
+					<span class="col-lg-6" th:text="${#numbers.formatDecimal(saldos.capitalIntegActual,3,'POINT',2,'COMMA')}"></span>
+				</div>
+			</td>
+			<td>
+				<div class="row d-flex">
+					<label class="col-lg-6 col-form-label form-control-label">Capital Disponible Inicial: </label>
+					<span class="col-lg-6" th:text="${#numbers.formatDecimal(saldos.capitalDispActual,3,'POINT',2,'COMMA')}"></span>
+				</div>
+			</td>
+		</tr>
+	</table>
+	</div>
+</div>

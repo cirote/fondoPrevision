@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">    
+	<link rel="icon" 
+      type="ico" 
+      href="/img/favicon.ico"/>
+	<title>Restauraci&oacute;n</title>
+		<!--JQUERY-->
+	<script
+ 		src="https://code.jquery.com/jquery-3.3.1.min.js"
+ 			integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+ 			crossorigin="anonymous"></script>
+
+	<!-- FRAMEWORK BOOTSTRAP para el estilo de la pagina-->
+	<link rel="stylesheet" 
+		href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	
+	<!-- Los iconos tipo Solid de Fontawesome-->
+	<link rel="stylesheet"
+		href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css">
+	<script src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+	
+	<!-- Nuestro css-->
+	<link rel="stylesheet" type="text/css" href="static/css/user-form.css"
+		th:href="@{/css/loglist.css}">
+	
+	<!-- DATA TABLE -->
+	<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css">	
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+	
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        $('#procsList').DataTable();
+	    } );
+	</script>
+	<script th:inline="javascript">
+		function submitRestore(){
+			var idproc = $("#selProc option:selected").val();
+			var params = {};
+			params["nombreproc"] = [[${procname}]];
+			params["idproc"] = idproc;		
+		    $("#spinner").removeClass("d-none");
+			$.ajax({
+				type:"post",
+				url: "api/fondo/restore/intermedio",
+				        
+		        contentType: "application/json",
+		        data: JSON.stringify(params),
+		        dataType: 'text',
+		        cache: false,
+		        timeout: 600000,
+	
+				success:function(data){
+					$("#spinner").addClass("d-none");
+					$("#successMessage").removeClass("d-none");
+					$("#successMessage").show();
+		            $("#successMessage").html("El proceso de restauraci&oacute;n finaliz&oacute; exitosmante!.");
+		            setTimeout(function(){	$("#successMessage").hide('slow'); }, 2000);
+		 		},
+				error: function (e){
+					$("#spinner").addClass("d-none");
+		            $("#errorMessage").removeClass( "d-none" );
+		            $("#successMessage").addClass( "d-none" );
+		            $("#errorMessage").html(e.responseText);
+					
+				}
+			});
+		}
+	</script>
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-user'"></div>
+ 	<div class="container main-section" th:object="${restauraForm}">
+	 	<div class="a">
+	 		<a href="#" th:href="@{'/home'}" class="nav-link"><span><i class="fas fa-times close-button" style="font-size:30px;"></i></span></a>
+	 	</div>
+ 		<div class="panel-group">
+	 		<div class="panel panel-default">
+	 			<div class="panel-heading">
+		 			<h4>Restauraci&oacute;n a alg&uacute;n punto intermedio</h4>
+	 			</div>
+	 			<div class="panel-body">
+	 				<form id="restoreform" th:action="@{/restaura}" class="form" autocomplete="off" method="post" role="form">
+	 					<table style="width: 100%">
+	 						<tr>
+	 							<td>
+			 						<div class="form-group row">
+						   				<label class="col-lg-4 col-form-label form-control-label">Restauraci&oacute;n previa a ....</label>
+						   				<div class="col-lg-6" th:if="${outputMode==null or outputMode==false}">
+											<select id="selProc" th:field="${restauraForm.idprocedimientos}">
+												<option value=""> Seleccionar una opci&oacute;n </option>
+												<option th:each="proc :${procsList}" th:value="${proc.idfprocedimientos}" th:text="${proc.descripcion}"></option>
+											</select>
+							           </div>
+							           <div class="col-lg-6" th:if="${outputMode==true}">
+							           		<span th:text="${restauraForm.procElegido.descripcion}"></span>
+							           </div>
+									</div>
+	 							</td>
+								<td>
+									<div class="form-group row text-center">
+										<a href="javascript:submitRestore()" class="btn btn-primary">
+								   	    	Ejecutar Restauraci&oacute;n
+										</a>
+									</div>
+								</td>
+	 						</tr>
+	 					</table>
+	 				
+	 				</form>
+	 			</div>
+	 		</div>
+	 		<div class="card alert alert-danger text-center" th:if="${formErrorMessage}" th:text="${formErrorMessage}"></div>
+			<div id="errorMessage"  class="card alert alert-danger text-center d-none" role="alert">Mensaje de Error</div>
+			<div id="successMessage" class="card alert alert-success text-center d-none" role="alert">Success Message</div>			
+		</div>
+	</div>
+
+</body>
+</html>

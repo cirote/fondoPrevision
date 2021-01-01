@@ -1,0 +1,20 @@
+	<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalTitle" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="exampleModalLongTitle">Confirmar Eliminaci&oacute;n</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true"><i class="fas fa-window-close"></i></span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        Estas seguro(a) de querer eliminar este pr&eacute;stamo?
+	        <input type="hidden" id="prstIdHiddenInput" name="prstIdHiddenInput"/>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+	        <button type="button" class="btn btn-primary" th:onclick="deletePrst()">Eliminar Prestamo</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Consulta Cierre de Cta', plantilla='loglist')">
+</head>
+<head>
+	<script src="/js/exceldownload.js"></script>	
+
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        $('#lstDatosCierre').DataTable();
+	    } );
+	    
+		window.setTimeout(function() {
+		    $("#formError").fadeTo(500, 0).slideUp(500, function(){
+		        $(this).remove(); 
+		    });
+		}, 2000);
+	</script>
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-user'"></div>
+ 	<div class="container main-section" th:object="${estadoDeCtaFinal}">
+	 	<div class="a">
+	 		<a href="#" th:href="@{'/home'}" class="nav-link"><span><i class="fas fa-times close-button" style="font-size:30px;"></i></span></a>
+	 	</div>
+		<div class="panel-group">
+	 		<div class="panel panel-default">
+	 			<div class="panel-heading">
+		 			<h4>Cierre de Cuenta</h4>			
+	 			</div>
+	 			<div class="panel-body" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') or #authorization.expression('hasRole(''ROLE_SUPERVISOR'')')}">
+	 				<form id="estadoform" th:action="@{/estadoCtaFinal}" class="form" autocomplete="off" method="post" role="form">
+	 					<table style="width: 100%">
+	 						<tr>
+	 							<td>
+			 						<div class="form-group row">
+						   				<label class="col-lg-3 col-form-label form-control-label">Funcionario</label>
+						   				<div class="col-lg-6" th:if="${outputMode==null or outputMode==false}">
+											<select th:field="${estadoDeCtaFinal.idfuncionario}">
+												<option value=""> Seleccionar una opci&oacute;n </option>
+												<option th:each="datosCierre :${lstDatosCierre}" th:value="${datosCierre.gplanta_id}" th:text="${datosCierre.nombre}"></option>
+											</select>
+							           </div>
+							           <div class="col-lg-6" th:if="${outputMode==true}">
+							           		<input type="hidden" th:field="*{tarjeta}" th:if="${editMode}">
+							           		<span th:text="${estadoDeCtaFinal.funcionario.nombre}"></span>
+							           </div>
+									</div>
+	 							</td>
+								<td>
+									<div class="form-group row text-center">
+										<a class="btn btn-secondary" th:if="${outputMode}" th:href="@{'/estadoFinal/cancel'}">Ver Otro Funcionario</a>
+								   	    <button type="submit" class="btn btn-primary" th:if="${outputMode==null or outputMode==false}" name="getInfo" > Traer Informaci&oacute;n
+								   	    </button>
+									</div>
+								</td>
+	 						</tr>
+	 					</table>
+	 				
+	 				</form>
+	 			</div>
+	 		</div>
+           <div class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+			<div class="panel panel-default table-responsive"  th:if="${outputMode}">
+				<div class="panel-heading">
+					<h5>Resultado del Cierre de la Cuenta</h5>
+				</div>
+				<div class="panel-body">
+					<div class="a">
+           			    <a th:href="@{|/excelEstadoFinal/${estadoDeCtaFinal.idfuncionario}|}" class="card-link"> Export a Excel
+				           <i class='fas fa-file-excel' style='font-size:24px;'></i>
+				        </a>
+					</div>
+					<div class="row d-flex">
+						<label class="col-lg-4 form-control-label"> Funcionario: <span class="col-lg-2" th:text="${estadoDeCtaFinal.funcionario.nombre}"></span></label>
+						<label class="col-lg-2 form-control-label"> Nro. <span class="col-lg-2" th:text="${estadoDeCtaFinal.funcionario.tarjeta}"></span></label>
+						<label class="col-lg-6 form-control-label"> Fecha de Egreso: <span class="col-lg-2" th:text="${#temporals.format(estadoDeCtaFinal.fechaEgreso, 'dd-MM-yyyy')}"></span></label> 
+					</div>
+					<div class="row d-flex">
+						<label class="col-lg-6 col-form-label form-control-label">Cuenta de Integraci&oacute;n: </label>
+						<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCtaFinal.capitalIntegrado,3,'POINT',2,'COMMA')}"></span>
+					</div>
+					<div class="row d-flex">
+						<label class="col-lg-6 col-form-label form-control-label">Aporte sobre Haberes: </label>
+						<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCtaFinal.aporteTotal,3,'POINT',2,'COMMA')}"></span>
+					</div>
+					<div class="row d-flex">
+						<label class="col-lg-6 col-form-label form-control-label">Aporte sobre Aguinaldo: </label>
+						<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCtaFinal.aporteTotalSobreAguinaldo,1,'POINT',2,'COMMA')}"></span>
+					</div>
+					<div class="row d-flex">
+						<label class="col-lg-6 col-form-label form-control-label">Saldo de Pr&eacute;stamos Acumulado: </label>
+						<span class="col-lg-6" th:if="${estadoDeCtaFinal.saldoPrestamos != null}" 
+							th:text="${#numbers.formatDecimal(estadoDeCtaFinal.saldoPrestamos,1,'POINT',2,'COMMA')}"></span>
+					</div>
+					<div class="row d-flex">
+						<label class="col-lg-6 col-form-label form-control-label">Intereses por Colocaciones: </label>
+						<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCtaFinal.interesesporcolocaciones,1,'POINT',2,'COMMA')}"></span>
+					</div>
+					<div class="row d-flex">
+						<label class="col-lg-6 col-form-label form-control-label">Saldo a cobrar U$S: </label>
+						<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCtaFinal.saldoCuenta,3,'POINT',2,'COMMA')}"></span>
+					</div>
+				</div>
+	 		</div>
+		</div>
+	</div>
+</body>
+</html>

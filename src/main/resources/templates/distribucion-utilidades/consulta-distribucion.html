@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Distrib.Utilidades', plantilla='loglist')">
+</head>
+<head>
+
+	<script type="text/javascript">
+	    $(document).ready(function() {
+	        $('#lstResult').DataTable();
+	    } );
+	    
+		window.setTimeout(function() {
+		    $("#formError").fadeTo(500, 0).slideUp(500, function(){
+		        $(this).remove(); 
+		    });
+		}, 2000);
+
+	</script>
+</head>
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-supervisor'"></div>
+ 	<div class="container main-section" th:object="${resultD}">
+	 	<div class="a">
+	 		<a href="#" th:href="@{'/home'}" class="nav-link"><span><i class="fas fa-times close-button" style="font-size:30px;"></i></span></a>
+	 	</div>
+		<div class="panel-group">
+	 		<div class="panel panel-default">
+	 			<div class="panel-heading">
+		 			<h4>Resultados de Distribuci&oacute;n de Utilidades</h4>
+		 			
+	 			</div>
+	 			<div class="panel-body" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') or #authorization.expression('hasRole(''ROLE_SUPERVISOR'')')}">
+	 				<form id="estadoform" th:action="@{/resultDistrib}" class="form" autocomplete="off" method="post" role="form">
+	 					<table style="width: 100%">
+	 						<tr>
+	 							<td>
+			 						<div class="form-group row">
+						   				<label class="col-lg-3 col-form-label form-control-label">mes/anio Distribuci&oacute;n</label>
+						   				<div class="col-lg-6" >
+											<select th:field="*{anioMesDistrib}">
+												<option value=""> Seleccionar una opci&oacute;n </option>
+												<option th:each="am :${mesesList}" th:value="${am}" 
+												th:text="${am}"></option>
+											</select>
+							           </div>
+									</div>
+	 							</td>
+								<td>
+									<div class="form-group row text-center">
+								   	    <button type="submit" class="btn btn-primary" name="getInfo" > Traer Informaci&oacute;n
+								   	    </button>
+									</div>
+								</td>
+	 						</tr>
+	 					</table>
+	 				
+	 				</form>
+	 			</div>
+	 		</div>
+           <div class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+	 		<div class="panel panel-default" th:if="${outputMode and not(#lists.isEmpty(lstResult))}">
+	 			<div class="panel-heading" th:if="${outputMode}">
+	 				<h4>Distribuci&oacute;n por funcionario</h4>
+	 			</div>
+	 			<div class="panel-body" th:if="${outputMode}">
+					<table style="width:100%">
+	 					<tr>
+	 						<td>
+	 							<div class="row d-flex">
+	 								<label class="col-lg-6 col-form-label form-control-label"> Capital Integrado Total Actual</label>
+	 								<span class="col-lg-6" th:text="${#numbers.formatDecimal(resultD.totalNumeralesAct,3,'POINT',2,'COMMA')}"></span>
+	 							</div>
+	 						</td>
+							<td>
+								<div class="a" th:if="${outputMode==true}">
+								    <a th:href="@{|/pdfDistribucion?mesdistrib=*{anioMesDistrib}|}" class="card-link"> Export a Pdf
+							           <i class='fas fa-file-pdf' style='font-size:24px;'></i>
+							        </a>
+					  			    <a th:href="@{|/excelDistribucion?mesdistrib=*{anioMesDistrib}|}" class="card-link"> Export a Excel
+									<i class='fas fa-file-excel' style='font-size:24px;'></i></a>	
+								</div>                        
+							</td>
+	 					</tr>
+	 					<tr>
+	 						<td>
+	 							<div class="row d-flex">
+	 								<label class="col-lg-6 col-form-label form-control-label">Capital Integrado Total Anterior</label>
+	 								<span class="col-lg-6" th:text="${#numbers.formatDecimal(resultD.totalNumeralesAnt,3,'POINT',2,'COMMA')}"></span>
+	 							</div>
+	 						</td>
+	 						<td>
+	 							<div class="row d-flex">
+	 								<label class="col-lg-6 col-form-label form-control-label">Total a Distribuir: </label>
+	 								<span class="col-lg-6" th:text="${#numbers.formatDecimal(resultD.sumaADistribuir,3,'POINT',2,'COMMA')}"></span>
+	 							</div>
+	 						</td>
+	 					</tr>
+					</table>
+				</div>
+			</div>
+			<div class="panel panel-default" th:if="${outputMode and not(#lists.isEmpty(lstResult))}">
+				<div class="panel-body" th:if="${outputMode}">
+			      <div class="table-responsive">
+			          <table id="lstResult" class="table table-bordered table-hover table-striped table-sm">
+			              <thead class="thead-light">
+			              <tr>
+			                  <th scope="col">Nro. Func.</th>
+			                  <th scope="col">Nombre</th>
+			                  <th scope="col">Cap. Disp. Anterior</th>
+			                  <th scope="col">Cap. Disp. Actual</th>
+			                  <th scope="col">Cap. Integ. Anterior</th>
+			                  <th scope="col">Cap. Integ. Actual</th>
+			                  <th scope="col">Pct. Funcionario</th>
+			                  <th scope="col">Resultado Distribuci&oacute;n</th>
+			              </tr>
+			              </thead>
+			              <tbody>
+							<tr th:each="rd: ${lstResult}">
+								<td class="text-right" th:text="${rd.tarjeta}"></td>
+								<td th:text="${rd.nombre}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(rd.capitalDispAntes,3,'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(rd.capitalDispActual, 3, 'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(rd.capitalIntegAntes, 3, 'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(rd.capitalIntegActual, 3, 'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(rd.pctfuncionario,1, 'POINT', 2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(rd.resultadoDistrib,3,'POINT',2,'COMMA')}"></td>
+							</tr>
+			              </tbody>
+			          </table>
+			      </div>
+				</div>
+	 		</div>
+		</div>
+	</div>
+
+</body>
+</html>

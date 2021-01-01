@@ -1,0 +1,39 @@
+<div class="modal fade" id="ajustesCapModal" tabindex="-1" role="dialog" aria-labelledby="ajustesCapModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="ajustesModalTitle">Ajustes sobre Capitales
+        	<span id="nombre"></span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true"><i class="fas fa-window-close"></i></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="capfordisplayForm" th:action="@{/realizarAjuste}"  th:object="${capForDisplay}" method="post"  class="form" role="form">
+			<input id="nrofunc" class="form-control" type="hidden" th:field="*{nrofuncionario}" >
+			<input id="mesliq" class="form-control" type="hidden" th:field="*{mesliquidacion}">
+			<div class="form-group row">
+				<label class="col-lg-3 col-form-label form-control-label label-white">Disponible Actual</label>
+				<div class="col-lg-9">
+					<input class="form-control" type="text" id="cdispAct" th:field="*{capitalDispActual}">			
+					<div class="alert-danger" th:if="${#fields.hasErrors('capitalDispActual')}" th:errors="*{capitalDispActual}">Disp. Actual</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="col-lg-3 col-form-label form-control-label label-white">Integrado Actual</label>
+				<div class="col-lg-9">
+					<input class="form-control" type="text" id="cintAct" th:field="*{capitalIntegActual}">
+					<div class="alert-danger" th:if="${#fields.hasErrors('capitalIntegActual')}" th:errors="*{capitalIntegActual}">Integ. Actual</div>
+				</div>
+			</div>
+			<div class="col-lg-12 text-center">
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+		        <button type="submit" class="btn btn-primary" name="salvarAjuste">Salvar Cambio</button>
+			</div>
+        </form>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>

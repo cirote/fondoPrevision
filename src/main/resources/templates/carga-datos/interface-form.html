@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Cuenta Global', plantilla='loglist')">
+</head>
+
+<body>
+	<div th:replace="/fragments/header :: 
+		${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : 'header-user'"></div>
+ 	<div class="container main-section" >
+	 	<div class="a">
+	 		<a href="#" th:href="@{'/home'}" class="nav-link"><span><i class="fas fa-times close-button" style="font-size:30px;"></i></span></a>
+	 	</div>
+		<div class="panel-group">
+	 		<div class="panel panel-default">
+	 			<div class="panel-heading">
+		 			<h4>Procesos de Carga de Datos</h4>
+		 			
+	 			</div>
+	 			<div class="panel-body" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+	 				<form id="cargaform" th:action="@{/cargaInformacion}" th:object="${interfaceForm}" class="form" autocomplete="off" method="post" role="form">
+						<table style="width:100%">
+							<tr>
+								<td>
+			 						<div class="form-group row">
+						   				<label class="col-lg-3 col-form-label form-control-label">Datos a cargar</label>
+						   				<div class="col-lg-6" th:if="${outputMode==null or outputMode==false}">
+											<select th:field="*{proceso}">
+												<option value=""> Seleccionar una opci&oacute;n </option>
+												<option th:each="p :${T(org.mercosur.fondoPrevision.cargadedatos.CargaDatos).values()}" 
+													th:value="${p}" th:text="${p.displayValue}"></option>
+											</select>
+							           </div>
+						          	</div>
+								</td>
+								<td>
+									<div class="form-group row text-center">
+								   	    <button type="submit" class="btn btn-primary" th:if="${outputMode==null or outputMode==false}" name="executeProcess" >
+									   	    	Ejecutar Proceso 
+								   	    </button>
+									</div>
+								</td>
+							</tr>
+						</table>
+					</form>
+					<div class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
+				</div>
+			</div>
+			<div class="panel panel-default" th:if="${outputMode and not(#lists.isEmpty(lstSaldos))}">
+				<div class="panel-heading">
+					<h4>Saldos Cargados</h4>
+				</div>
+				<div class="panel-body table-responsive">
+					<table class="table table-bordered table-hover table-striped table-sm">
+						<thead class="thead-light">
+			              <tr>
+			                  <th scope="col">Fecha</th>
+			                  <th scope="col">Tarjeta</th>
+			                  <th scope="col">Nombre</th>
+			                  <th scope="col">Cap.Integ. Anterior</th>
+			                  <th scope="col">Cap.Integ. Actual</th>
+			                  <th scope="col">Cap.Disp. Anterior</th>
+			                  <th scope="col">Cap.Disp. Actual</th>
+			                  <th scope="col">Mes Liquidacion</th>
+			              </tr>
+						</thead>
+						<tbody>
+							<tr th:each="saldo: ${lstSaldos}">
+								<td th:text="${#dates.format(saldo.fecha, 'dd-MM-yyyy')}"></td>
+								<td th:text="${saldo.funcionario.tarjeta}"></td>
+								<td th:text="${saldo.funcionario.nombre}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(saldo.capitalIntegAntes,3,'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(saldo.capitalIntegActual,3,'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(saldo.capitalDispAntes,3,'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(saldo.capitalDispActual,3,'POINT',2,'COMMA')}"></td>
+								<td th:text="${#strings.substring(saldo.mesliquidacion,4,6) + '/' + #strings.substring(saldo.mesliquidacion, 0, 4)}"></td>
+							</tr>						
+						</tbody>				
+					</table>
+				</div>
+			</div>
+			<div class="panel panel-default" th:if="${outputMode and not(#lists.isEmpty(lstPrst))}">
+				<div class="panel-heading">
+					<h4>Prestamos Cargados</h4>
+				</div>
+				<div class="panel-body table-responsive">
+					<table class="table table-bordered table-hover table-stripped table-sm">
+						<thead class="thead-light">
+							<tr>
+								<th scope="col"> Nro.</th>
+								<th scope="col"> Tarjeta</th>
+								<th scope="col"> Nombre</th>
+								<th scope="col"> Fecha</th>
+								<th scope="col"> Capital</th>
+								<th scope="col"> Tasa</th>
+								<th scope="col"> Plazo</th>
+								<th scope="col"> Cuota</th>
+								<th scope="col"> Cuotas Pagas</th>
+								<th scope="col"> Saldo</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="prst : ${lstPrst}">
+								<td th:text="${prst.nroprestamo}"></td>
+								<td th:text="${prst.tarjeta}"></td>
+								<td th:text="${prst.funcionario.nombre}"></td>
+								<td th:text="${#dates.format(prst.fechaPrestamo, 'dd-MM-yyyy')}"></td>
+								<td th:text="${prst.capitalPrestamo}"></td>
+								<td th:text="${prst.interesPrestamo}"></td>
+								<td th:text="${prst.cantCuotas}"></td>
+								<td th:text="${prst.cuota}"></td>
+								<td th:text="${prst.cuotasPagas}"></td>
+								<td th:text="${prst.saldoPrestamo}"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="panel panel-default" th:if="${outputMode and not(#lists.isEmpty(lstSAPrst))}">
+				<div class="panel-heading">
+					<h4> Saldo Acumulados de Prestamos Actualizados</h4>
+				</div>
+				<div class="panel-body table-responsive">
+					<table class="table table-bordered table-hover table-stripped table-sm">
+						<thead class="thead-light">
+							<tr>
+								<th scope="col"> #</th>
+								<th scope="col"> Tarjeta</th>
+								<th scope="col"> Nombre</th>
+								<th scope="col"> Fecha</th>
+								<th scope="col"> Saldo</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="sprst : ${lstSAPrst}">
+								<td th:text="${sprst.idfsaldoPrstAcum}"></td>
+								<td th:text="${sprst.tarjeta}"></td>
+								<td th:text="${sprst.funcionario.nombre}"></td>
+								<td th:text="${#dates.format(sprst.fecha, 'dd-MM-yyyy')}"></td>
+								<td th:text="${sprst.saldoPrestAcumulado}"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="panel panel-default" th:if="${outputMode and not(#lists.isEmpty(lstMovs))}">
+				<div class="panel-heading">
+					<h4>Movimientos Cargados</h4>
+				</div>
+				<div class="panel-body table-responsive">
+					<table class="table table-bordered table-hover table-striped table-sm">
+						<thead class="thead-light">
+			              <tr>
+			                  <th scope="col">Fecha</th>
+								<th scope="col">Codigo</th>
+			                  <th scope="col">Tarjeta</th>
+			                  <th scope="col">Nombre</th>
+			                  <th scope="col">Importe Mov.</th>
+			                  <th scope="col">Saldo Actual</th>
+			                  <th scope="col">Mes Liquidacion</th>
+			                  <th scope="col">Observciones</th>
+			              </tr>
+						</thead>
+						<tbody>
+							<tr th:each="mv: ${lstMovs}">
+								<td th:text="${#dates.format(mv.fechaMovimiento, 'dd-MM-yyyy')}"></td>
+								<td th:text="${mv.codigoMovimiento}"></td>
+								<td th:text="${mv.funcionario.tarjeta}"></td>
+								<td th:text="${mv.funcionario.nombre}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(mv.importeMov,3,'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(mv.saldoActual,3,'POINT',2,'COMMA')}"></td>
+								<td th:text="${#strings.substring(mv.mesliquidacion,4,6) + '/' + #strings.substring(mv.mesliquidacion, 0, 4)}"></td>
+								<td th:text="${mv.observaciones}">
+							</tr>						
+						</tbody>				
+					</table>
+				</div>
+			</div>
+			<div class="panel panel-default" th:if="${outputMode and not(#lists.isEmpty(lstSueldos))}">
+				<div class="panel-heading">
+					<h4>Sueldos Cargados</h4>
+				</div>
+				<div class="panel-body">
+					<table style="width:100%">
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

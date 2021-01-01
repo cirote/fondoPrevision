@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<script type="text/javascript">
+    $(document).ready(function() {
+        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+        $('#plantaList').DataTable();
+    } );
+</script>
+
+</head>
+<body>
+       <!-- Lista de funcionarios-->
+       <div class="table-responsive">
+           <table id="plantaList" class="table table-bordered table-hover table-striped table-sm">
+               <thead class="thead-light">
+               <tr>
+                   <th scope="col">#</th>
+                   <th scope="col">Nro. Func.</th>
+                   <th scope="col">Nombre</th>
+                   <th scope="col">Documento</th>
+                   <th scope="col">Nacionalidad</th>
+                   <th scope="col">Fecha Ingreso</th>
+                   <th scope="col">Grado</th>
+                   <th scope="col"></th>
+                </tr>
+               </thead>
+               <tbody>
+					<tr th:each="gplanta: ${plantaList}">
+						<td th:text="${gplanta.idgplanta}"></td>
+						<td th:text="${gplanta.tarjeta}"></td>
+						<td th:text="${gplanta.nombre}"></td>
+						<td th:text="${gplanta.documento}"></td>
+						<td th:text="${gplanta.nacionalidad}"></td>
+						<td th:text="${#dates.format(gplanta.ingreso, 'dd-MM-yyyy')}"></td>
+						<td th:text="${gplanta.gcargo.descripCargo}"></td>
+						<td>
+							<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+	    						<a href="#" th:href="@{'/userForm/'+ ${gplanta.tarjeta}}"><i class="fas fa-user-plus"></i></a>
+							</span>
+						</td>
+					</tr>
+               </tbody>
+           </table>
+       </div>
+	<div id="deleteError" th:if="${listErrorMessage}" class="alert alert-danger text-center" role="alert">
+		<span th:text="${listErrorMessage}"></span>
+	</div>
+</body>
+</html>
+

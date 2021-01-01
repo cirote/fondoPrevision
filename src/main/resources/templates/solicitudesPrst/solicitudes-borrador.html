@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
+        $('#listPendientes').DataTable();
+    } );
+</script>
+<script type="text/javascript">
+function confirmDelete(id){
+	$('#deleteModal').modal('show');
+	$("#solIdHiddenInput").val(id);
+}
+
+function deleteSolicitud(){
+	var id = $("#solIdHiddenInput").val();
+    window.location = "/fondoPrevision/deleteSolicitud/"+id;
+}
+</script>
+</head>
+<body>
+
+     <div class="card" th:object="${listPendientes}">
+     	<div class="card-body">
+			<div class="panel panel-default" th:if="${(#lists.isEmpty(listPendientes))}">
+				<div class="panel-heading" >
+				    <h5>No tiene Solicitudes en Borrador</span></h5>
+				</div>
+			</div>
+			<div class="panel panel-default" th:if="${not(#lists.isEmpty(listPendientes))}">
+				<div class="panel-heading" >
+				    <h5>Solicitudes Sin Enviar</h5>
+				</div>
+				<div class="panel-body ">
+			      <div class="table-responsive">
+			          <table id="listPendientes" class="table table-bordered table-hover table-striped table-sm ">
+			              <thead class="thead-light">
+			              <tr>
+			                  <th scope="col">#</th>
+			                  <th scope="col">Fecha Sol.</th>
+			                  <th scope="col">Tipo Prst.</th>
+			                  <th scope="col">Capital</th>
+			                  <th scope="col">Tasa</th>
+			                  <th scope="col">Cant.Cuotas</th>
+			                  <th scope="col">Importe Cuota</th>
+			                  <th scope="col">Capital Neto</th>
+			                  <th scope="col">Cancela Prst.</th>
+			                  <th scope="col">acciones</th>
+			              </tr>
+			              </thead>
+			              <tbody>
+							<tr th:each="sol: ${listPendientes}">
+								<td th:text="${sol.idfsolicitud}"></td>
+								<td th:text="${#temporals.format(sol.fechaSolicitud, 'dd-MM-yyyy')}"></td>
+								<td th:text="${sol.tipoPrestamo.descripcion}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(sol.capitalPrestamo,3,'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(sol.interesPrestamo, 1, 'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${sol.cantCuotas}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(sol.cuota,1, 'POINT', 2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(sol.importeNeto, 3, 'POINT', 2, 'COMMA')}"></td>
+								<td class="text-right" th:text="${sol.cancelPrstNros}"></td>
+								<td>
+									<span >
+			    						<a href="#" th:href="@{'/editSolicitud/'+ ${sol.idfsolicitud}}"><i class="fas fa-edit" title="Editar"></i></a>
+									</span>
+									<span >
+										| <a href="#" th:href="@{'/enviarSolicitud/' + ${sol.idfsolicitud}}"><i class="fas fa-paper-plane" title="Enviar"></i></a>
+									</span>
+									<span >
+										| <a href="#" th:onclick="'javascript:confirmDelete(\''+ ${sol.idfsolicitud} +'\');'"><i class="fas fa-eraser" title="Eliminar"></i></a>
+									</span>	
+								</td>
+								
+							</tr>
+			              </tbody>
+			          </table>
+			      </div>
+				</div>
+			</div>
+		</div>
+	</div>
