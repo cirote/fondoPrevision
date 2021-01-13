@@ -497,6 +497,8 @@ public class CierreCuentaServiceImpl implements CierreCuentaService{
 		datoscierre.setAporteAguinaldo(estadoCta.getAporteTotalSobreAguinaldo());
 		datoscierre.setSaldoPrestamos(estadoCta.getSaldoPrestamos());
 		datoscierre.setSaldoCuenta(estadoCta.getSaldoCuenta());
+		datoscierre.setImporteLicencia(estadoCta.getImporteLicencia());
+		datoscierre.setAporteLicencia(estadoCta.getAporteTotLicencia());
 		
 		String prstDescontados = "";
 		if(estadoCta.getLstPrst() != null && !estadoCta.getLstPrst().isEmpty()) {

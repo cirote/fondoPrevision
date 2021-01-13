@@ -64,6 +64,13 @@ public class DatosCierreCta implements Serializable{
 	@Column
 	private String prstDescontados;
 	
+	@Column
+	private BigDecimal importeLicencia;
+	
+	@Column
+	private BigDecimal aporteLicencia;
+
+	
 	public DatosCierreCta() {
 		super();
 	}
@@ -174,6 +181,22 @@ public class DatosCierreCta implements Serializable{
 
 	public String getPrstDescontados() {
 		return prstDescontados;
+	}
+
+	public BigDecimal getImporteLicencia() {
+		return importeLicencia;
+	}
+
+	public void setImporteLicencia(BigDecimal importeLicencia) {
+		this.importeLicencia = importeLicencia;
+	}
+
+	public BigDecimal getAporteLicencia() {
+		return aporteLicencia;
+	}
+
+	public void setAporteLicencia(BigDecimal aporteLicencia) {
+		this.aporteLicencia = aporteLicencia;
 	}
 
 	public void setPrstDescontados(String prstDescontados) {

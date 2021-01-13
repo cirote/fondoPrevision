@@ -16,6 +16,7 @@ import org.mercosur.fondoPrevision.entities.DatosCierreCta;
 import org.mercosur.fondoPrevision.entities.Gplanta;
 import org.mercosur.fondoPrevision.entities.Gplantahist;
 import org.mercosur.fondoPrevision.entities.Movimientos;
+import org.mercosur.fondoPrevision.entities.MovimientosHist;
 import org.mercosur.fondoPrevision.entities.Prestamo;
 import org.mercosur.fondoPrevision.entities.Prestamohist;
 import org.mercosur.fondoPrevision.excel.CierreCtaExcelExporter;
@@ -23,6 +24,7 @@ import org.mercosur.fondoPrevision.repository.DatosCierreCtaRepository;
 import org.mercosur.fondoPrevision.repository.DatosDistribucionRepository;
 import org.mercosur.fondoPrevision.repository.GplantaRepository;
 import org.mercosur.fondoPrevision.repository.GplantahistRepository;
+import org.mercosur.fondoPrevision.repository.MovimientosHistRepository;
 import org.mercosur.fondoPrevision.repository.MovimientosRepository;
 import org.mercosur.fondoPrevision.repository.PrestamohistRepository;
 import org.mercosur.fondoPrevision.repository.SaldosRepository;
@@ -62,6 +64,9 @@ public class CierreCuentaController {
 	@Autowired
 	MovimientosRepository movimientosRepository;
 	
+	@Autowired
+	MovimientosHistRepository movimientosHistRepository;
+
 	@Autowired
 	CierreCuentaService cierreCtaService;
 	
@@ -206,7 +211,7 @@ public class CierreCuentaController {
 			model.addAttribute("estadoDeCtaFinal", estadoFinal);
 			String headerValue = "attachment; filename=liqEgreso_" + estadoFinal.getFuncionario().getTarjeta() + ".xlsx";
 			
-			Movimientos mov = movimientosRepository.getLastByFuncAndTipo(estadoFinal.getFuncionario().getTarjeta(), 2);
+			MovimientosHist mov = movimientosHistRepository.getLastByFuncAndTipo(estadoFinal.getFuncionario().getTarjeta(), 2);
 			String ultimoMesLiq = mov.getMesliquidacion(); 
 			
 			response.setHeader(headerKey, headerValue);
@@ -240,6 +245,9 @@ public class CierreCuentaController {
 		estadoFinal.setSaldoCuenta(datosCierre.getSaldoCuenta());
 		estadoFinal.setSaldoPrestamos(datosCierre.getSaldoPrestamos());
 		estadoFinal.setSueldoUltimoMes(datosCierre.getHaberesUltimoMes());
+		estadoFinal.setImporteLicencia(datosCierre.getImporteLicencia());
+		estadoFinal.setAporteTotLicencia(datosCierre.getAporteLicencia());
+		
 		List<Prestamo> lstPrst = new ArrayList<Prestamo>();
 		
 		if(!datosCierre.getPrstDescontados().isEmpty()) {

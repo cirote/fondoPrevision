@@ -83,11 +83,18 @@
 					</div>
 					<div class="row d-flex">
 						<label class="col-lg-6 col-form-label form-control-label">Aporte sobre Haberes: </label>
-						<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCtaFinal.aporteTotal,3,'POINT',2,'COMMA')}"></span>
+						<span class="col-lg-6" th:if="${estadoDeCtaFinal.aporteTotal gt 0}" th:text="${#numbers.formatDecimal(estadoDeCtaFinal.aporteTotal,1,'POINT',2,'COMMA')}"></span>
+						<span class="col-lg-6" th:if="${estadoDeCtaFinal.aporteTotal eq 0}">(Ya incluidos en el cierre mensual)</span>
 					</div>
 					<div class="row d-flex">
 						<label class="col-lg-6 col-form-label form-control-label">Aporte sobre Aguinaldo: </label>
-						<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCtaFinal.aporteTotalSobreAguinaldo,1,'POINT',2,'COMMA')}"></span>
+						<span class="col-lg-6" th:if="${estadoDeCtaFinal.aporteTotalSobreAguinaldo gt 0}" th:text="${#numbers.formatDecimal(estadoDeCtaFinal.aporteTotalSobreAguinaldo,1,'POINT',2,'COMMA')}"></span>
+						<span class="col-lg-6" th:if="${estadoDeCtaFinal.aporteTotalSobreAguinaldo eq 0}">(Ya incluidos en el cierre mensual)</span>
+					</div>
+					<div class="row d-flex">
+						<label class="col-lg-6 col-form-label form-control-label">Aporte sobre Licencia No Gozada: </label>
+						<span class="col-lg-6" th:if="${estadoDeCtaFinal.aporteTotLicencia gt 0}" th:text="${#numbers.formatDecimal(estadoDeCtaFinal.aporteTotLicencia,1,'POINT',2,'COMMA')}"></span>
+						<span class="col-lg-6" th:if="${estadoDeCtaFinal.aporteTotLicencia eq 0}">(La liq. no incluye licencia No gozada)</span>
 					</div>
 					<div class="row d-flex">
 						<label class="col-lg-6 col-form-label form-control-label">Saldo de Pr&eacute;stamos Acumulado: </label>
