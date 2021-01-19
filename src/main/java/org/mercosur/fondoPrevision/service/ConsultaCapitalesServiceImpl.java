@@ -9,12 +9,16 @@ import java.util.Optional;
 
 import org.mercosur.fondoPrevision.dto.CapitalesForDisplay;
 import org.mercosur.fondoPrevision.entities.Gplanta;
+import org.mercosur.fondoPrevision.entities.Gplantahist;
 import org.mercosur.fondoPrevision.entities.Movimientos;
+import org.mercosur.fondoPrevision.entities.MovimientosHist;
 import org.mercosur.fondoPrevision.entities.ResultadoDistribucion;
 import org.mercosur.fondoPrevision.entities.Saldos;
 import org.mercosur.fondoPrevision.entities.SaldosHistoria;
 import org.mercosur.fondoPrevision.entities.TipoMovimiento;
 import org.mercosur.fondoPrevision.repository.GplantaRepository;
+import org.mercosur.fondoPrevision.repository.GplantahistRepository;
+import org.mercosur.fondoPrevision.repository.MovimientosHistRepository;
 import org.mercosur.fondoPrevision.repository.MovimientosRepository;
 import org.mercosur.fondoPrevision.repository.PrestamoRepository;
 import org.mercosur.fondoPrevision.repository.PrestamohistRepository;
@@ -29,6 +33,9 @@ import org.springframework.stereotype.Service;
 public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 	@Autowired
 	SaldosHistoriaRepository saldosHistoriaRepository;
+	
+	@Autowired
+	MovimientosHistRepository movimientosHistRepository;
 	
 	@Autowired
 	MovimientosRepository movimientosRepository;
@@ -48,6 +55,9 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 	@Autowired
 	GplantaRepository gplantaRepository;
 	
+	@Autowired
+	GplantahistRepository gplantahistRepository;
+
 	@Autowired
 	ResultadoDistribucionRepository resultadoDistribucionRepository;
 	
@@ -144,10 +154,97 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 			
 			lstcfd.add(cfd);
 		}
+		lstcfd = agregarEgresos(lstcfd, mesliquidacion, conDistrib);
 		return lstcfd;
 	}
 
+	private List<CapitalesForDisplay> agregarEgresos(List<CapitalesForDisplay> lstcfd, String mesliquidacion, Boolean conDistrib) 
+		throws Exception {
+		CapitalesForDisplay cfd;
+		List<Integer> tarjetasEgresos = saldosHistoriaRepository.getTarjetasEgresosByMesliquidacion(mesliquidacion);
+		List<ResultadoDistribucion> lstDistrib = resultadoDistribucionRepository.getByMesDistrib(mesliquidacion);
+		
+		for(Integer t : tarjetasEgresos) {
+			
+			Gplantahist f = gplantahistRepository.getByTarjeta(t);
+			cfd = new CapitalesForDisplay();
+			cfd.setNombre(f.getNombre());
+			cfd.setNrofuncionario(f.getTarjeta());
+			cfd.setMesliquidacion(mesliquidacion);
+		
+			BigDecimal capdispante = BigDecimal.ZERO;
+			BigDecimal capdispactual = BigDecimal.ZERO;
+			BigDecimal capintegactual = BigDecimal.ZERO;
+			BigDecimal importeDistrib = BigDecimal.ZERO;
+			
+			if(conDistrib) {
+				Optional<ResultadoDistribucion> res = lstDistrib.stream().filter(rd -> f.getTarjeta().equals(rd.getTarjeta()))
+						.findFirst();
+				if(res.isPresent()) {
+					importeDistrib = res.get().getDistribucionFuncionario();
+				}
+			}
+			cfd.setImporteDistribucion(importeDistrib);
+			
+			List<SaldosHistoria> lstSaldos = saldosHistoriaRepository.getByTarjetaAndMesliquidacion(f.getTarjeta(), mesliquidacion);
+			if(!lstSaldos.isEmpty()) {
+				int index = lstSaldos.size() - 1;
+				capdispante = lstSaldos.get(0).getCapitalDispAntes();
+				capdispactual = lstSaldos.get(index).getCapitalDispActual();
+				capintegactual = lstSaldos.get(index).getCapitalIntegActual();				
+			}
+			else {
+				SaldosHistoria saldos = saldosHistoriaRepository.getUltimoByTarjeta(f.getTarjeta());
+				capdispante = saldos.getCapitalDispAntes();
+				capdispactual = saldos.getCapitalDispActual();
+				capintegactual = saldos.getCapitalIntegActual();
+			}
+			
+			List<MovimientosHist> lstMovs = movimientosHistRepository.getByFuncAndMesliquidacion(t, mesliquidacion);				
+			BigDecimal cancelaciones = BigDecimal.ZERO;
+			BigDecimal prstnuevos = BigDecimal.ZERO;
+			BigDecimal amortiza = BigDecimal.ZERO;
+			BigDecimal aportes = BigDecimal.ZERO;
+			for(MovimientosHist m : lstMovs) {
+				switch (m.getCodigoMovimiento()) {
+				case (short) 2:{
+					aportes = aportes.add(m.getImporteMov());
+					break;
+				}
+				case (short) 3:{
+					prstnuevos = prstnuevos.add(m.getImporteMov());
+					break;
+				}
+				case (short) 4:{
+					amortiza = amortiza.add(m.getImporteCapSec());
+					break;
+				}
+				case (short) 5:{
+					cancelaciones = cancelaciones.add(m.getImporteMov());
+					break;
+				}
+				case (short) 9:{
+					aportes = aportes.add(m.getImporteMov());
+					break;
+				}
+				}
+			}	
+			BigDecimal totmovprst = amortiza.add(cancelaciones).subtract(prstnuevos);
 
+			cfd.setCapitalDispAnterior(capdispante);
+			cfd.setAmortizacion(amortiza);
+			cfd.setCancelaciones(cancelaciones);
+			cfd.setPrstnuevos(prstnuevos);
+			cfd.setTotalMovPrst(totmovprst);
+			cfd.setTotalMovAportes(aportes);
+			cfd.setCapitalDispActual(capdispactual);
+			cfd.setCapitalIntegActual(capintegactual);
+			
+			lstcfd.add(cfd);
+		}
+		return lstcfd;
+	}
+	
 	@Override
 	public List<CapitalesForDisplay> realizarAjuste(CapitalesForDisplay capfordisplay) throws Exception {
 		

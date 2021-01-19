@@ -1,9 +1,10 @@
 package org.mercosur.fondoPrevision.repository;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.mercosur.fondoPrevision.entities.Movimientos;
 import org.mercosur.fondoPrevision.entities.MovimientosHist;
 import org.mercosur.fondoPrevision.exceptions.FmovimientosException;
 import org.springframework.stereotype.Repository;
@@ -56,6 +57,16 @@ public class MovimientosHistRepositoryCustomImpl implements MovimientosHistRepos
 		catch(Exception ex){
 			throw new FmovimientosException("No fue posible obtener el último movimiento del funcionario");
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<MovimientosHist> getByFuncAndMesliquidacion(Integer tarjeta, String mesliquidacion) throws Exception {
+		return entityManager.createQuery("select mh from MovimientosHist mh where mh.tarjeta =:tarjeta and " + 
+				"mh.mesliquidacion =:mesliquidacion")
+				.setParameter("tarjeta", tarjeta)
+				.setParameter("mesliquidacion", mesliquidacion)
+				.getResultList();
 	}
 
 }

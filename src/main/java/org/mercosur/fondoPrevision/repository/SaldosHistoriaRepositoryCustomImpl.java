@@ -172,4 +172,15 @@ public class SaldosHistoriaRepositoryCustomImpl implements SaldosHistoriaReposit
 		return lstsaldosh.get(0);
 	}
 
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Integer> getTarjetasEgresosByMesliquidacion(String mesliquidacion) throws Exception {
+		
+		return entityManager.createQuery("select distinct sh.tarjeta from SaldosHistoria sh where sh.mesliquidacion =:mes " +
+				"and sh.tarjeta NOT IN (select distinct gp.tarjeta from org.mercosur.fondoPrevision.entities.Gplanta gp)")
+				.setParameter("mes", mesliquidacion)
+				.getResultList();
+	}
+
 }

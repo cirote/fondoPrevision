@@ -35,4 +35,6 @@ public interface SaldosHistoriaRepositoryCustom {
 	public BigDecimal totalNumeralesConDistribucion(String aniomes) throws Exception;
 	
 	public BigDecimal totalNumeralesSinDistribucion(String aniomes) throws Exception;
+	
+	public List<Integer> getTarjetasEgresosByMesliquidacion(String mesliquidacion) throws Exception;
 }

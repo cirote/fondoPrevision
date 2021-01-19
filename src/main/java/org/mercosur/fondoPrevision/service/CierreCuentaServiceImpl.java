@@ -18,6 +18,7 @@ import org.mercosur.fondoPrevision.entities.Parametro;
 import org.mercosur.fondoPrevision.entities.Prestamo;
 import org.mercosur.fondoPrevision.entities.SaldoPrestamosAcum;
 import org.mercosur.fondoPrevision.entities.Saldos;
+import org.mercosur.fondoPrevision.entities.SaldosHistoria;
 import org.mercosur.fondoPrevision.entities.SueldoMes;
 import org.mercosur.fondoPrevision.entities.TipoMovimiento;
 import org.mercosur.fondoPrevision.entities.User;
@@ -336,11 +337,16 @@ public class CierreCuentaServiceImpl implements CierreCuentaService{
 
 		Gplanta funcionario = estadoCta.getFuncionario();
 		LocalDate fechaEgreso = estadoCta.getFechaEgreso();
+		
+		java.sql.Date data = java.sql.Date.valueOf(fechaEgreso);		
+		funcionario.setEgreso(data);
+		funcionario = gplantaRepository.save(funcionario);
+		
 		int mes = fechaEgreso.getMonthValue();
 		int year = fechaEgreso.getYear();
 		String mesliquidacion = String.valueOf(year) + (mes < 10? "0"+String.valueOf(mes):String.valueOf(mes));
 		
-			// creación de registros de Movimientos de cierre
+			// creación de registros de Movimientos de cierre 
 		
 		Movimientos lastMov = movimientosRepository.getLastByFunc(funcionario.getTarjeta());
 			// movimiento tipo 2 _ aportes sobre haberes
@@ -361,6 +367,7 @@ public class CierreCuentaServiceImpl implements CierreCuentaService{
 		
 		mov = movimientosRepository.save(mov);
 		BigDecimal saldoActual = mov.getSaldoActual();
+		
 		
 			//movimiento tipo 9 - aportes sobre aguinaldo
 		
@@ -440,7 +447,106 @@ public class CierreCuentaServiceImpl implements CierreCuentaService{
 		
 		mov = movimientosRepository.save(mov);
 		
-			//pasaje a históricos
+		// Creación de registros de saldos historia y por el cierre
+		
+		SaldosHistoria saldosh = new SaldosHistoria();
+		SaldosHistoria saldoshult = saldosHistoriaRepository.getLastByTarjetaAndMesliquidacion(funcionario.getTarjeta(), mesliquidacion);
+		
+		BigDecimal cdant = saldoshult.getCapitalDispActual();
+		BigDecimal ciant = saldoshult.getCapitalIntegActual();
+
+		saldosh.setFecha(new Date());
+		saldosh.setGplanta_id(funcionario.getIdgplanta());
+		saldosh.setMesliquidacion(mesliquidacion);
+		saldosh.setTarjeta(funcionario.getTarjeta());
+
+		if(estadoCta.getAporteTotal().compareTo(BigDecimal.ZERO) > 0) {
+			saldosh.setCapitalDispActual(cdant.add(estadoCta.getAporteTotal()));
+			saldosh.setCapitalIntegActual(ciant.add(estadoCta.getAporteTotal()));
+			saldosh.setCapitalDispAntes(cdant);
+			saldosh.setCapitalIntegAntes(ciant);
+			saldosh.setNumerales(ciant.add(estadoCta.getAporteTotal()));
+			saldosh.setMotivo("Aportes - Cierre de Cuenta");
+			saldosHistoriaRepository.save(saldosh);
+			
+			saldosh = new SaldosHistoria();
+			saldoshult = saldosHistoriaRepository.getLastByTarjetaAndMesliquidacion(funcionario.getTarjeta(), mesliquidacion);
+			
+			cdant = saldoshult.getCapitalDispActual();
+			ciant = saldoshult.getCapitalIntegActual();
+
+			saldosh.setFecha(new Date());
+			saldosh.setGplanta_id(funcionario.getIdgplanta());
+			saldosh.setMesliquidacion(mesliquidacion);
+			saldosh.setTarjeta(funcionario.getTarjeta());			
+		}
+		
+		if(estadoCta.getAporteTotalSobreAguinaldo().compareTo(BigDecimal.ZERO) > 0) {
+			saldosh.setCapitalDispActual(cdant.add(estadoCta.getAporteTotalSobreAguinaldo()));
+			saldosh.setCapitalIntegActual(ciant.add(estadoCta.getAporteTotalSobreAguinaldo()));
+			saldosh.setCapitalDispAntes(cdant);
+			saldosh.setCapitalIntegAntes(ciant);
+			saldosh.setNumerales(ciant.add(estadoCta.getAporteTotalSobreAguinaldo()));
+			saldosh.setMotivo("Aportes Aguinaldo - Cierre de Cuenta");
+			saldosHistoriaRepository.save(saldosh);
+			
+			saldosh = new SaldosHistoria();
+			saldoshult = saldosHistoriaRepository.getLastByTarjetaAndMesliquidacion(funcionario.getTarjeta(), mesliquidacion);
+			
+			cdant = saldoshult.getCapitalDispActual();
+			ciant = saldoshult.getCapitalIntegActual();
+
+			saldosh.setFecha(new Date());
+			saldosh.setGplanta_id(funcionario.getIdgplanta());
+			saldosh.setMesliquidacion(mesliquidacion);
+			saldosh.setTarjeta(funcionario.getTarjeta());			
+			
+		}
+		
+		if(estadoCta.getAporteTotLicencia().compareTo(BigDecimal.ZERO) > 0) {
+			saldosh.setCapitalDispActual(cdant.add(estadoCta.getAporteTotLicencia()));
+			saldosh.setCapitalIntegActual(ciant.add(estadoCta.getAporteTotLicencia()));
+			saldosh.setCapitalDispAntes(cdant);
+			saldosh.setCapitalIntegAntes(ciant);
+			saldosh.setNumerales(ciant.add(estadoCta.getAporteTotLicencia()));
+			saldosh.setMotivo("Aportes Licencia - Cierre de Cuenta");
+			saldosHistoriaRepository.save(saldosh);
+			
+			saldosh = new SaldosHistoria();
+			saldoshult = saldosHistoriaRepository.getLastByTarjetaAndMesliquidacion(funcionario.getTarjeta(), mesliquidacion);
+			
+			cdant = saldoshult.getCapitalDispActual();
+			ciant = saldoshult.getCapitalIntegActual();
+
+			saldosh.setFecha(new Date());
+			saldosh.setGplanta_id(funcionario.getIdgplanta());
+			saldosh.setMesliquidacion(mesliquidacion);
+			saldosh.setTarjeta(funcionario.getTarjeta());						
+		}
+		
+		if(estadoCta.getInteresesporcolocaciones().compareTo(BigDecimal.ZERO) > 0) {
+			saldosh.setCapitalDispActual(cdant.add(estadoCta.getInteresesporcolocaciones()));
+			saldosh.setCapitalIntegActual(ciant.add(estadoCta.getInteresesporcolocaciones()));
+			saldosh.setCapitalDispAntes(cdant);
+			saldosh.setCapitalIntegAntes(ciant);
+			saldosh.setNumerales(ciant.add(estadoCta.getInteresesporcolocaciones()));
+			saldosh.setMotivo("Intereses - Cierre de Cuenta");
+			saldosHistoriaRepository.save(saldosh);
+			
+			saldosh = new SaldosHistoria();
+			saldoshult = saldosHistoriaRepository.getLastByTarjetaAndMesliquidacion(funcionario.getTarjeta(), mesliquidacion);
+			
+			cdant = saldoshult.getCapitalDispActual();
+			ciant = saldoshult.getCapitalIntegActual();
+
+			saldosh.setFecha(new Date());
+			saldosh.setGplanta_id(funcionario.getIdgplanta());
+			saldosh.setMesliquidacion(mesliquidacion);
+			saldosh.setTarjeta(funcionario.getTarjeta());						
+			
+		}
+		
+		//pasaje a históricos
 		
 		try {
 			if(pasajeAHistoricosMovimientos(funcionario.getTarjeta())) {
