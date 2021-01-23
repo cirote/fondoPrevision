@@ -1071,6 +1071,7 @@ public class SolicitudPrestamoController {
 
 		return solicitudparaautorizar(solicitud.getIdfsolicitud(), model);
 	}
+	
 	@RequestMapping(value="/actualizarSolicitud")
 	public ResponseEntity<String> actualizarSolicitud(@Valid @RequestBody SolicitudPrstForm param, Errors errors){
 
@@ -1081,10 +1082,14 @@ public class SolicitudPrestamoController {
 						.collect(Collectors.joining(""));
 				throw new Exception(result);
 			}
+			User user = userService.getLoggedUser();
+			
 	        Long id = param.getIdfsolicitud();
 	        
 	        String obs = param.getObsComision();
-
+	        if(obs.contains(user.getUsername())) {
+	        	return ResponseEntity.badRequest().body("Esta solicitud ya ha sido aprobada por el usuario" + user.getUsername());
+	        }
 	        SolicitudPrestamo solicitud = solicitudPrestamoRepository.getOne(id);
 			if(solicitud.getAprobada()) {
 				solicitud.setAprobada2(true);
@@ -1092,7 +1097,7 @@ public class SolicitudPrestamoController {
 			else {
 				solicitud.setAprobada(true);			
 			}
-			solicitud.setMotivo(obs);			
+			solicitud.setMotivo(obs.concat(" - " + user.getUsername()));			
 			solicitud = solicitudPrestamoService.updateSolicitud(solicitud);
 		}
 		catch(Exception e) {
@@ -1114,8 +1119,13 @@ public class SolicitudPrestamoController {
 	        }
 	        
 	        Long id = param.getIdfsolicitud();
-	        
+
+	    	User user = userService.getLoggedUser();
+			
 	        String obs = param.getObsComision();
+	        if(obs.contains(user.getUsername())) {
+	        	return ResponseEntity.badRequest().body("Esta solicitud ya ha sido rechazada por el usuario" + user.getUsername());
+	        }
 
 			SolicitudPrestamo solicitud = solicitudPrestamoRepository.getOne(id);
 			
@@ -1126,7 +1136,7 @@ public class SolicitudPrestamoController {
 				solicitud.setRechazada(true);			
 			}
 
-			solicitud.setMotivo(obs);
+			solicitud.setMotivo(obs.concat(" - " + user.getUsername()));			
 			solicitud = solicitudPrestamoService.updateSolicitud(solicitud);
 			
 		} catch (Exception e) {
