@@ -1088,10 +1088,14 @@ public class SolicitudPrestamoController {
 	        
 	        String obs = param.getObsComision();
 	        if(obs.contains(user.getUsername())) {
-	        	return ResponseEntity.badRequest().body("Esta solicitud ya ha sido aprobada por el usuario" + user.getUsername());
+	        	return ResponseEntity.badRequest().body("Esta solicitud ya ha sido aprobada por el usuario " + user.getUsername());
 	        }
+
 	        SolicitudPrestamo solicitud = solicitudPrestamoRepository.getOne(id);
-			if(solicitud.getAprobada()) {
+			if(solicitud.getAprobada() && solicitud.getMotivo().contains(user.getUsername())) {
+	        	return ResponseEntity.badRequest().body("Esta solicitud ya ha sido aprobada por el usuario " + user.getUsername());
+			}
+			else if(solicitud.getAprobada()) {
 				solicitud.setAprobada2(true);
 			}
 			else {
@@ -1124,13 +1128,16 @@ public class SolicitudPrestamoController {
 			
 	        String obs = param.getObsComision();
 	        if(obs.contains(user.getUsername())) {
-	        	return ResponseEntity.badRequest().body("Esta solicitud ya ha sido rechazada por el usuario" + user.getUsername());
+	        	return ResponseEntity.badRequest().body("Esta solicitud ya ha sido rechazada por el usuario " + user.getUsername());
 	        }
 
 			SolicitudPrestamo solicitud = solicitudPrestamoRepository.getOne(id);
 			
-			if(solicitud.getRechazada()) {
-				solicitud.setRechazada2(true);
+			if(solicitud.getRechazada() && solicitud.getMotivo().contains(user.getUsername())) {
+	        	return ResponseEntity.badRequest().body("Esta solicitud ya ha sido rechazada por el usuario " + user.getUsername());
+			}
+			else if(solicitud.getRechazada()) {
+	        	solicitud.setRechazada2(true);
 			}
 			else {
 				solicitud.setRechazada(true);			
