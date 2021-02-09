@@ -116,14 +116,14 @@ public class PrestamoServiceImpl implements PrestamoService {
 		// si este último es distinto se modifica la variable mesliquidacion.
 	
 		Integer mesdehoy = prst.getFechaPrestamo().getMonthValue();
+		Integer aniodehoy = prst.getFechaPrestamo().getYear();
 		Integer mesdeParam = Integer.valueOf(mesliquidacion.substring(4));
-		if(mesdehoy != mesdeParam) {
-			if(mesdehoy < 10) {
-				mesliquidacion = mesliquidacion.substring(0, 4).concat("0" + mesdehoy.toString());
-			}
-			else {
-				mesliquidacion = mesliquidacion.substring(0, 4).concat(mesdehoy.toString());
-			}
+		Integer aniodeParam = Integer.valueOf(mesliquidacion.substring(0, 4));
+		if(aniodehoy == aniodeParam && mesdehoy != mesdeParam) {
+			mesliquidacion = aniodeParam.toString().concat(mesdehoy < 10? "0" + mesdehoy.toString() : mesdehoy.toString());
+		}
+		else if(aniodehoy != aniodeParam) {
+			mesliquidacion = aniodehoy.toString().concat(mesdehoy < 10 ? "0" + mesdehoy.toString() : mesdehoy.toString());
 		}
 		
 		LocalDate fecha = prst.getFechaPrestamo();
