@@ -230,14 +230,14 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 				}
 			}	
 			BigDecimal totmovprst = amortiza.add(cancelaciones).subtract(prstnuevos);
-			BigDecimal retiroCap = BigDecimal.ZERO.subtract(capdispactual);
+			aportes = aportes.subtract(capdispactual);
 
 			cfd.setCapitalDispAnterior(capdispante);
 			cfd.setAmortizacion(amortiza);
 			cfd.setCancelaciones(cancelaciones);
 			cfd.setPrstnuevos(prstnuevos);
 			cfd.setTotalMovPrst(totmovprst);
-			cfd.setTotalMovAportes(retiroCap);
+			cfd.setTotalMovAportes(aportes);
 			cfd.setCapitalDispActual(BigDecimal.ZERO);
 			cfd.setCapitalIntegActual(BigDecimal.ZERO);
 			
