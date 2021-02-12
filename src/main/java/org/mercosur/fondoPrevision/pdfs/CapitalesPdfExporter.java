@@ -76,7 +76,13 @@ public class CapitalesPdfExporter {
 		cell.setPhrase(new Phrase("Total Mov.", font));
 		table.addCell(cell);
 
-		cell.setPhrase(new Phrase("Total Mov. Nominal", font));
+		cell.setPhrase(new Phrase("Aportes", font));
+		table.addCell(cell);
+
+		cell.setPhrase(new Phrase("Otros", font));
+		table.addCell(cell);
+
+		cell.setPhrase(new Phrase("Retiros", font));
 		table.addCell(cell);
 
 		cell.setPhrase(new Phrase("Cap. Disp. Actual", font));
@@ -88,10 +94,10 @@ public class CapitalesPdfExporter {
 		cell.setPhrase(new Phrase("Continúa en la pag. siguiente... " , font));
 		cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
 		if(conDistribucion) {
-			cell.setColspan(11);
+			cell.setColspan(13);
 		}
 		else {
-			cell.setColspan(10);
+			cell.setColspan(12);
 		}
 		table.addCell(cell);
 		table.setHeaderRows(2);
@@ -120,6 +126,8 @@ public class CapitalesPdfExporter {
 			table.addCell(new Phrase(getAsString(cfd.getPrstnuevos()), fontd));
 			table.addCell(new Phrase(getAsString(cfd.getTotalMovPrst()), fontd));
 			table.addCell(new Phrase(getAsString(cfd.getTotalMovAportes()), fontd));
+			table.addCell(new Phrase(getAsString(cfd.getOtros()), fontd));
+			table.addCell(new Phrase(getAsString(cfd.getRetiros()), fontd));
 			table.addCell(new Phrase(getAsString(cfd.getCapitalDispActual()), fontd));
 			table.addCell(new Phrase(getAsString(cfd.getCapitalIntegActual()), fontd));
 		}
@@ -176,16 +184,16 @@ public class CapitalesPdfExporter {
 		fecha.setAlignment(Paragraph.ALIGN_RIGHT);
 		document.add(fecha);
 
-		PdfPTable table = new PdfPTable(10);
+		PdfPTable table = new PdfPTable(12);
 		if(conDistribucion) {
-			table = new PdfPTable(11);
+			table = new PdfPTable(13);
 			table.setWidthPercentage(100.0f);
-			table.setWidths(new float[] {1.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f});
+			table.setWidths(new float[] {1.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f});
 			table.setSpacingBefore(10);
 		}
 		else {
 			table.setWidthPercentage(100.0f);
-			table.setWidths(new float[] {1.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f});
+			table.setWidths(new float[] {1.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f});
 			table.setSpacingBefore(10);			
 		}
 		

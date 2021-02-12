@@ -23,6 +23,8 @@ public class CapitalesForDisplay implements Serializable {
 	private BigDecimal prstnuevos;
 	private BigDecimal totalMovPrst;
 	private BigDecimal totalMovAportes;
+	private BigDecimal otros;
+	private BigDecimal retiros;
 	private BigDecimal capitalDispActual;
 	private BigDecimal capitalIntegActual;
 	
@@ -124,5 +126,21 @@ public class CapitalesForDisplay implements Serializable {
 
 	public void setImporteDistribucion(BigDecimal importeDistribucion) {
 		this.importeDistribucion = importeDistribucion;
+	}
+
+	public BigDecimal getOtros() {
+		return otros;
+	}
+
+	public void setOtros(BigDecimal otros) {
+		this.otros = otros;
+	}
+
+	public BigDecimal getRetiros() {
+		return retiros;
+	}
+
+	public void setRetiros(BigDecimal retiros) {
+		this.retiros = retiros;
 	}
 }

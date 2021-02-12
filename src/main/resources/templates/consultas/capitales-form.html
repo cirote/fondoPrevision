@@ -192,7 +192,9 @@
 	 							<th class="thead-text" scope="col">Cancelaci&oacute;n</th>
 	 							<th class="thead-text" scope="col">Prst. Nuevo</th>
 	 							<th class="thead-text" scope="col">Total Mov.</th>
-	 							<th class="thead-text" scope="col">Total Mov. Nominal</th>
+	 							<th class="thead-text" scope="col">Aportes Mensuales</th>
+	 							<th class="thead-text" scope="col">Otros</th>
+	 							<th class="thead-text" scope="col">Retiros</th>
 	 							<th class="thead-text" scope="col">Cap. Disp. Actual</th>
 	 							<th class="thead-text" scope="col">Cap. Integrado</th>
 	 							<th></th>
@@ -210,6 +212,8 @@
 	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.prstnuevos, 2, 'POINT', 2, 'COMMA')}"></td>
 	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.totalMovPrst, 2, 'POINT', 2, 'COMMA')}"></td>
 	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.totalMovAportes, 2, 'POINT', 2, 'COMMA')}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.otros, 1, 'POINT', 2, 'COMMA')}"></td>
+	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.retiros, 1, 'POINT', 2, 'COMMA')}"></td>
 	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.capitalDispActual, 2, 'POINT', 2, 'COMMA')}"></td>
 	 							<td class="text-right" th:text="${#numbers.formatDecimal(cap.capitalIntegActual, 2, 'POINT', 2, 'COMMA')}"></td>
 	 							<td>

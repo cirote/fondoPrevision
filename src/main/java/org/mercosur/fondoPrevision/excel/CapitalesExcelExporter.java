@@ -94,7 +94,15 @@ public class CapitalesExcelExporter {
 		cell.setCellStyle(style);
 
 		cell = row.createCell(col++);
-		cell.setCellValue("Total Mov. Nominal");
+		cell.setCellValue("Aportes Mensuales");
+		cell.setCellStyle(style);
+
+		cell = row.createCell(col++);
+		cell.setCellValue("Otros");
+		cell.setCellStyle(style);
+
+		cell = row.createCell(col++);
+		cell.setCellValue("Retiros");
 		cell.setCellStyle(style);
 
 		cell = row.createCell(col++);
@@ -150,6 +158,14 @@ public class CapitalesExcelExporter {
 			cell.setCellValue(ap.getTotalMovAportes().doubleValue());
 			sheet.autoSizeColumn(col++);
 			
+			cell = row.createCell(col);
+			cell.setCellValue(ap.getOtros().doubleValue());
+			sheet.autoSizeColumn(col++);
+
+			cell = row.createCell(col);
+			cell.setCellValue(ap.getRetiros().doubleValue());
+			sheet.autoSizeColumn(col++);
+
 			cell = row.createCell(col);
 			cell.setCellValue(ap.getCapitalDispActual().doubleValue());
 			sheet.autoSizeColumn(col++);

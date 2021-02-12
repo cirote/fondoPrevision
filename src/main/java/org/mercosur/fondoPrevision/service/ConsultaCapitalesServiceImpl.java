@@ -82,6 +82,8 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 			cfd.setNombre(f.getNombre());
 			cfd.setNrofuncionario(f.getTarjeta());
 			cfd.setMesliquidacion(mesliquidacion);
+			cfd.setOtros(BigDecimal.ZERO);
+			cfd.setRetiros(BigDecimal.ZERO);
 		
 			BigDecimal capdispante = BigDecimal.ZERO;
 			BigDecimal capdispactual = BigDecimal.ZERO;
@@ -117,6 +119,7 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 			BigDecimal prstnuevos = BigDecimal.ZERO;
 			BigDecimal amortiza = BigDecimal.ZERO;
 			BigDecimal aportes = BigDecimal.ZERO;
+			BigDecimal otros = BigDecimal.ZERO;
 			for(Movimientos m : lstMovs) {
 				switch (m.getCodigoMovimiento()) {
 				case (short) 2:{
@@ -136,7 +139,7 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 					break;
 				}
 				case (short) 9:{
-					aportes = aportes.add(m.getImporteMov());
+					otros = otros.add(m.getImporteMov());
 					break;
 				}
 				}
@@ -149,6 +152,7 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 			cfd.setPrstnuevos(prstnuevos);
 			cfd.setTotalMovPrst(totmovprst);
 			cfd.setTotalMovAportes(aportes);
+			cfd.setOtros(otros);
 			cfd.setCapitalDispActual(capdispactual);
 			cfd.setCapitalIntegActual(capintegactual);
 			
@@ -173,8 +177,6 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 			cfd.setMesliquidacion(mesliquidacion);
 		
 			BigDecimal capdispante = BigDecimal.ZERO;
-			BigDecimal capdispactual = BigDecimal.ZERO;
-			BigDecimal capintegactual = BigDecimal.ZERO;
 			BigDecimal importeDistrib = BigDecimal.ZERO;
 			
 			if(conDistrib) {
@@ -188,16 +190,11 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 			
 			List<SaldosHistoria> lstSaldos = saldosHistoriaRepository.getByTarjetaAndMesliquidacion(f.getTarjeta(), mesliquidacion);
 			if(!lstSaldos.isEmpty()) {
-				int index = lstSaldos.size() - 1;
 				capdispante = lstSaldos.get(0).getCapitalDispAntes();
-				capdispactual = lstSaldos.get(index).getCapitalDispActual();
-				capintegactual = lstSaldos.get(index).getCapitalIntegActual();				
 			}
 			else {
 				SaldosHistoria saldos = saldosHistoriaRepository.getUltimoByTarjeta(f.getTarjeta());
 				capdispante = saldos.getCapitalDispAntes();
-				capdispactual = saldos.getCapitalDispActual();
-				capintegactual = saldos.getCapitalIntegActual();
 			}
 			
 			List<MovimientosHist> lstMovs = movimientosHistRepository.getByFuncAndMesliquidacion(t, mesliquidacion);				
@@ -205,6 +202,9 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 			BigDecimal prstnuevos = BigDecimal.ZERO;
 			BigDecimal amortiza = BigDecimal.ZERO;
 			BigDecimal aportes = BigDecimal.ZERO;
+			BigDecimal otros = BigDecimal.ZERO;
+			BigDecimal retiros = BigDecimal.ZERO;
+			
 			for(MovimientosHist m : lstMovs) {
 				switch (m.getCodigoMovimiento()) {
 				case (short) 2:{
@@ -223,21 +223,34 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 					cancelaciones = cancelaciones.add(m.getImporteMov());
 					break;
 				}
+				case (short) 6:{
+					otros = otros.add(m.getImporteMov());
+					break;
+				}
+				case (short) 7:{
+					retiros = retiros.add(m.getImporteMov());
+					break;
+				}
 				case (short) 9:{
-					aportes = aportes.add(m.getImporteMov());
+					otros = otros.add(m.getImporteMov());
+					break;
+				}
+				case (short) 11:{
+					otros = otros.add(m.getImporteMov());
 					break;
 				}
 				}
 			}	
 			BigDecimal totmovprst = amortiza.add(cancelaciones).subtract(prstnuevos);
-			aportes = aportes.subtract(capdispactual);
-
+			
 			cfd.setCapitalDispAnterior(capdispante);
 			cfd.setAmortizacion(amortiza);
 			cfd.setCancelaciones(cancelaciones);
 			cfd.setPrstnuevos(prstnuevos);
 			cfd.setTotalMovPrst(totmovprst);
 			cfd.setTotalMovAportes(aportes);
+			cfd.setOtros(otros);
+			cfd.setRetiros(retiros);
 			cfd.setCapitalDispActual(BigDecimal.ZERO);
 			cfd.setCapitalIntegActual(BigDecimal.ZERO);
 			
