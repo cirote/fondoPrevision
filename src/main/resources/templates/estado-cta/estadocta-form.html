@@ -169,7 +169,7 @@
 								<td class="text-right" th:text="${prst.cantCuotas}"></td>
 								<td class="text-right" th:text="${#numbers.formatDecimal(prst.cuota,1, 'POINT', 2,'COMMA')}"></td>
 								<td class="text-right" th:text="${prst.cuotasPagas}"></td>
-								<td class="text-right" th:text="${#numbers.formatDecimal(prst.saldoPrestamo,3,'POINT',2,'COMMA')}"></td>
+								<td class="text-right" th:text="${#numbers.formatDecimal(prst.saldoPrestamo,2,'POINT',2,'COMMA')}"></td>
 							</tr>
 			              </tbody>
 			          </table>

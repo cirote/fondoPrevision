@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -390,21 +391,24 @@ public class PrestamoServiceImpl implements PrestamoService {
 		List<Prestamohist> lstPrstHist = prestamoshistRepository.findPrstCancelados();
 		List<Prestamo> lstPrst = new ArrayList<Prestamo>();
 		for(Prestamohist ph : lstPrstHist) {
-			Prestamo p = new Prestamo();
-			p.setCantCuotas(ph.getCantCuotas());
-			p.setCapitalPrestamo(ph.getCapitalPrestamo());
-			p.setCodigoPrestamo(ph.getCodigoPrestamo());
-			p.setCuota(ph.getCuota());
-			p.setCuotasPagas(ph.getCuotasPagas());
-			p.setFechaPrestamo(ph.getFechaPrestamo());
-			p.setFechaSaldo(ph.getFechaSaldo());
-			p.setFuncionario(gplantaRepository.getOne(ph.getGplanta_id()));
-			p.setInteresPrestamo(ph.getInteresPrestamo());
-			p.setNroprestamo(ph.getNroprestamo());
-			p.setSaldoPrestamo(ph.getSaldoPrestamo());
-			p.setTarjeta(ph.getTarjeta());
-			p.setTipoPrestamo(tipoPrestamoRepository.getOne(ph.getFtipoprestamo_id()));
-			lstPrst.add(p);
+			Gplanta func = gplantaRepository.findByTarjeta(ph.getTarjeta());
+			if(func != null) {
+				Prestamo p = new Prestamo();
+				p.setCantCuotas(ph.getCantCuotas());
+				p.setCapitalPrestamo(ph.getCapitalPrestamo());
+				p.setCodigoPrestamo(ph.getCodigoPrestamo());
+				p.setCuota(ph.getCuota());
+				p.setCuotasPagas(ph.getCuotasPagas());
+				p.setFechaPrestamo(ph.getFechaPrestamo());
+				p.setFechaSaldo(ph.getFechaSaldo());
+				p.setFuncionario(func);
+				p.setInteresPrestamo(ph.getInteresPrestamo());
+				p.setNroprestamo(ph.getNroprestamo());
+				p.setSaldoPrestamo(ph.getSaldoPrestamo());
+				p.setTarjeta(ph.getTarjeta());
+				p.setTipoPrestamo(tipoPrestamoRepository.getOne(ph.getFtipoprestamo_id()));
+				lstPrst.add(p);							
+			}
 		}
 		return lstPrst;
 	}

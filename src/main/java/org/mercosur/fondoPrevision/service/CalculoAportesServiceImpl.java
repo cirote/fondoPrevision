@@ -134,13 +134,13 @@ public class CalculoAportesServiceImpl implements CalculoAportesService {
 			
 				for(Parametro p:lstPar) {
 					if(p.getDescripcion().contains("funcionario") || p.getDescripcion().contains("Funcionario")) {
-						aporteFun = basico.multiply(p.getValor()).divide(divisor).setScale(2, RoundingMode.HALF_EVEN);
+						aporteFun = basico.multiply(p.getValor()).divide(divisor).setScale(2, RoundingMode.HALF_UP);
 					}
 					else if(p.getDescripcion().contains("patronal")) {
 						if(complemento.compareTo(BigDecimal.ZERO) > 0) {
 							basicosec = basico.add(complemento);
 						}
-						aporteSec = (basicosec.multiply(p.getValor()).divide(divisor)).setScale(2, RoundingMode.HALF_EVEN);
+						aporteSec = (basicosec.multiply(p.getValor()).divide(divisor)).setScale(2, RoundingMode.HALF_UP);
 					}
 				}
 				
@@ -390,19 +390,19 @@ public class CalculoAportesServiceImpl implements CalculoAportesService {
 		
 		for(FuncionarioConSueldoMes fcsm : lstSMUTF) {
 			basico = sumaBasicos(aniomes1, aniomes2, fcsm.getTarjeta());
-			basico = basico.divide(divDoce, RoundingMode.HALF_EVEN);
+			basico = basico.divide(divDoce, RoundingMode.HALF_UP);
 			complemento = sumaComplementos(aniomes1, aniomes2,fcsm.getTarjeta());
-			complemento = complemento.divide(divDoce, RoundingMode.HALF_EVEN);
+			complemento = complemento.divide(divDoce, RoundingMode.HALF_UP);
 			
 			for(Parametro p:lstPar) {
 				if(p.getDescripcion().contains("funcionario") || p.getDescripcion().contains("Funcionario")) {
-					aporteFun = basico.multiply(p.getValor()).divide(divisor).setScale(2, RoundingMode.HALF_EVEN);
+					aporteFun = basico.multiply(p.getValor()).divide(divisor).setScale(2, RoundingMode.HALF_UP);
 				}
 				else if(p.getDescripcion().contains("patronal")) {
 					if(complemento.compareTo(BigDecimal.ZERO) > 0) {
 						basicosec = basico.add(complemento);
 					}
-					aporteSec = (basicosec.multiply(p.getValor()).divide(divisor)).setScale(2, RoundingMode.HALF_EVEN);
+					aporteSec = (basicosec.multiply(p.getValor()).divide(divisor)).setScale(2, RoundingMode.HALF_UP);
 				}
 			}
 			
