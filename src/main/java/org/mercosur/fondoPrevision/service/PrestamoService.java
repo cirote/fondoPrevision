@@ -7,6 +7,7 @@ import javax.persistence.NoResultException;
 
 import org.mercosur.fondoPrevision.entities.Prestamo;
 import org.mercosur.fondoPrevision.entities.TipoPrestamo;
+import org.mercosur.fondoPrevision.exceptions.ParamNotFoundException;
 import org.mercosur.fondoPrevision.exceptions.PrestamoNotFoundException;
 
 public interface PrestamoService {
@@ -19,7 +20,7 @@ public interface PrestamoService {
 	
 	List<Prestamo> getAllPrstByFunc(Long idfuncionario);
 	
-	Integer getProxNroPrst();
+	Integer getProxNroPrst() throws ParamNotFoundException;
 	
 	Optional<Prestamo> findByNroprestamo(Integer nro);
 	

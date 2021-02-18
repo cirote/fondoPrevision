@@ -69,7 +69,19 @@ public class ParametroController {
 	private Boolean chequeoMesLiqOk(String mesActual, String mesSiguiente) {
 		Integer ma = Integer.valueOf(mesActual);
 		Integer ms = Integer.valueOf(mesSiguiente);
-		if(ma == ms || ma.compareTo(ms) > 0 || ms.compareTo(ma + 1) > 0) {
+		Integer anioa = Integer.valueOf(mesActual.substring(0, 4));
+		Integer mesa = Integer.valueOf(mesActual.substring(4));
+		Integer anios = Integer.valueOf(mesSiguiente.substring(0, 4));
+		Integer mess = Integer.valueOf(mesSiguiente.substring(4));
+		if(anioa == anios) {
+			if(ma == ms || ma.compareTo(ms) > 0 || ms.compareTo(ma + 1) > 0) {
+				return false;
+			}			
+		}
+		else if(anios.compareTo(anioa + 1) > 0) {
+			return false;
+		}
+		else if(anios - anioa == 1 && (mesa != 12 || mess != 1)){
 			return false;
 		}
 		return true;

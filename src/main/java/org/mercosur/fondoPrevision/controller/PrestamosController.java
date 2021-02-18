@@ -253,14 +253,14 @@ public class PrestamosController {
 		form.setSuccessMessage(null);
 		form.setErrorMessage(null);
 		Gplanta funcionario;
-		if(form.getCantCuotas() == null | form.getCapitalPrst()== null | form.getTasa() == null) {
-			form.setErrorMessage("El capital, la cantidad de cuotas y la tasa de interés son datos requeridos!");
-			form.setNroprestamo(prestamoService.getProxNroPrst());
-			model.addAttribute("prstNewTab", "active");
-			return("prestamos/prestamos-view");
-		}
 
 		try {
+			if(form.getCantCuotas() == null | form.getCapitalPrst()== null | form.getTasa() == null) {
+				form.setErrorMessage("El capital, la cantidad de cuotas y la tasa de interés son datos requeridos!");
+				form.setNroprestamo(prestamoService.getProxNroPrst());
+				model.addAttribute("prstNewTab", "active");
+				return("prestamos/prestamos-view");
+			}
 			if(form.getTarjeta() != null) {
 				funcionario = gplantaService.getFuncionarioByTarjeta(form.getTarjeta());							
 			}
@@ -274,6 +274,9 @@ public class PrestamosController {
 			else if(!puedeOperar(funcionario)) {
 				form.setErrorMessage("El funcionario no está en condiciones de operar. Posee un prestamo reciente!");
 			}
+		}
+		catch(ParamNotFoundException pfe) {
+			form.setErrorMessage(pfe.getMessage());
 		}
 		catch(Exception e) {
 			form.setErrorMessage(e.getMessage());
@@ -429,6 +432,7 @@ public class PrestamosController {
 						}
 						prst.setPrestamoNuevo(true);
 						prst.setFechaPrestamo(form.getFechaprestamo());
+						prst.setNroprestamo(form.getNroprestamo());
 						prst = prestamoService.savePrst(prst, form.getIdfuncionario(), form.getIdtipoprst());
 						model.addAttribute("prstNuevoForm", new PrstNuevoForm(prestamoService.getProxNroPrst()));
 						model.addAttribute("prestamosList", prestamoService.getAllPrst());
@@ -505,6 +509,9 @@ public class PrestamosController {
 		catch(NoResultException nre) {
 			// se puede continuar con el procedimiento
 		}
+		catch(ParamNotFoundException ex) {
+			model.addAttribute("cancelErrorMessage", "No se encontró el prox. nro. préstamo");
+		}
 		Prestamo p = new Prestamo();
 		p.setCantCuotas(ph.getCantCuotas());
 		p.setCapitalPrestamo(ph.getCapitalPrestamo());
@@ -533,7 +540,12 @@ public class PrestamosController {
 			model.addAttribute("cancelErrorMessage", e.getMessage());
 		}
 
-		model.addAttribute("prstNuevoForm", new PrstNuevoForm(prestamoService.getProxNroPrst()));
+		try {
+			model.addAttribute("prstNuevoForm", new PrstNuevoForm(prestamoService.getProxNroPrst()));			
+		}
+		catch(ParamNotFoundException pef) {
+			model.addAttribute("cancelErrorMessage", "No se encontró prox. nro. de préstamo");
+		}
 		model.addAttribute("editMode", false);
 		model.addAttribute("plantaList", gplantaService.getAllPlanta());
 		model.addAttribute("prestamosList", prestamoService.getAllPrst());

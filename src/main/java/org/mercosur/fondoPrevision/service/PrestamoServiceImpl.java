@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import org.mercosur.fondoPrevision.entities.Gplanta;
 import org.mercosur.fondoPrevision.entities.Movimientos;
+import org.mercosur.fondoPrevision.entities.Parametro;
 import org.mercosur.fondoPrevision.entities.Prestamo;
 import org.mercosur.fondoPrevision.entities.Prestamohist;
 import org.mercosur.fondoPrevision.entities.SaldoPrestamosAcum;
@@ -25,10 +25,12 @@ import org.mercosur.fondoPrevision.entities.SaldosHistoria;
 import org.mercosur.fondoPrevision.entities.TipoMovimiento;
 import org.mercosur.fondoPrevision.entities.TipoPrestamo;
 import org.mercosur.fondoPrevision.exceptions.FuncionarioNoEncontradoException;
+import org.mercosur.fondoPrevision.exceptions.ParamNotFoundException;
 import org.mercosur.fondoPrevision.exceptions.PrestamoNotFoundException;
 import org.mercosur.fondoPrevision.repository.FcodigosRepository;
 import org.mercosur.fondoPrevision.repository.GplantaRepository;
 import org.mercosur.fondoPrevision.repository.MovimientosRepository;
+import org.mercosur.fondoPrevision.repository.ParametroRepository;
 import org.mercosur.fondoPrevision.repository.PrestamoRepository;
 import org.mercosur.fondoPrevision.repository.PrestamohistRepository;
 import org.mercosur.fondoPrevision.repository.SaldoPrestamosAcumRepository;
@@ -42,6 +44,9 @@ public class PrestamoServiceImpl implements PrestamoService {
 
 	@Autowired
 	ParamService parametroService;
+	
+	@Autowired
+	ParametroRepository parametroRepository;
 	
 	@Autowired
 	PrestamoRepository prestamoRepository;
@@ -129,10 +134,13 @@ public class PrestamoServiceImpl implements PrestamoService {
 		
 		LocalDate fecha = prst.getFechaPrestamo();
 			// 1- Salva el préstamo.
-		if(nroprst.isPresent()) {
-			prst.setNroprestamo(nroprst.get() + 1);
-		}
-		else {prst.setNroprestamo(1);
+		if(prst.getNroprestamo() == null) {
+			try {
+				this.getProxNroPrst();
+			}
+			catch(ParamNotFoundException pnfe) {
+				throw new Exception(pnfe.getMessage());
+			}
 		}
 		if(tipoPrst.isPresent()) {
 			prst.setTipoPrestamo(tipoPrst.get());
@@ -252,11 +260,19 @@ public class PrestamoServiceImpl implements PrestamoService {
 	}
 
 	@Override
-	public Integer getProxNroPrst() {
+	public Integer getProxNroPrst() throws ParamNotFoundException {
 		Integer nrosig = 1;
-		Optional<Integer> nro = prestamoRepository.getUltimoNroPrst();
-		if(nro.isPresent()) {
-			nrosig = nro.get() + 1;
+		try {
+			List<Parametro> param = (List<Parametro>)parametroRepository.getSomeByDesc("Ultimo Nro. de Préstamo");
+			if(param.size() == 1) {
+				nrosig = param.get(0).getValor().intValue() + 1;
+			}
+			else {
+				nrosig = param.get(param.size() - 1).getValor().intValue() + 1;
+			}
+		}
+		catch(Exception ex) {
+			throw new ParamNotFoundException("No se encontró el último Nro. de Prestamo");
 		}
 		
 		return nrosig;
