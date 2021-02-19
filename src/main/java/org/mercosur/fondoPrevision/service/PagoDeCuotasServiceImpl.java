@@ -108,7 +108,7 @@ public class PagoDeCuotasServiceImpl implements PagoDeCuotasService{
 			bdCuotaCap = fp.getCuota().subtract(bdInteres).setScale(2, RoundingMode.HALF_EVEN);
 			bdCuota = fp.getCuota();
 			if(cuotasPagas.intValue() == fp.getCantCuotas().intValue()){
-				bdCuota = fp.getSaldoPrestamo().subtract(bdInteres).setScale(2, RoundingMode.HALF_EVEN);
+				bdCuota = fp.getSaldoPrestamo().add(bdInteres);
 				bdCuotaCap = fp.getSaldoPrestamo();
 			}			
 			bdSaldo = fp.getSaldoPrestamo().subtract(bdCuotaCap);
