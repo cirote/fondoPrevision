@@ -60,7 +60,7 @@ public class ParametroController {
 		model.addAttribute("paramForm", paramForm);
 		model.addAttribute("aniomesForm", anioMesForm);
 		model.addAttribute("paramList", paramService.getAllParametros());
-		model.addAttribute("paramPrstList", paramPrestamoRepository.findAll());
+		model.addAttribute("paramPrstList", paramPrestamoRepository.findAllOrderBymeses());
 		model.addAttribute("listTab", "active");
 		
 		return("parametros/param-view");
@@ -115,7 +115,7 @@ public class ParametroController {
 
 		model.addAttribute("paramForm", new ParamForm());
 		model.addAttribute("paramList", paramService.getAllParametros());
-		model.addAttribute("paramPrstList", paramPrestamoRepository.findAll());
+		model.addAttribute("paramPrstList", paramPrestamoRepository.findAllOrderBymeses());
 		model.addAttribute("aniomesTab","active");
 		return "parametros/param-view";
 	}
@@ -259,7 +259,7 @@ public class ParametroController {
 		
 		model.addAttribute("aniomesForm", new MesLiquidacionForm());
 		model.addAttribute("paramList", paramService.getAllParametros());
-		model.addAttribute("paramPrstList", paramPrestamoRepository.findAll());
+		model.addAttribute("paramPrstList", paramPrestamoRepository.findAllOrderBymeses());
 
 		return "parametros/param-view";
 	}
@@ -288,7 +288,7 @@ public class ParametroController {
 		
 		model.addAttribute("aniomesForm", new MesLiquidacionForm());
 		model.addAttribute("paramList", paramService.getAllParametros());
-		model.addAttribute("paramPrstList", paramPrestamoRepository.findAll());
+		model.addAttribute("paramPrstList", paramPrestamoRepository.findAllOrderBymeses());
 
 		return "parametros/param-view";
 	}

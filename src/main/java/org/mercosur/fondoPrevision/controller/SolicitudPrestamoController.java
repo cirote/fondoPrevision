@@ -109,7 +109,7 @@ public class SolicitudPrestamoController {
 			solicitudPrstForm.setUser(user);
 			
 			model.addAttribute("sinPrst", true);
-			model.addAttribute("pprstList", paramPrestamoRepository.findAll());
+			model.addAttribute("pprstList", paramPrestamoRepository.findAllOrderBymeses());
 			model.addAttribute("listPendientes", new ArrayList<SolicitudPrestamo>());
 			model.addAttribute("help", help);
 			model.addAttribute("tiposPrstList", tipoPrestamoRepository.findAll());
@@ -129,7 +129,7 @@ public class SolicitudPrestamoController {
 		try {
 			user = userService.getLoggedUser();
 			model.addAttribute("plantaList", gplantaService.getAllPlanta());
-			model.addAttribute("pprstList", paramPrestamoRepository.findAll());
+			model.addAttribute("pprstList", paramPrestamoRepository.findAllOrderBymeses());
 			String clave = "fsolPrstFondo";
 			Ayuda help = ayudaService.getByClave(clave);
 			SolicitudPrstForm solicitudPrstForm = new SolicitudPrstForm();
@@ -138,7 +138,7 @@ public class SolicitudPrestamoController {
 			solicitudPrstForm.setUser(user);
 
 			List<ParamPrestamo> lst = new ArrayList<ParamPrestamo>();
-			lst = paramPrestamoRepository.findAll();
+			lst = paramPrestamoRepository.findAllOrderBymeses();
 			solicitudPrstForm.setLstpprst(lst);
 			
 			Optional<Gplanta> func = gplantaRepository.findById(idfunc); 
@@ -228,7 +228,7 @@ public class SolicitudPrestamoController {
 			else {
 				model.addAttribute("sinPrst", false);
 			}
-			model.addAttribute("pprstList", paramPrestamoRepository.findAll());
+			model.addAttribute("pprstList", paramPrestamoRepository.findAllOrderBymeses());
 			model.addAttribute("help", help);
 			model.addAttribute("estadoDeCta", estadodeCta);
 			model.addAttribute("tiposPrstList", tipoPrestamoRepository.findAll());
@@ -290,7 +290,7 @@ public class SolicitudPrestamoController {
 			model.addAttribute("nombre", solicitud.get().getFuncionario().getNombre());
 			model.addAttribute("tarjeta", solicitud.get().getFuncionario().getTarjeta());
 			model.addAttribute("solicitpersonal", true);
-			model.addAttribute("pprstList", paramPrestamoRepository.findAll());
+			model.addAttribute("pprstList", paramPrestamoRepository.findAllOrderBymeses());
 			model.addAttribute("tiposPrstList", tipoPrestamoRepository.findAll());
 			model.addAttribute("editMode", true);
 			model.addAttribute("solNewTab", "active");
@@ -333,7 +333,7 @@ public class SolicitudPrestamoController {
 		BigDecimal sumaSaldos = sumaSaldosACancelar(form.getCancelPrst());
 		BigDecimal sumaCuotas = BigDecimal.ZERO;
 		BigDecimal cuarentaxCiento = BigDecimal.ZERO;
-		List<ParamPrestamo> lstpprst = paramPrestamoRepository.findAll();		
+		List<ParamPrestamo> lstpprst = paramPrestamoRepository.findAllOrderBymeses();		
 		
 		Gplanta fun = gplantaRepository.getOne(idfunc);
 
@@ -524,7 +524,7 @@ public class SolicitudPrestamoController {
 			model.addAttribute("tiposPrstList", tipoPrestamoRepository.findAll());
 			model.addAttribute("parametro", solicitud.get().getParamPrestamo());
 			model.addAttribute("editMode", true);
-			model.addAttribute("pprstList", paramPrestamoRepository.findAll());
+			model.addAttribute("pprstList", paramPrestamoRepository.findAllOrderBymeses());
 			model.addAttribute("solicitudPrstForm", form);
 			model.addAttribute("solNewTab", "active");
 			

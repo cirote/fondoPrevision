@@ -32,7 +32,7 @@ public class ParamServiceImpl implements ParamService {
 
 	@Override
 	public Iterable<ParamPrestamo> getAllParamPrestamo() {
-		return paramPrestamoRepository.findAll();
+		return paramPrestamoRepository.findAllOrderBymeses();
 	}
 
 	@Override
