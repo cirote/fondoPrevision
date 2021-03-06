@@ -153,7 +153,32 @@ public class MovimientosPdfExporter {
 		document.add(title);
 		
 		String[] na = lstMovimientos.get(0).getNombre().split(",");
-		String nombre = na[1] + " " + na[0];
+		String nombre = "";
+		if(na.length > 1) {
+			nombre = na[1] + " " + na[0];			
+		}
+		else {
+			na = lstMovimientos.get(0).getNombre().split(" ");
+			switch(na.length) {
+			case 4:{
+				nombre = na[2] + " " + na[3] + " " + na[0] + " " + na[1];
+				break;
+			}
+			case 3:{
+				nombre = na[2] + " " + na[0] + " " + na[1];
+				break;
+			}
+			case 2:{
+				nombre = na[1] + " " + na[0];
+				break;
+			}
+			case 1:{
+				nombre = na[0];
+				break;
+			}
+			}
+		}
+
 		
 		title = new Paragraph(nombre, font);
 		title.setAlignment(Paragraph.ALIGN_CENTER);

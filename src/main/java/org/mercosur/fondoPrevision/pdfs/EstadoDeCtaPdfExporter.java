@@ -73,7 +73,31 @@ public class EstadoDeCtaPdfExporter {
 		table.addCell(cell);
 
 		String[] na = estadoDeCta.getFuncionario().getNombre().split(",");
-		String nombre = na[1] + " " + na[0];
+		String nombre = "";
+		if(na.length > 1) {
+			nombre = na[1] + " " + na[0];			
+		}
+		else {
+			na = estadoDeCta.getFuncionario().getNombre().split(" ");
+			switch(na.length) {
+			case 4:{
+				nombre = na[2] + " " + na[3] + " " + na[0] + " " + na[1];
+				break;
+			}
+			case 3:{
+				nombre = na[2] + " " + na[0] + " " + na[1];
+				break;
+			}
+			case 2:{
+				nombre = na[1] + " " + na[0];
+				break;
+			}
+			case 1:{
+				nombre = na[0];
+				break;
+			}
+			}
+		}
 		cell.setPhrase(new Phrase(nombre , NORMAL10));
 		table.addCell(cell);
 		
