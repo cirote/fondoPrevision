@@ -17,7 +17,7 @@ public interface SolicitudPrestamoRepository extends JpaRepository<SolicitudPres
 	@Query("select sp from SolicitudPrestamo sp where sp.enviadaAfondo = true and sp.procesada = false and sp.enviadaAComision = false")
 	public List<SolicitudPrestamo> getAllSinProcesar();
 	
-	@Query("select s from SolicitudPrestamo s where s.enviadaAComision= true and (s.aprobada = false and s.rechazada = false) or (s.aprobada2 = false and s.rechazada2 = false)")
+	@Query("select s from SolicitudPrestamo s where s.enviadaAComision = true and ((s.aprobada = false and s.rechazada = false) or (s.aprobada2 = false and s.rechazada2 = false))")
 	public List<SolicitudPrestamo> getAllSinSupervisar();
 	
 	@Query("select s from SolicitudPrestamo s where s.procesada = false and s.enviadaAComision= true and (s.aprobada = true and s.aprobada2 = true) or (s.rechazada = true and s.rechazada2 = true)")

@@ -125,6 +125,7 @@ public class UserController {
 		model.addAttribute("userForm", new User());
 		model.addAttribute("allRoles",roleRepository.findAll());
 		List<SolicitudPrestamo> lstSolicitudes = new ArrayList<SolicitudPrestamo>();
+		List<SolicitudPrestamo> lstSolComision = new ArrayList<SolicitudPrestamo>();
 		List<SolicitudPrestamo> lstDevueltas = new ArrayList<SolicitudPrestamo>();
 		String mesliquidacion = paramService.getMesliquidacion();
 		
@@ -136,18 +137,24 @@ public class UserController {
 				lstSolicitudes = solicitudPrestamoService.getNoProcesadas();
 				lstDevueltas = solicitudPrestamoService.getdevueltasDeComision();
 				model.addAttribute("mesLiquidacion", mesliquidacion.substring(4) + '/' + mesliquidacion.subSequence(0, 4));
+				if(lstSolicitudes.isEmpty() && lstDevueltas.isEmpty()) {
+					model.addAttribute("sinSolicitudes", true);
+				}
+				else {
+					model.addAttribute("lstSolicitudes", lstSolicitudes);
+					model.addAttribute("lstDevueltas", lstDevueltas);
+				}
 			}
 			else if(userService.isLoggedUserSUPERVISOR()) {
-				lstSolicitudes = solicitudPrestamoService.getenviadasAComision();
+				lstSolComision = solicitudPrestamoService.getenviadasAComision();
+				if(lstSolComision.isEmpty()) {
+					model.addAttribute("sinSolicitudes", true);
+				}
+				else {
+					model.addAttribute("lstSolComision", lstSolComision);
+				}
 			}
 			
-			if(lstSolicitudes.isEmpty() && lstDevueltas.isEmpty()) {
-				model.addAttribute("sinSolicitudes", true);
-			}
-			else {
-				model.addAttribute("lstSolicitudes", lstSolicitudes);
-				model.addAttribute("lstDevueltas", lstDevueltas);
-			}
 		}
 		catch(Exception e) {
 			model.addAttribute("formError", e.getMessage());			

@@ -90,7 +90,7 @@ function deleteSolicitud(){
 		              </tr>
 		              </thead>
 		              <tbody>
-						<tr th:each="sol: ${lstSolicitudes}">
+						<tr th:each="sol: ${lstSolComision}">
 							<td th:text="${#temporals.format(sol.fechaSolicitud, 'dd-MM-yyyy')}"></td>
 							<td th:text="${sol.funcionario.nombre}"></td>
 							<td th:text="${sol.tipoPrestamo.descripcion}"></td>

@@ -23,7 +23,7 @@ public class UserRestController {
 	UserService userService;
 	
 	@PostMapping(value = "/changePassword")
-	@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER', 'ROLE_SUPERVISOR')")
 	public ResponseEntity<String> postEditUserChangePassword(@Valid @RequestBody ChangePasswordForm form, Errors errors) {
 		try {
 			//If error, just return a 400 bad request, along with the error message
