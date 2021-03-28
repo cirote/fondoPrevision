@@ -181,6 +181,7 @@ public class AportesController {
 				if(calculoAportesService.controlDeEjecucion(mesliq)) {
 					res = calculoAportesService.calculoDeAportes(mesliq);
 					if(res.equals("success")) {
+						gplantaService.actualizarUltimosIngresos();
 						model.addAttribute("formSuccess", "El cálculo de aportes ha finalizado exitosamente!");
 						model.addAttribute("aportesList", calculoAportesService.obtenerResultadosAportes(mesliq));
 						model.addAttribute("haberesReport", true);

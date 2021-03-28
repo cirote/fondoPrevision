@@ -109,7 +109,7 @@ public class PrestamoServiceImpl implements PrestamoService {
 	@Override
 	public Prestamo savePrst(Prestamo prst, Long idfunc, Integer idTipo) throws Exception {
 		Optional<Gplanta> func = gplantaRepository.findById(idfunc);
-		Optional<Integer> nroprst = prestamoRepository.getUltimoNroPrst();
+		Integer nroprst = this.getProxNroPrst();
 		Optional<TipoPrestamo> tipoPrst = tipoPrestamoRepository.findById(idTipo);
 		String mesliquidacion = parametroService.getMesliquidacion();
 
@@ -135,12 +135,7 @@ public class PrestamoServiceImpl implements PrestamoService {
 		LocalDate fecha = prst.getFechaPrestamo();
 			// 1- Salva el préstamo.
 		if(prst.getNroprestamo() == null) {
-			try {
-				this.getProxNroPrst();
-			}
-			catch(ParamNotFoundException pnfe) {
-				throw new Exception(pnfe.getMessage());
-			}
+			prst.setNroprestamo(nroprst);
 		}
 		if(tipoPrst.isPresent()) {
 			prst.setTipoPrestamo(tipoPrst.get());
@@ -157,6 +152,17 @@ public class PrestamoServiceImpl implements PrestamoService {
 			prst.setTarjeta(func.get().getTarjeta());
 
 			prst = prestamoRepository.save(prst);
+			
+			List<Parametro> lstparam = (List<Parametro>) parametroRepository.getSomeByDesc("Ultimo Nro. de Préstamo");
+			Parametro param;
+			if(lstparam.size() == 1) {
+				param = parametroRepository.getOne(lstparam.get(0).getIdfparametros());				
+			}
+			else {
+				param = parametroRepository.getOne(lstparam.get(lstparam.size()-1).getIdfparametros());
+			}
+			param.setValor(new BigDecimal(nroprst.toString()));
+			parametroRepository.save(param);
 			
 			java.sql.Date fechasql = java.sql.Date.valueOf(fecha);
 			

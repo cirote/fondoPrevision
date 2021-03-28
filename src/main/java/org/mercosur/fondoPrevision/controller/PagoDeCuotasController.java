@@ -59,7 +59,6 @@ public class PagoDeCuotasController {
 		try {
 			pagocuotasService.pagoDeCuotas();
 			pagocuotasService.consolidacionDeSaldos(paramService.getMesliquidacion());
-			gplantaService.actualizarUltimosIngresos();
 			model.addAttribute("formSuccess", "El procedimiento se ha ejecutado con éxito!.");
 			model.addAttribute("cuotasPagasList", pagocuotasService.resultadoPagoDeCuotas());
 			model.addAttribute("outputMode", true);

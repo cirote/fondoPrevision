@@ -162,16 +162,7 @@ public class GplantaServiceImpl implements GplantaService {
 				Calendar calendar = Calendar.getInstance();
 				Date currentDate = calendar.getTime();
 				java.sql.Date fecha = new java.sql.Date(currentDate.getTime());
-				String mesLiquidacion = null;
-				Optional<String> mesliqhis = saldosHistoriaRepository.getMaxMesLiquidacion();
-				if(mesliqhis.isPresent()) {
-					mesLiquidacion = this.mesLiquidacionSiguiente(mesliqhis.get());
-				}
-				else {
-					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-					String stoday = sdf.format(currentDate);
-					mesLiquidacion = stoday.substring(6)+ stoday.substring(3, 5);
-				}
+				String mesLiquidacion = paramService.getMesliquidacion();
 				BigDecimal aporteSec = BigDecimal.ZERO;
 				BigDecimal aporteFunc = BigDecimal.ZERO;
 				BigDecimal divisor = new BigDecimal("100");
