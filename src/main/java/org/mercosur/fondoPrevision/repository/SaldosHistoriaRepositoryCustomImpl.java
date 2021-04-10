@@ -183,4 +183,12 @@ public class SaldosHistoriaRepositoryCustomImpl implements SaldosHistoriaReposit
 				.getResultList();
 	}
 
+
+	@Override
+	public void deleteByTarjeta(Integer tarjeta) throws Exception {
+		entityManager.createQuery("delete from SaldosHistoria sh where sh.tarjeta =:tarjeta").setParameter("tarjeta", tarjeta)
+		.executeUpdate();
+		
+	}
+
 }

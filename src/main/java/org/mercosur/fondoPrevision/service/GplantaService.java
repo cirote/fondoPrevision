@@ -24,12 +24,18 @@ public interface GplantaService {
 	
 	public String crearCuentaDeFuncionarioDePlanta(Gplanta funcionario) throws Exception;
 	
+	public String updateCuentaNueva(Gplanta funcionario, BigDecimal sueldoMes, BigDecimal complemento) throws Exception;
+	
+	public String deleteCuentaNueva(Integer tarjeta) throws Exception;
+	
 	public Gplanta actualizarCargo(Long idfuncionario, Integer idcargonuevo, String fechaAcceso, 
 			String firstBasico, String firstComplemento) throws Exception;
 	
 	public void actualizarUltimosIngresos() throws Exception;
 	
 	public List<Integer> getTarjetasIngresos(Date fecha) throws Exception;
+	
+	public List<Gplanta> getAllNuevaCuentas() throws Exception;
 	
 	public List<Gplanta> getAllByUnidad(String unidad) throws Exception;
 	

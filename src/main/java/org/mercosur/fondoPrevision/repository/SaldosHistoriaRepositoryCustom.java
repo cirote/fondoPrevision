@@ -21,6 +21,8 @@ public interface SaldosHistoriaRepositoryCustom {
 	
 	public void deleteByMesliquidacion(String mesliquidacion) throws Exception;
 	
+	public void deleteByTarjeta(Integer tarjeta) throws Exception;
+	
 	public BigDecimal numeralesFuncionario(String anioMes2,
 			Integer tarjeta) throws Exception;
 	

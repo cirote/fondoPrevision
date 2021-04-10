@@ -9,6 +9,8 @@ public interface GplantaRepositoryCustom {
 
 	public Iterable<Gplanta> getFuncsNotInGroup(String tarjetasQL) throws Exception;
 	
+	public List<Gplanta> getFuncsInGroup(String tarjetasQL) throws Exception;
+	
 	public void updateUltimosIngresos() throws Exception;
 	
 	public List<Integer> getTarjetasIngresos(Date fecha) throws Exception;

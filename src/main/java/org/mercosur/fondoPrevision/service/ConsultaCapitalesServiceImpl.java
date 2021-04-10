@@ -78,6 +78,8 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 		
 		for(Gplanta f : lstFuncionarios) {
 			
+			Boolean ingresoposterior = false;
+			
 			cfd = new CapitalesForDisplay();
 			cfd.setNombre(f.getNombre());
 			cfd.setNrofuncionario(f.getTarjeta());
@@ -109,9 +111,14 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 			}
 			else {
 				SaldosHistoria saldos = saldosHistoriaRepository.getUltimoByTarjeta(f.getTarjeta());
-				capdispante = saldos.getCapitalDispAntes();
-				capdispactual = saldos.getCapitalDispActual();
-				capintegactual = saldos.getCapitalIntegActual();
+				if(Integer.valueOf(saldos.getMesliquidacion()) <= Integer.valueOf(mesliquidacion)) {
+					capdispante = saldos.getCapitalDispAntes();
+					capdispactual = saldos.getCapitalDispActual();
+					capintegactual = saldos.getCapitalIntegActual();					
+				}
+				else {
+					ingresoposterior = true;
+				}
 			}
 			
 			List<Movimientos> lstMovs = movimientosRepository.getByFuncAndPeriodo(f.getIdgplanta(), mesliquidacion, mesliquidacion);				
@@ -122,6 +129,10 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 			BigDecimal otros = BigDecimal.ZERO;
 			for(Movimientos m : lstMovs) {
 				switch (m.getCodigoMovimiento()) {
+				case (short) 1:{
+					aportes = aportes.add(m.getImporteMov());
+					break;
+				}
 				case (short) 2:{
 					aportes = aportes.add(m.getImporteMov());
 					break;
@@ -145,18 +156,20 @@ public class ConsultaCapitalesServiceImpl implements ConsultaCapitalesService{
 				}
 			}	
 			BigDecimal totmovprst = amortiza.add(cancelaciones).subtract(prstnuevos);
-
-			cfd.setCapitalDispAnterior(capdispante);
-			cfd.setAmortizacion(amortiza);
-			cfd.setCancelaciones(cancelaciones);
-			cfd.setPrstnuevos(prstnuevos);
-			cfd.setTotalMovPrst(totmovprst);
-			cfd.setTotalMovAportes(aportes);
-			cfd.setOtros(otros);
-			cfd.setCapitalDispActual(capdispactual);
-			cfd.setCapitalIntegActual(capintegactual);
 			
-			lstcfd.add(cfd);
+			if(!ingresoposterior) {
+				cfd.setCapitalDispAnterior(capdispante);
+				cfd.setAmortizacion(amortiza);
+				cfd.setCancelaciones(cancelaciones);
+				cfd.setPrstnuevos(prstnuevos);
+				cfd.setTotalMovPrst(totmovprst);
+				cfd.setTotalMovAportes(aportes);
+				cfd.setOtros(otros);
+				cfd.setCapitalDispActual(capdispactual);
+				cfd.setCapitalIntegActual(capintegactual);
+				
+				lstcfd.add(cfd);				
+			}
 		}
 		lstcfd = agregarEgresos(lstcfd, mesliquidacion, conDistrib);
 		return lstcfd;

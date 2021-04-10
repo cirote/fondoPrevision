@@ -25,9 +25,15 @@ public class EstadoDeCta implements Serializable{
 	private BigDecimal saldoDisponible;
 	
 	private BigDecimal basico;
-	
+
 	private BigDecimal complemento;
+
+	private Boolean cuentanueva;
 	
+	private BigDecimal basicoprimermes;
+	
+	private BigDecimal complemenprimermes;
+		
 	private BigDecimal totalNominal;
 	
 	private BigDecimal cuarentaPorCiento;
@@ -138,6 +144,30 @@ public class EstadoDeCta implements Serializable{
 
 	public void setComplemento(BigDecimal complemento) {
 		this.complemento = complemento;
+	}
+
+	public Boolean getCuentanueva() {
+		return cuentanueva;
+	}
+
+	public void setCuentanueva(Boolean cuentanueva) {
+		this.cuentanueva = cuentanueva;
+	}
+
+	public BigDecimal getBasicoprimermes() {
+		return basicoprimermes;
+	}
+
+	public void setBasicoprimermes(BigDecimal basicoprimermes) {
+		this.basicoprimermes = basicoprimermes;
+	}
+
+	public BigDecimal getComplemenprimermes() {
+		return complemenprimermes;
+	}
+
+	public void setComplemenprimermes(BigDecimal complemenprimermes) {
+		this.complemenprimermes = complemenprimermes;
 	}
 
 	public BigDecimal getTotalNominal() {

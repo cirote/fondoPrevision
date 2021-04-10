@@ -4,7 +4,7 @@
 <script type="text/javascript">
     $(document).ready(function() {
         //Asegurate que el id que le diste a la tabla sea igual al texto despues del simbolo #
-        $('#plantaSMList').DataTable();
+        $('#nuevasCtasList').DataTable();
         $('#plantaUTFList').DataTale();
     } );
     
@@ -34,7 +34,7 @@
 			</div>
 			<div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
 				<div class="card-body table-responsive">	       <!-- Lista de funcionarios SM-->
-		           <table id="plantaSMList" class="table table-bordered table-hover table-striped table-sm">
+		           <table id="nuevasCtasList" class="table table-bordered table-hover table-striped table-sm">
 		               <thead class="thead-light">
 		               <tr>
 		                   <th scope="col">#</th>
@@ -48,7 +48,7 @@
 		               </tr>
 		               </thead>
 		               <tbody>
-							<tr th:each="gplanta: ${plantaSMList}">
+							<tr th:each="gplanta: ${nuevasCtasList}">
 								<td th:text="${gplanta.idgplanta}"></td>
 								<td th:text="${gplanta.tarjeta}"></td>
 								<td th:text="${gplanta.nombre}"></td>
@@ -60,8 +60,8 @@
 									<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
 										<a href="#" th:href="@{'/editCuenta/'+${gplanta.tarjeta}}">
 										<i class="fas fa-edit" title="editar informacion"></i></a>
-			    						<a href="#" th:href="@{'/creaCuenta/'+ ${gplanta.tarjeta}}">
-			    						<i class="fas fa-id-badge" title="crear cuenta"></i></a>
+			    						<a href="#" th:href="@{'/deleteCuenta/'+ ${gplanta.tarjeta}}">
+			    						<i class="fas fa-trash" title="eliminar cuenta"></i></a>
 									</span>
 								</td>
 							</tr>

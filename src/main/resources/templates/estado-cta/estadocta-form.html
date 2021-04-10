@@ -180,8 +180,8 @@
 	 			<div class="panel-heading">
 	 				<h4>&Uacute;ltimos Aportes Integrados</h4>
 	 			</div>
-	 			<div class="panel-body">
-	 				<table style="width:100%">
+	 			<div class="panel-body" >
+	 				<table style="width:100%" th:if="${!estadoDeCta.cuentanueva}">
 	 					<tr>
 	 						<td>
 	 							<div class="row d-flex">
@@ -201,6 +201,29 @@
 	 							<div class="row d-flex" th:if="${estadoDeCta.basico < estadoDeCta.totalNominal}">
 	 								<label class="col-lg-6 col-form-label form-control-label">Complemento: </label>
 	 								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.complemento,3,'POINT',2,'COMMA')}"></span>
+	 							</div>
+	 						</td>
+	 					</tr>
+	 				</table>
+	 				<table style="width:100%" th:if="${estadoDeCta.cuentanueva}">
+	 					<tr>
+	 						<td>
+	 							<div class="row d-flex">
+	 								<label class="col-lg-6 col-form-label form-control-label">Cuenta Nueva </label>
+	 							</div>
+	 						</td>
+	 					</tr>
+	 					<tr>
+	 						<td>
+	 							<div class="row d-flex" >
+	 								<label class="col-lg-6 col-form-label form-control-label">B&aacute;sico 1er. mes: </label>
+	 								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.basicoprimermes,3,'POINT',2,'COMMA')}"></span>
+	 							</div>
+	 						</td>
+	 						<td>
+	 							<div class="row d-flex">
+	 								<label class="col-lg-6 col-form-label form-control-label">Complemento: </label>
+	 								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.complemenprimermes,3,'POINT',2,'COMMA')}"></span>
 	 							</div>
 	 						</td>
 	 					</tr>

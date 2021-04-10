@@ -16,15 +16,15 @@ $("#ctanuevaForm :input").tooltip({
 
     });
 
-$('.input-group.date').datepicker({
-    autoclose: true,
-    todayHighlight: true
-});
+	$('#ingresodate').datepicker({
+	    autoclose: true,
+	    todayHighlight: true
+	});
 
 
 </script>
 
-<form id="ctanuevaForm" th:object="${cuentaNuevaForm}" th:action="@{/cuentanuevaForm}" method="post"
+<form id="ctanuevaForm" th:object="${cuentaNuevaForm}" th:action="${editMode}?@{/editCuenta}:@{/cuentanuevaForm}" method="post"
 	class="form" role="form" autocomplete="off">
 	<div class="card-deck">
 		<div class="card">
@@ -151,14 +151,14 @@ $('.input-group.date').datepicker({
 					</select>
 				 </div>
 				</div>
-	           <div class="form-group row "  th:if="${editMode==null or editMode==false}">
+	           <div class="form-group row ">
 	               <label class="col-lg-4 text-left">Password</label>
 	               <div class="col-lg-8">
 	                   <input class="form-control" type="password" th:field="${cuentaNuevaForm.usuario.password}" th:disabled=${disableFields}>
 	                   <div class="alert-danger" th:if="${#fields.hasErrors('usuario.password')}" th:errors="*{usuario.password}">Email Error</div>
 	               </div>
 	           </div>
-	           <div class="form-group row"  th:if="${editMode==null or editMode==false}">
+	           <div class="form-group row">
 	               <label class="col-lg-4 text-left">Confirm</label>
 	               <div class="col-lg-8">
 	                   <input class="form-control" type="password" th:field="${cuentaNuevaForm.usuario.confirmPassword}" th:disabled=${disableFields}>
@@ -167,10 +167,28 @@ $('.input-group.date').datepicker({
 			</div>
 		</div>
 	</div>
-	<div class="panel-body form-group ">
+	<div class="panel-body" th:if="${outputMode}">
+		<table style="width: 100%">
+			<tr>
+				<td>
+					<div class="row d-flex">
+						<label class="col-lg-6 col-form-label form-control-label">Capital Integrado Inicial: </label>
+						<span class="col-lg-6" th:text="${#numbers.formatDecimal(saldos.capitalIntegActual,3,'POINT',2,'COMMA')}"></span>
+					</div>
+				</td>
+				<td>
+					<div class="row d-flex">
+						<label class="col-lg-6 col-form-label form-control-label">Capital Disponible Inicial: </label>
+						<span class="col-lg-6" th:text="${#numbers.formatDecimal(saldos.capitalDispActual,3,'POINT',2,'COMMA')}"></span>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="panel-body form-group row mx-auto">
 		<div class="col-lg-12 text-center">
 	   		<a class="btn btn-secondary" role="button" th:href="@{'/cuentanuevaform/cancel'}">Cancelar</a>
-	   	    <button type="submit" class="btn btn-primary" >Abrir Cuenta</button>
+	   	    <input type="submit" class="btn btn-primary" value="Salvar Cambios" th:value="${editMode}?'Salvar Cambios':'Abrir Cuenta'">
 		 	<a href="#" th:href="@{'/home'}" class="btn btn-secondary" style="margin-left:2px;">
 		 	    <span> Cerrar </span> <span class="float-right" style="padding-left:6px;"><i class="fas fa-sign-out-alt"></i></span>
 			</a>
@@ -178,23 +196,3 @@ $('.input-group.date').datepicker({
 	</div>
 </form>
 
-<div class="panel panel-default" th:if="${outputMode}">
-	<div class="panel-body" th:if="${outputMode}">
-	<table style="width: 100%">
-		<tr>
-			<td>
-				<div class="row d-flex">
-					<label class="col-lg-6 col-form-label form-control-label">Capital Integrado Inicial: </label>
-					<span class="col-lg-6" th:text="${#numbers.formatDecimal(saldos.capitalIntegActual,3,'POINT',2,'COMMA')}"></span>
-				</div>
-			</td>
-			<td>
-				<div class="row d-flex">
-					<label class="col-lg-6 col-form-label form-control-label">Capital Disponible Inicial: </label>
-					<span class="col-lg-6" th:text="${#numbers.formatDecimal(saldos.capitalDispActual,3,'POINT',2,'COMMA')}"></span>
-				</div>
-			</td>
-		</tr>
-	</table>
-	</div>
-</div>

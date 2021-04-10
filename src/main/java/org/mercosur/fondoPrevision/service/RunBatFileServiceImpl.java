@@ -168,6 +168,12 @@ public class RunBatFileServiceImpl implements RunBatFileService {
 
 	        Process runtimeProcess = Runtime.getRuntime().exec(new String[] {saveBat, parametro});
 	        int processComplete = runtimeProcess.waitFor();
+	        int len;
+	        if ((len = runtimeProcess.getErrorStream().available()) > 0) {
+	        byte[] buf = new byte[len];
+	        runtimeProcess.getErrorStream().read(buf);
+	        System.err.println("Command error:\t\""+new String(buf)+"\"");
+	        }
 	        System.out.println("Process exitValue: " + processComplete);
 
 	        /*NOTE: processComplete=0 if correctly executed, will contain other values if not*/

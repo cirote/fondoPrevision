@@ -19,6 +19,7 @@ import org.mercosur.fondoPrevision.exceptions.CustomFieldValidationException;
 import org.mercosur.fondoPrevision.repository.GcargoRepository;
 import org.mercosur.fondoPrevision.repository.GorganigramaRepository;
 import org.mercosur.fondoPrevision.repository.RoleRepository;
+import org.mercosur.fondoPrevision.repository.SaldosHistoriaRepository;
 import org.mercosur.fondoPrevision.repository.SaldosRepository;
 import org.mercosur.fondoPrevision.service.AyudaService;
 import org.mercosur.fondoPrevision.service.GplantaService;
@@ -53,6 +54,9 @@ public class CuentaNuevaController {
 	
 	@Autowired
 	SaldosRepository saldosRepository;
+	
+	@Autowired
+	SaldosHistoriaRepository saldosHistoriaRepository;
 
 	@Autowired
 	RoleRepository roleRepository;
@@ -88,8 +92,8 @@ public class CuentaNuevaController {
 			model.addAttribute("cargos", gcargoRepository.findAll());
 			model.addAttribute("sectores", gorganigramaRepository.findAll());
 			model.addAttribute("allRoles", roles);
-			model.addAttribute("plantaSMList", gplantaService.getAllByUnidad("SM"));
-			model.addAttribute("plantaUTFList", gplantaService.getAllByUnidad("UTF"));
+			model.addAttribute("editMode", false);
+			model.addAttribute("nuevasCtasList", gplantaService.getAllNuevaCuentas());
 			model.addAttribute("procname", "CtaNueva");
 			model.addAttribute("formTab", "active");
 		}
@@ -101,6 +105,7 @@ public class CuentaNuevaController {
 			model.addAttribute("allRoles", roles);
 			model.addAttribute("funcionario", new Gplanta());
 			model.addAttribute("procname", "CtaNueva");
+			model.addAttribute("editMode", false);
 			model.addAttribute("formTab", "active");			
 		}
 		
@@ -148,18 +153,29 @@ public class CuentaNuevaController {
 							model.addAttribute("formError", "No se generó el registro de saldos!");
 						}
 						form.getUsuario().setTarjeta(newFun.getTarjeta());
-						String nombreapellido[] = newFun.getNombre().split(" ");
-						form.getUsuario().setApellido(nombreapellido[0]);
-						form.getUsuario().setNombre(nombreapellido[1]);
+						String nombreapellido[];
+						if(newFun.getNombre().contains(",")) {
+							nombreapellido = newFun.getNombre().split(",");
+						}
+						else {
+							nombreapellido = newFun.getNombre().split(" ");							
+						}
+						if(nombreapellido.length == 2) {
+							form.getUsuario().setApellido(nombreapellido[0]);
+							form.getUsuario().setNombre(nombreapellido[1]);							
+						}
+						else {
+							form.getUsuario().setApellido(nombreapellido[0].concat(" ").concat(nombreapellido[1]));
+							form.getUsuario().setNombre(nombreapellido[2]);
+						}
 						form.getUsuario().setRoles(form.getRoles());
 						userService.createUser(form.getUsuario());
 					}
-					model.addAttribute("cuentaNuevaForm", new CuentaNuevaForm());
+					model.addAttribute("cuentaNuevaForm", form);
 					model.addAttribute("formSuccess", "Cuenta creada con éxito!");
 					model.addAttribute("cargos", gcargoRepository.findAll());
 					model.addAttribute("sectores", gorganigramaRepository.findAll());
-					model.addAttribute("plantaSMList", gplantaService.getAllByUnidad("SM"));
-					model.addAttribute("plantaUTFList", gplantaService.getAllByUnidad("UTF"));
+					model.addAttribute("nuevasCtasList", gplantaService.getAllNuevaCuentas());
 					model.addAttribute("allRoles", roleRepository.findAll());
 					model.addAttribute("procname", "CtaNueva");
 					model.addAttribute("outputMode", true);
@@ -169,8 +185,7 @@ public class CuentaNuevaController {
 					result.rejectValue("basico", null, "Se debe ingresar el valor del primer mes");
 					model.addAttribute("cuentaNuevaForm", form);
 					model.addAttribute("formTab","active");
-					model.addAttribute("plantaSMList", gplantaService.getAllByUnidad("SM"));
-					model.addAttribute("plantaUTFList", gplantaService.getAllByUnidad("UTF"));
+					model.addAttribute("nuevasCtasList", gplantaService.getAllNuevaCuentas());
 					model.addAttribute("allRoles", roleRepository.findAll());
 					model.addAttribute("outputMode", false);
 					model.addAttribute("cargos", gcargoRepository.findAll());
@@ -215,8 +230,7 @@ public class CuentaNuevaController {
 				model.addAttribute("formError", e.getMessage());
 			}
 
-			model.addAttribute("plantaSMList", gplantaService.getAllByUnidad("SM"));
-			model.addAttribute("plantaUTFList", gplantaService.getAllByUnidad("UTF"));
+			model.addAttribute("nuevasCtasList", gplantaService.getAllNuevaCuentas());
 			model.addAttribute("sectores", gorganigramaRepository.findAll());
 			model.addAttribute("plantaTab", "active");
 		}
@@ -231,17 +245,56 @@ public class CuentaNuevaController {
 		return "funcionarios/funcionarios-view";
 	}
 
+	@GetMapping("/deleteCuenta/{tarjeta}")
+	public String getDeleteCuenta(Model model, @PathVariable(name="tarjeta") Integer tarjeta) throws Exception{
+		try {
+			String msg = gplantaService.deleteCuentaNueva(tarjeta);
+			model.addAttribute("formSuccess", msg);
+			model.addAttribute("nuevasCtasList", gplantaService.getAllNuevaCuentas());
+			model.addAttribute("sectores", gorganigramaRepository.findAll());
+			model.addAttribute("cuentaNuevaForm", new CuentaNuevaForm());
+			model.addAttribute("sectores", gorganigramaRepository.findAll());
+			model.addAttribute("cargos", gcargoRepository.findAll());
+			model.addAttribute("plantaTab", "active");
+		}
+		catch(Exception e) {
+			model.addAttribute("formError", e.getMessage());
+			model.addAttribute("plantaTab", "active");			
+		}
+		return "funcionarios/funcionarios-view";
+	}
+	
 	@GetMapping("/editCuenta/{tarjeta}")
 	public String getEditCuentaForm(Model model, @PathVariable(name="tarjeta") Integer tarjeta) throws Exception{
 		try {
 			Gplanta fun = gplantaService.getFuncionarioByTarjeta(tarjeta);
+			User user = userService.getUserByTarjeta(tarjeta);
+			Integer registros = saldosHistoriaRepository.getCuantosRegistros(tarjeta);
+
+			String clave = "faperCta";
+			Ayuda help = ayudaService.getByClave(clave);
+			model.addAttribute("help", help);
+
 			try {		
 				CuentaNuevaForm ctaNueva = new CuentaNuevaForm();
 				ctaNueva.setFuncionario(fun);
+				ctaNueva.setIdcargo(fun.getGcargo().getIdgcargo());
+				ctaNueva.setBasico(fun.getLstsueldos().get(fun.getLstsueldos().size() - 1).getSueldomes());
+				ctaNueva.setComplemento(fun.getLstsueldos().get(fun.getLstsueldos().size() - 1).getComplemento());
+				ctaNueva.setUsuario(user);
+				ctaNueva.setRoles(user.getRoles());
+				
 				Saldos funsaldos = fun.getSaldos();
+				if(registros == 1) {
+					model.addAttribute("editMode", true);
+				}
+				else {
+					model.addAttribute("editMode", false);
+				}
 				model.addAttribute("cuentaNuevaForm", ctaNueva);
 				model.addAttribute("cargos", gcargoRepository.findAll());
 				model.addAttribute("sectores", gorganigramaRepository.findAll());
+				model.addAttribute("allRoles", roleRepository.findAll());
 				model.addAttribute("funcionario", fun);
 				model.addAttribute("saldos", funsaldos);
 				model.addAttribute("outputMode", true);
@@ -254,15 +307,13 @@ public class CuentaNuevaController {
 			}
 			model.addAttribute("cargos", gcargoRepository.findAll());
 			model.addAttribute("sectores", gorganigramaRepository.findAll());
-			model.addAttribute("plantaSMList", gplantaService.getAllByUnidad("SM"));
-			model.addAttribute("plantaUTFList", gplantaService.getAllByUnidad("UTF"));
+			model.addAttribute("nuevasCtasList", gplantaService.getAllNuevaCuentas());
 		}
 		catch(Exception e) {
 			model.addAttribute("cuentaNuevaForm", new CuentaNuevaForm());
 			model.addAttribute("formError", e.getMessage());
 			model.addAttribute("outputMode", false);
-			model.addAttribute("plantaSMList", gplantaService.getAllByUnidad("SM"));
-			model.addAttribute("plantaUTFList", gplantaService.getAllByUnidad("UTF"));
+			model.addAttribute("nuevasCtasList", gplantaService.getAllNuevaCuentas());
 			model.addAttribute("sectores", gorganigramaRepository.findAll());
 			model.addAttribute("plantaTab", "active");
 		}
@@ -272,6 +323,44 @@ public class CuentaNuevaController {
 		return "funcionarios/funcionarios-view";
 	}
 	
+	@PostMapping("/editCuenta")
+	public String postEditCuenta(@Valid @ModelAttribute("cuentaNuevaForm") CuentaNuevaForm ctaNueva, BindingResult result, ModelMap model)
+		throws Exception{
+
+		try {
+			String clave = "faperCta";
+			Ayuda help = ayudaService.getByClave(clave);
+			model.addAttribute("help", help);
+
+			Gplanta fun = ctaNueva.getFuncionario();
+			User user = ctaNueva.getUsuario();
+			user.setRoles(ctaNueva.getRoles());
+			
+		//	userService.updateUser(user);
+			Saldos saldos = new Saldos();
+			String retorno = gplantaService.updateCuentaNueva(fun, ctaNueva.getBasico(), ctaNueva.getComplemento());
+			Optional<Saldos> funsaldos = saldosRepository.findByTarjeta(fun.getTarjeta());
+			if(funsaldos.isPresent()) {saldos = funsaldos.get();}
+			model.addAttribute("formSuccess", retorno);
+			model.addAttribute("cuentaNuevaForm", ctaNueva);
+			model.addAttribute("funcionario", fun);
+			model.addAttribute("saldos", saldos);
+			model.addAttribute("outputMode", true);
+		
+		}
+		catch(Exception e) {
+			model.addAttribute("outputMode", false);
+			model.addAttribute("formError", e.getMessage());
+		}
+		model.addAttribute("cargos", gcargoRepository.findAll());
+		model.addAttribute("sectores", gorganigramaRepository.findAll());
+		model.addAttribute("allRoles", roleRepository.findAll());
+		model.addAttribute("nuevasCtasList", gplantaService.getAllNuevaCuentas());
+		model.addAttribute("plantaTab", "active");	
+
+		return "funcionarios/funcionarios-view";
+
+	}
 	@GetMapping("/cuentanuevaform/cancel")
 	public String cancelCuentaForm(Model model) {
 				

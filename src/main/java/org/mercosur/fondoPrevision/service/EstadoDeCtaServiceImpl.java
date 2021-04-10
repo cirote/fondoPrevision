@@ -16,12 +16,14 @@ import org.mercosur.fondoPrevision.entities.Parametro;
 import org.mercosur.fondoPrevision.entities.Prestamo;
 import org.mercosur.fondoPrevision.entities.SaldoPrestamosAcum;
 import org.mercosur.fondoPrevision.entities.Saldos;
+import org.mercosur.fondoPrevision.entities.SueldoMes;
 import org.mercosur.fondoPrevision.repository.GplantaRepository;
 import org.mercosur.fondoPrevision.repository.MovimientosRepository;
 import org.mercosur.fondoPrevision.repository.ParametroRepository;
 import org.mercosur.fondoPrevision.repository.PrestamoRepository;
 import org.mercosur.fondoPrevision.repository.SaldoPrestamosAcumRepository;
 import org.mercosur.fondoPrevision.repository.SaldosRepository;
+import org.mercosur.fondoPrevision.repository.SueldoMesRepository;
 
 @Service
 public class EstadoDeCtaServiceImpl implements EstadoDeCtaService{
@@ -40,6 +42,9 @@ public class EstadoDeCtaServiceImpl implements EstadoDeCtaService{
 	
 	@Autowired
 	SaldosRepository saldosRepository;
+	
+	@Autowired
+	SueldoMesRepository sueldomesRepository;
 	
 	@Autowired
 	GplantaRepository gplantaRepository;
@@ -78,6 +83,7 @@ public class EstadoDeCtaServiceImpl implements EstadoDeCtaService{
 				throw new Exception("El funcionario tiene prestamo(s) pero no se encuentra registro de Saldos Acumulados");
 			}			
 		}
+		estadocta.setLstPrst(lstPrst);
 		estadocta.setSaldoPrstAcum(saldoPrst);
 		Optional<Saldos> saldosfunc = saldosRepository.findByTarjeta(funcionario.getTarjeta());
 		if(saldosfunc.isPresent()) {
@@ -100,6 +106,7 @@ public class EstadoDeCtaServiceImpl implements EstadoDeCtaService{
 		estadocta.setCuarentaPorCiento(cuarenta);
 		estadocta.setSaldoDisponible(saldoDisponible);
 		estadocta.setCapIntegActual(saldosfunc.get().getCapitalIntegActual());
+		estadocta.setCuentanueva(false);
 		
 			// para agregar los últimos aportes
 		List<String> lstMeses = movimientosRepository.getMesesLiquidacion();
@@ -111,8 +118,28 @@ public class EstadoDeCtaServiceImpl implements EstadoDeCtaService{
 		BigDecimal totapsec = BigDecimal.ZERO;
 		BigDecimal totaporte = BigDecimal.ZERO;
 		
+		if(lstMovs.size() == 1) {
+			Movimientos m = lstMovs.get(0);
+			newline = new AportesSummary();
+			if(m.getCodigoMovimiento() == (short)1) {
+				newline.setAporteFun(m.getImporteIntFunc());
+				newline.setAporteSec(m.getImporteCapSec());
+				newline.setAporteTotal(m.getImporteMov());
+				newline.setConcepto("Apertura de Cuenta");
+				totapfun = totapfun.add(newline.getAporteFun());
+				totapsec = totapsec.add(newline.getAporteSec());
+				totaporte = totaporte.add(newline.getAporteTotal());
+				lstAportes.add(newline);				
+				SueldoMes sueldomes = sueldomesRepository.getSueldoMesByAniomesAndTarjeta(mesliquidacion, funcionario.getTarjeta());
+				estadocta.setBasicoprimermes(sueldomes.getSueldomes());
+				estadocta.setComplemenprimermes(sueldomes.getComplemento());
+				estadocta.setCuentanueva(true);
+			}
+		}
+		
 		for(Movimientos m : lstMovs) {
 			newline = new AportesSummary();
+			
 			if(m.getCodigoMovimiento() == (short)2) {
 				newline.setAporteFun(m.getImporteIntFunc());
 				newline.setAporteSec(m.getImporteCapSec());

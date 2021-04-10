@@ -16,13 +16,12 @@ import org.mercosur.fondoPrevision.dto.ProcedimientoDto;
 import org.mercosur.fondoPrevision.service.RunBatFileService;
 
 @RestController
-@RequestMapping("/api/fondo")
 public class BackupRestoreRestController {
 
 	@Autowired
 	RunBatFileService runBatFileService;
 	
-	@PostMapping("/backup")
+	@PostMapping("/api/fondo/backup")
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
 	ResponseEntity<String> postBackup(@Valid @RequestBody String param, Errors errors) {
 		try {
@@ -52,7 +51,7 @@ public class BackupRestoreRestController {
 		return ResponseEntity.ok("Success");		
 	}
 
-	@PostMapping("/restore")
+	@PostMapping("/api/fondo/restore")
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
 	ResponseEntity<String> postRestore(@Valid @RequestBody String param, Errors errors) {
 		try {
@@ -81,7 +80,7 @@ public class BackupRestoreRestController {
 		return ResponseEntity.ok("Success");		
 	}
 
-	@PostMapping("/backup/intermedio")
+	@PostMapping("/api/fondo/backup/intermedio")
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
 	ResponseEntity<String> postBackupIntermedio(@Valid @RequestBody ProcedimientoDto param, Errors errors) {
 		try {
@@ -109,9 +108,64 @@ public class BackupRestoreRestController {
 		return ResponseEntity.ok("Success");		
 	}
 
-	@PostMapping("/restore/intermedio")
+	@PostMapping("/api/fondo/restore/intermedio")
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
 	ResponseEntity<String> postRestoreIntermedio(@Valid @RequestBody ProcedimientoDto param, Errors errors) {
+		try {
+			//If error, just return a 400 bad request, along with the error message
+	        if (errors.hasErrors()) {
+	            String result = errors.getAllErrors()
+	                        .stream().map(x -> x.getDefaultMessage())
+	                        .collect(Collectors.joining(""));
+
+	            throw new Exception(result);
+	        }
+
+	        String proc = param.getNombreproc();	        
+	        String parametro = param.getIdproc().toString();
+	        
+			String res = runBatFileService.ejecutarBatOrSSH("rest" + proc, parametro);
+			if(!res.contains("exitosa")) {
+				return ResponseEntity.badRequest().body("No se completó la ejecución del procedimiento");
+			}
+			
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+		return ResponseEntity.ok("Success");		
+	}
+
+	@PostMapping("/procesarSolicitud/api/fondo/backup/intermedio")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
+	ResponseEntity<String> postBkupIntermedioSol(@Valid @RequestBody ProcedimientoDto param, Errors errors) {
+		try {
+			//If error, just return a 400 bad request, along with the error message
+	        if (errors.hasErrors()) {
+	            String result = errors.getAllErrors()
+	                        .stream().map(x -> x.getDefaultMessage())
+	                        .collect(Collectors.joining(""));
+
+	            throw new Exception(result);
+	        }
+	        
+	        String proc = param.getNombreproc();
+	        
+	        String parametro = param.getIdproc().toString();
+	        
+			String res = runBatFileService.ejecutarBatOrSSH("resp" + proc, parametro);
+			if(!res.contains("exitosa")) {
+				return ResponseEntity.badRequest().body("No se completó la ejecución del procedimiento");
+			}
+			
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+		return ResponseEntity.ok("Success");		
+	}
+
+	@PostMapping("/procesarSolicitud/api/fondo/restore/intermedio")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
+	ResponseEntity<String> postRestIntermedioSol(@Valid @RequestBody ProcedimientoDto param, Errors errors) {
 		try {
 			//If error, just return a 400 bad request, along with the error message
 	        if (errors.hasErrors()) {

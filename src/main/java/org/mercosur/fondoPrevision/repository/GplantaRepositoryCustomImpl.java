@@ -34,6 +34,18 @@ public class GplantaRepositoryCustomImpl implements GplantaRepositoryCustom {
 		return grupo;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Gplanta> getFuncsInGroup(String tarjetasQL) throws Exception {
+		List<Gplanta> lstGroup = new ArrayList<Gplanta>();
+		if(!tarjetasQL.isEmpty()) {
+			lstGroup = entityManager.createQuery("from Gplanta gp where gp.tarjeta IN(" + tarjetasQL +") order by gp.tarjeta")
+					.getResultList();			
+		}
+		
+		return lstGroup;
+	}
+
 	@Override
 	public void updateUltimosIngresos() throws Exception {
 		try {

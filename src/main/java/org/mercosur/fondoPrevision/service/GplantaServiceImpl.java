@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.mercosur.fondoPrevision.dto.FuncionarioConSueldoMes;
 import org.mercosur.fondoPrevision.entities.Gcargo;
@@ -18,6 +19,7 @@ import org.mercosur.fondoPrevision.entities.Saldos;
 import org.mercosur.fondoPrevision.entities.SaldosHistoria;
 import org.mercosur.fondoPrevision.entities.SueldoMes;
 import org.mercosur.fondoPrevision.entities.TipoMovimiento;
+import org.mercosur.fondoPrevision.entities.User;
 import org.mercosur.fondoPrevision.exceptions.FuncionarioNoEncontradoException;
 import org.mercosur.fondoPrevision.exceptions.TarjetaYaRegistradaException;
 import org.mercosur.fondoPrevision.repository.FcodigosRepository;
@@ -74,6 +76,9 @@ public class GplantaServiceImpl implements GplantaService {
 	ParamService paramService;
 	
 	@Autowired
+	UserService userService;
+	
+	@Autowired
 	LogfondoService logfondoService;
 	
 	@Override
@@ -116,13 +121,6 @@ public class GplantaServiceImpl implements GplantaService {
 		return funcionario.getIdgplanta();
 	}
 
-	private String mesLiquidacionSiguiente(String mesLiquidacion) {
-		Integer mes = Integer.valueOf(mesLiquidacion.substring(4));
-		Integer anio = Integer.valueOf(mesLiquidacion.substring(0, 4));
-		String smes = mes==12? "01": (mes<9)? "0"+String.valueOf(mes + 1): String.valueOf(mes + 1);
-		String aniomes = mes==12? String.valueOf(anio + 1)+smes: String.valueOf(anio)+smes;
-		return aniomes;
-	}
 	
 	@Override
 	public Gplanta createCuenta(Gplanta funcionario, Integer idcargo, Integer idgorganigrama, BigDecimal valorBasico, BigDecimal complemento) throws Exception {
@@ -324,6 +322,80 @@ public class GplantaServiceImpl implements GplantaService {
 	}
 
 	@Override
+	public String updateCuentaNueva(Gplanta funcionario, BigDecimal valorBasico, BigDecimal complemento)
+			throws Exception {
+		
+		List<Movimientos> lstMovs = movimientosRepository.findAllByTarjeta(funcionario.getTarjeta());
+		if(lstMovs.size() == 1 && lstMovs.get(0).getCodigoMovimiento() == 1) {
+			Movimientos m = lstMovs.get(0);
+			String mesliquidacion = m.getMesliquidacion();
+			BigDecimal aporteSec = BigDecimal.ZERO;
+			BigDecimal aporteFunc = BigDecimal.ZERO;
+			BigDecimal divisor = new BigDecimal("100");
+			BigDecimal aporteTot = BigDecimal.ZERO;
+			
+			Iterable<Parametro> lstPar = parametroRepository.getSomeByDesc("Aporte");
+			for(Parametro p : lstPar) {
+				if(p.getDescripcion().contains("patronal")) {
+					BigDecimal bascomp = valorBasico.add(complemento);
+					aporteSec = bascomp.multiply(p.getValor()).divide(divisor);
+				}
+				if(p.getDescripcion().contains("funcionario")) {
+					aporteFunc = valorBasico.multiply(p.getValor()).divide(divisor);
+				}
+			}
+			aporteTot = aporteSec.add(aporteFunc);
+			
+			//objetos que se acutalizan en la BD
+
+			m.setImporteCapSec(aporteSec);
+			m.setImporteIntFunc(aporteFunc);
+			m.setImporteMov(aporteTot);
+			m.setSaldoActual(aporteTot);
+			m.setSaldoAnterior(new BigDecimal("0"));
+			m.setObservaciones("Apertura de Cuenta");
+			movimientosRepository.save(m);
+
+			Optional<Saldos> optsaldos = saldosRepository.findByTarjeta(funcionario.getTarjeta());
+			if(optsaldos.isPresent()) {
+				Saldos saldos = optsaldos.get();
+				saldos.setCapitalDispActual(aporteTot);
+				saldos.setCapitalDispAntes(new BigDecimal("0"));
+				saldos.setCapitalIntegActual(aporteTot);
+				saldos.setCapitalIntegAntes(new BigDecimal("0"));
+				saldos.setNumerales(aporteTot);
+				saldosRepository.save(saldos);
+			}
+						
+			SaldosHistoria saldoshist = saldosHistoriaRepository.getUltimoByTarjeta(funcionario.getTarjeta());
+			saldoshist.setCapitalDispActual(aporteTot);
+			saldoshist.setCapitalDispAntes(new BigDecimal("0"));
+			saldoshist.setCapitalIntegActual(aporteTot);
+			saldoshist.setCapitalIntegAntes(new BigDecimal("0"));
+			saldoshist.setMotivo("Apertura de Cuenta");
+			saldoshist.setNumerales(aporteTot);
+			saldosHistoriaRepository.save(saldoshist);
+			
+			SueldoMes sueldomes = sueldomesRepository.getSueldoMesByAniomesAndTarjeta(mesliquidacion, funcionario.getTarjeta());			
+			sueldomes.setMotivo("apertura de cuenta");
+			sueldomes.setSueldomes(valorBasico);
+			sueldomes.setComplemento(complemento);
+			sueldomesRepository.save(sueldomes);
+										
+			try {
+				logfondoService.agregarLog("Apertura de Cuenta", "Actualización de valores");
+			}
+			catch(Exception e) {
+				throw new Exception(e.getMessage());
+			}
+			return "Ejecución exitosa";
+		}
+		else {
+			throw new Exception("La cuenta no cumple las condiciones para ejecutar la actualización");
+		}
+	}
+
+	@Override
 	public void actualizarUltimosIngresos() throws Exception {
 		
 		gplantaRepository.updateUltimosIngresos();
@@ -419,6 +491,33 @@ public class GplantaServiceImpl implements GplantaService {
 		return (ultimo + 1);
 	}
 
+	@Override
+	public List<Gplanta> getAllNuevaCuentas() throws Exception {
+		
+		String mesLiquidacion = paramService.getMesliquidacion();
+		List<Movimientos> lstMovs = movimientosRepository.getByCodigosAndMes("1", mesLiquidacion);
+		List<Integer> lstT = lstMovs.stream().map(x -> x.getTarjeta()).collect(Collectors.toList());
+		String tarQL = "";
+		for(Integer t:lstT){
+			tarQL += tarQL.equals("")?t:", "+t;
+		}
 
+		List<Gplanta> lstNuevos = gplantaRepository.getFuncsInGroup(tarQL);
+		
+		return lstNuevos;
+	}
+
+	@Override
+	public String deleteCuentaNueva(Integer tarjeta) throws Exception {
+		User user = userService.getUserByTarjeta(tarjeta);
+		saldosRepository.deleteByTarjeta(tarjeta);
+		saldosHistoriaRepository.deleteByTarjeta(tarjeta);
+		movimientosRepository.deleteAllByTarjeta(tarjeta);
+		sueldomesRepository.deleteByTarjeta(tarjeta);
+		gvinculoRepository.deleteByTarjeta(tarjeta);
+		userService.deleteUser(user.getId());
+		gplantaRepository.deleteByTarjeta(tarjeta);
+		return "Cuenta Eliminada";
+	}
 
 }

@@ -84,7 +84,7 @@ public class LogfondoServiceImpl implements LogfondoService{
 		
 		CategoriaLog clog = new CategoriaLog();
 		for (CategoriaLog categoriaLog : lstCat) {
-			if(categoriaLog.getDescripcion().matches(proc)) {
+			if(categoriaLog.getDescripcion().matches("(?i).*" + proc + ".*")) {
 				clog.setIdfcategoriaslog(categoriaLog.getIdfcategoriaslog());
 				clog.setDescripcion(categoriaLog.getDescripcion());
 			}
