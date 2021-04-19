@@ -40,7 +40,7 @@ function deleteSolicitud(){
 <!--	<div th:replace="/fragments/header :: ${#authorization.expression('hasRole(''ROLE_ADMIN'')')} ? 'header-admin' : [${#authorization.expression('hasRole(''ROLE_SUPERVISOR'')')} ? 'header-supervisor' : 'header-user']"></div> -->
 
 	<div class="container-fluid welcome-section" th:if="${#authorization.expression('hasRole(''ROLE_USER'')')}">
-		<h1 th:text="#{home.welcome}">Bienvenido(a)</h1>
+		<h1 th:text="#{home.welcome}"></h1>
 		<h1><span th:text="${loggedUser.nombre}"></span></h1>
 		<div class="alert alert-danger text-center" th:if="${formError}" th:text="${formError}">Error Message</div>
 	</div>
