@@ -123,8 +123,8 @@
 							<div class="card">
 								<div class="card-body">
 									<div class="form-group row">
-						   				<label class="col-lg-6 text-left">Funcionario</label>
-						   				<div class="col-lg-4" >
+						   				<label class="col-lg-5 text-left">Funcionario</label>
+						   				<div class="col-lg-5" >
 											<select th:field="*{idfuncionario}"  id="func-select">
 												<option value=""> Seleccionar una opci&oacute;n </option>
 												<option th:each="funcionario :${plantaList}" th:value="${funcionario.idgplanta}" th:text="${funcionario.nombre}"></option>
@@ -142,7 +142,7 @@
 										</div>
 									</div>
 									<div class="form-group row">
-										<label class="col-lg-6 col-form-label form-control-label">Resultado del Ejercicio</label>
+										<label class="col-lg-7 col-form-label form-control-label">Resultado del Ejercicio</label>
 										<input class="col-lg-4 form-control" type="text" th:field="*{resultEjercicio}">
 										<div class="alert-danger" th:if="${#fields.hasErrors('resultEjercicio')}" th:errors="*{resultEjercicio}">suma ingresada</div>
 									</div>								
