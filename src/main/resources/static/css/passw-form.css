@@ -8,12 +8,22 @@ h1{
 	text-align:center;
 }
 
+h6{
+	color: white;
+	font-style: italic;
+}
 .label-white{
 	color:white;
 }
 
 .close{
 	color: white;
+}
+
+.main-section{
+    margin: 0 auto;
+    margin-top: 15%;
+    padding: 0;
 }
 
 .modal-title{

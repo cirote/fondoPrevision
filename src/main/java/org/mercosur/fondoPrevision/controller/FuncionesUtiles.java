@@ -5,8 +5,15 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+
 public class FuncionesUtiles {
 
+	public static String getSiteURL(HttpServletRequest request) {
+		String siteUrl = request.getRequestURL().toString();
+		return siteUrl.replace(request.getServletPath(), "");
+	}
+	
 	public Boolean chequeoOkMesLiquidacion(String mesActual, String mesIngresado) {
 		Integer ma = Integer.valueOf(mesActual);
 		Integer ms = Integer.valueOf(mesIngresado);

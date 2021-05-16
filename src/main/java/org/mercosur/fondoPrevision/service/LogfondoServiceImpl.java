@@ -104,4 +104,28 @@ public class LogfondoServiceImpl implements LogfondoService{
 	
 	}
 
+	@Override
+	public void agregarLog(String proc, String mensaje, String username) throws Exception {
+		Iterable<CategoriaLog> lstCat = categoriaLogRepository.findAll();
+		
+		CategoriaLog clog = new CategoriaLog();
+		for (CategoriaLog categoriaLog : lstCat) {
+			if(categoriaLog.getDescripcion().matches("(?i).*" + proc + ".*")) {
+				clog.setIdfcategoriaslog(categoriaLog.getIdfcategoriaslog());
+				clog.setDescripcion(categoriaLog.getDescripcion());
+			}
+		}
+		
+		Logfondo log = new Logfondo();
+		Date currentDate;
+		Calendar calendar = Calendar.getInstance();
+		currentDate = calendar.getTime();
+		log.setFechahora(currentDate);
+		log.setProcedimiento(proc + " - " + mensaje);
+		log.setUsername(username);
+		log.setCategoriaLog(clog);
+		log = logfondoRepository.save(log);
+		return;		
+	}
+
 }

@@ -75,6 +75,7 @@ public class UserController {
 		return "index";
 	}
 	
+
 	@GetMapping("/signup")
 	public String signup(Model model) {
 		Role userRol = roleRepository.findByName("USER");

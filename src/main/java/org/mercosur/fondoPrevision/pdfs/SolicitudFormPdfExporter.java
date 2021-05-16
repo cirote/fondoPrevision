@@ -524,7 +524,7 @@ public class SolicitudFormPdfExporter {
 		celda.setPhrase(new Phrase("Firma: ", NORMAL9));
 		t1.addCell(celda);
 
-		Phrase ph1 = new Phrase("Recibí conforme el préstamo por la suma de USD ___________, según Cheque N° ____________ " +
+		Phrase ph1 = new Phrase("Recibí conforme el préstamo por la suma de USD ___________, según ______________________ " +
 				"del Bco.________________ de acuerdo a las condiciones expresadas más arriba.", NORMAL9);
 		
 		Phrase ph2 = new Phrase("Autorizo al Sector de Administración a realizar las retenciones de las cuotas, de mis haberes " +

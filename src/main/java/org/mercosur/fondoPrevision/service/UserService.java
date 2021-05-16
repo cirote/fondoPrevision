@@ -1,5 +1,6 @@
 package org.mercosur.fondoPrevision.service;
 
+import org.mercosur.fondoPrevision.exceptions.UserNotFoundException;
 import org.mercosur.fondoPrevision.exceptions.UsernameOrIdNotFound;
 
 import java.util.Set;
@@ -36,5 +37,11 @@ public interface UserService {
 	public void deleteUser(Long id) throws UsernameOrIdNotFound;
 
 	public User changePassword(ChangePasswordForm form) throws Exception;
-
+	
+	public User resetPassword(ChangePasswordForm form) throws Exception;
+	
+	public User get(String resetPasswordToken);
+	
+	public void updateResetPasswordToken(String token, String email) throws UserNotFoundException;
+	
 }

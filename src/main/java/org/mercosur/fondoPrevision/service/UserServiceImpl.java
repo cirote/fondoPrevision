@@ -9,6 +9,7 @@ import org.mercosur.fondoPrevision.entities.Role;
 import org.mercosur.fondoPrevision.entities.User;
 import org.mercosur.fondoPrevision.exceptions.CustomFieldValidationException;
 import org.mercosur.fondoPrevision.exceptions.FuncionarioNoEncontradoException;
+import org.mercosur.fondoPrevision.exceptions.UserNotFoundException;
 import org.mercosur.fondoPrevision.exceptions.UsernameOrIdNotFound;
 import org.mercosur.fondoPrevision.repository.RoleRepository;
 import org.mercosur.fondoPrevision.repository.UserRepository;
@@ -228,6 +229,40 @@ public class UserServiceImpl implements UserService {
 	public User getUserByTarjeta(Integer tarjeta) throws UsernameOrIdNotFound {
 		User user = userRepository.findByTarjeta(tarjeta).orElseThrow(() -> new UsernameOrIdNotFound("Usuario no encontrado según tarjeta"));
 		return user;
+	}
+
+	@Override
+	public User get(String resetPasswordToken) {
+		return userRepository.findByResetPasswordToken(resetPasswordToken);
+	}
+
+	@Override
+	public void updateResetPasswordToken(String token, String email) throws UserNotFoundException {
+		User user = userRepository.findByEmail(email);
+		if(user != null) {
+			user.setResetPasswordToken(token);
+			userRepository.save(user);
+		}
+		else {
+			throw new UserNotFoundException("No se encontró ningún usuario con el mail ingresado");
+		}
+		
+	}
+
+	@Override
+	public User resetPassword(ChangePasswordForm form) throws Exception {
+		User user = userRepository.findById(form.getId()) .orElseThrow(() -> new Exception("Usuario no encontrado en ChangePassword - " + this.getClass().getName()));
+		
+		if(!form.getNewPassword().equals(form.getConfirmPassword())) {
+			throw new Exception("La password nueva y su confirmacion no coinciden!");
+		}
+		
+		String encodePass = bCryptPasswordEncoder.encode(form.getNewPassword());
+		user.setPassword(encodePass);
+		user.setResetPasswordToken(null);
+		logfondoService.agregarLog("Cambio de Password", " del Usuario: " + user.getUsername(), user.getUsername());
+		
+		return userRepository.save(user);
 	}
 
 

@@ -53,6 +53,9 @@ public class User implements Serializable {
 	@Email
 	private String email;
 	
+	@Column(name="reset_password_token")
+	private String resetPasswordToken;
+	
 	@Column(unique=true)
 	@NotBlank
 	private String username;
@@ -134,6 +137,15 @@ public class User implements Serializable {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	
+	public String getResetPasswordToken() {
+		return resetPasswordToken;
+	}
+
+	public void setResetPasswordToken(String resetPasswordToken) {
+		this.resetPasswordToken = resetPasswordToken;
 	}
 
 	public String getUsername() {

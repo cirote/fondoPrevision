@@ -19,4 +19,6 @@ public interface LogfondoService {
 	public void agregarLog(String proc) throws Exception;
 	
 	public void agregarLog(String proc, String mensaje) throws Exception;
+	
+	public void agregarLog(String proc, String mensaje, String username) throws Exception;
 }
