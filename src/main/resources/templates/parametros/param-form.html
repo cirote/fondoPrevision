@@ -13,7 +13,7 @@
 
 
 </script>
-<div th:with="disableFields=!${editMode} and ${#authorization.expression('hasRole(''ROLE_USER'')')}">
+<div th:with="disableFields=${editMode}">
        <!-- Formulario de usuarios-->
        <form id="paramForm" th:object="${paramForm}" th:action="${signup}?@{/signup}:(${editMode}?@{/editParam}:@{/paramForm})" method="post" class="form" role="form" autocomplete="off">
        	   <input class="form-control" type="hidden" th:field="*{parametro.idfparametros}" th:if="${editMode}">
@@ -21,29 +21,29 @@
 				<div class="panel-body" >
 		           <div class="form-group row">
 		               <label class="col-lg-3 col-form-label form-control-label">Mes Liquidaci&oacute;n</label>
-		               <div class="col-lg-3">
+		               <div class="col-lg-2">
 		                   <input class="form-control" type="text" th:field="*{parametro.mesliquidacion}" th:disabled=${disableFields}>
-		                   <div class="alert-danger" th:if="${#fields.hasErrors('parametro.mesliquidacion')}" th:errors="*{parametro.mesliquidacion}">Mesliquidación Error</div>
+		                   <div class="alert-danger" th:if="${#fields.hasErrors('parametro.mesliquidacion')}" th:errors="*{parametro.mesliquidacion}">Mesliquidaciï¿½n Error</div>
 		               </div>
 		           </div>
 		           <div class="form-group row">
 		               <label class="col-lg-3 col-form-label form-control-label">Descripci&oacute;n</label>
 		               <div class="col-lg-8">
-		                   <input class="form-control" type="text" th:field="*{parametro.descripcion}" th:disabled=${disableFields}>
+		                   <input class="form-control" type="text" th:field="*{parametro.descripcion}" >
 		                   <div class="alert-danger" th:if="${#fields.hasErrors('parametro.descripcion')}" th:errors="*{parametro.descripcion}">Descripcion Error</div>
 		               </div>
 		           </div>
 		           <div class="form-group row" >
 			           	<label class="col-lg-3 col-form-label form-control-label">Valor</label>
 			           	<div class="col-lg-2">
-			           		<input class="form-control" type="text" th:field="*{parametro.valor}" th:disabled=${disableFields}>
+			           		<input class="form-control" type="text" th:field="*{parametro.valor}">
 			           		<div class="alert-danger" th:if="${#fields.hasErrors('parametro.valor')}" th:errors="*{parametro.valor}">Valor Error</div>
 			           	</div>
 		           	</div>
 		           	<div class="form-group row">
 		               <label class="col-lg-3 col-form-label form-control-label">S&iacute;mbolo</label>
 		               <div class="col-lg-2">
-		                   <input class="form-control" type="text" th:field="*{parametro.simbolo}" th:disabled=${disableFields}>
+		                   <input class="form-control" type="text" th:field="*{parametro.simbolo}">
 		                   <div class="alert-danger" th:if="${#fields.hasErrors('parametro.simbolo')}" th:errors="*{parametro.simbolo}">Simbolo Error</div>
 		               </div>
 		           </div>
