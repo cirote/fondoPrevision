@@ -263,7 +263,7 @@ public class DistribucionUtilidadesServiceImpl implements DistribucionUtilidades
 
 	@Override
 	public BigDecimal getSumaNumeralesPeriodoyTarjetas(String mes2, String tarjetas) throws Exception {
-		return saldosHistoriaRepository.numeralesPorPeriodoyTarjetas(mes2, tarjetas);
+		return saldosHistoriaRepository.totalNumeralesPorTajetasSinDistribucion(mes2, tarjetas);
 	}
 
 	@Override

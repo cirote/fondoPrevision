@@ -17,6 +17,7 @@ import org.mercosur.fondoPrevision.entities.Ayuda;
 import org.mercosur.fondoPrevision.entities.DatosDistribucion;
 import org.mercosur.fondoPrevision.excel.DistribExcelExporter;
 import org.mercosur.fondoPrevision.pdfs.DistribucionPdfExporter;
+import org.mercosur.fondoPrevision.repository.MovimientosHistRepository;
 import org.mercosur.fondoPrevision.service.AyudaService;
 import org.mercosur.fondoPrevision.service.CuentaGlobalService;
 import org.mercosur.fondoPrevision.service.DistribucionUtilidadesService;
@@ -46,6 +47,9 @@ public class DistribucionUtilidadesController {
 	
 	@Autowired
 	CuentaGlobalService cuentaGlobalService;
+	
+	@Autowired
+	MovimientosHistRepository movimientoshistRepository;
 	
 	@Autowired
 	DistribucionUtilidadesService distribucionUtilidadesService;
@@ -135,7 +139,19 @@ public class DistribucionUtilidadesController {
 		return false;
 	}
 	
-
+	private String filtrarEgresos(String mesliquid) {
+		try {
+			List<Integer> lstEgresos = movimientoshistRepository.getTarjetasEgresos(mesliquid);
+			String tarQL = "";
+			for(Integer t:lstEgresos) {
+				tarQL += tarQL.equals("")? t : ", "+t;
+			}
+			return tarQL;
+		}
+		catch(Exception e) {
+			return "";
+		}
+	}
 	
 	private String filtrarIngresos(Date fecha){
 		try {
@@ -184,7 +200,9 @@ public class DistribucionUtilidadesController {
 		Date fechatope = convertirFecha(dia2, mes2.substring(0,2), mes2.substring(3));
 		
 		String tarjetasQL =  filtrarIngresos(fechatope);
-						
+		
+		tarjetasQL += tarjetasQL.equals("")? filtrarEgresos(aniomes2):tarjetasQL + ", " + filtrarEgresos(aniomes2);
+		
 		try{
 			BigDecimal sumaNumerales = BigDecimal.ZERO;
 			if(tarjetasQL.isEmpty()) {
@@ -392,6 +410,12 @@ public class DistribucionUtilidadesController {
 		try {
 			String mesDistrib = resultD.getAnioMesDistrib().substring(3) + resultD.getAnioMesDistrib().substring(0, 2);
 			String mesAnterior = String.valueOf(Integer.valueOf(mesDistrib) - 1);
+			String dia2 = ultimodia(mesAnterior.substring(4), mesAnterior.substring(0,4));
+			Date fechatope = convertirFecha(dia2, mesAnterior.substring(4), mesAnterior.substring(0,4));
+			
+			String tarjetasQL =  filtrarIngresos(fechatope);
+			
+			tarjetasQL += tarjetasQL.equals("")? filtrarEgresos(mesAnterior):tarjetasQL + ", " + filtrarEgresos(mesAnterior);
 		
 			if(result.hasErrors()) {
 				model.addAttribute("formError", result.getAllErrors().toString());
@@ -399,8 +423,12 @@ public class DistribucionUtilidadesController {
 			else {
 				try {
 					List<String> meses = distribucionUtilidadesService.getMesesDistribucion();
-					
-					resultD.setTotalNumeralesAnt(distribucionUtilidadesService.getSumaNumeralesSinDistribucion(mesAnterior));
+					if(tarjetasQL.isEmpty()) {
+						resultD.setTotalNumeralesAnt(distribucionUtilidadesService.getSumaNumeralesSinDistribucion(mesAnterior));				
+					}
+					else {
+						resultD.setTotalNumeralesAnt(distribucionUtilidadesService.getSumaNumeralesPeriodoyTarjetas(mesAnterior, tarjetasQL));
+					}
 					resultD.setTotalNumeralesAct(distribucionUtilidadesService.getSumaNumeralesConDistribucion(mesDistrib));
 					resultD.setSumaADistribuir(distribucionUtilidadesService.getSumaADistribuir(mesDistrib));
 					model.addAttribute("lstResult", distribucionUtilidadesService.obtenerResultados(mesDistrib));
