@@ -25,11 +25,7 @@ public interface SaldosHistoriaRepositoryCustom {
 	
 	public BigDecimal numeralesFuncionario(String anioMes2,
 			Integer tarjeta) throws Exception;
-	
-	public BigDecimal numeralesPorPeriodoyTarjetas(String anioMes2, String tarjetas) throws Exception;
-	
-	public BigDecimal numeralesPorPeriodo(String aniomes2) throws Exception;
-	
+			
 	public BigDecimal totalNumeralesPorTarjetasConDistribucion(String aniomes, String tarjetas) throws Exception;
 		
 	public BigDecimal totalNumeralesPorTajetasSinDistribucion(String aniomes, String tarjetas) throws Exception;

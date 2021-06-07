@@ -13,6 +13,8 @@ public interface DistribucionUtilidadesService {
 	public DatosDistribucion salvarDatosDistribucion(String mesFinejercicio, BigDecimal sumaDistrib,
 			BigDecimal sumaNumerales) throws Exception;
 	
+	public DatosDistribucion getDatosDistribucion(String mesDistribucion) throws Exception;
+	
 	public List<ResultadoDistribSummary> distribuirUtilidades(
 			String tarjetasQL, String anioMes1, String anioMes2,
 			DatosDistribucion datos) throws Exception;	
@@ -28,6 +30,7 @@ public interface DistribucionUtilidadesService {
 	public BigDecimal getSumaNumeralesSinDistribucion(String aniomes) throws Exception;
 	
 	public BigDecimal getSumaNumeralesConDistribucion(String aniomes) throws Exception;
+	
 	
 	public List<String> getMesesDistribucion() throws Exception;
 	

@@ -14,6 +14,7 @@ public interface MovimientosRepositoryCustom {
 	public Movimientos getLastByFuncAndTipo(Integer tarjeta, Integer idtipo) throws Exception;
 	public List<Movimientos> getByFuncAndPeriodo(Long idfuncionario, String mesdesde, String meshasta) throws Exception;
 	public List<String> getMesesLiquidacion();
+	public List<String> getMesesLiquidacionDesc();
 	public Long getCountPorAnioMes(String mesliquidacion, Integer idTipoMov) throws Exception;
 	public void deleteAllByTarjeta(Integer tarjeta) throws Exception;
 	public void deleteAll() throws Exception;

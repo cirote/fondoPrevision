@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -53,7 +52,8 @@ public class DistribucionUtilidadesController {
 	
 	@Autowired
 	DistribucionUtilidadesService distribucionUtilidadesService;
-			
+						
+	
 	@GetMapping("/distribForm")
 	public String getDistribForm(Model model) {
 		String clave = "fdist";
@@ -77,6 +77,8 @@ public class DistribucionUtilidadesController {
 	public String traersaldos(final DistribForm distribForm, 
 							final BindingResult results, Model model) {
 		
+		// Trae información de la Cuenta Global que es la que se alimenta mes a mes
+		// con los intereses de los préstamos.
 		if(results.hasErrors()) {
 			model.addAttribute("ditribForm", distribForm);
 		}
@@ -189,40 +191,43 @@ public class DistribucionUtilidadesController {
 			model.addAttribute("formError", "Los límites del período no pueden ser posteriores al Mes Liquidación!.");
 			return("/distribucion-utilidades/distribucion-form");		
 		}
-		
-		String mesFinEjercicio = anioMesDistrib(distribForm.getMesFinal());
-		String litMesFinEjercicio = literalMesAnio(mesFinEjercicio.substring(4), mesFinEjercicio.substring(0, 4));
-		
+				
 		String aniomes1 = mes1.substring(3) + mes1.substring(0, 2);
 		String aniomes2 = mes2.substring(3) + mes2.substring(0, 2);
+		String litMesFinEjercicio = FuncionesUtiles.literalMesAnio(aniomes2.substring(4), aniomes2.substring(0, 4));
 		
-		String dia2 = ultimodia(mes2.substring(0,2), mes2.substring(3));
-		Date fechatope = convertirFecha(dia2, mes2.substring(0,2), mes2.substring(3));
+		String dia2 = FuncionesUtiles.ultimoDiadelMes(mes2.substring(0,2), mes2.substring(3));
+		Date fechatope = FuncionesUtiles.convertirFecha(dia2, mes2.substring(0,2), mes2.substring(3));
 		
-		String tarjetasQL =  filtrarIngresos(fechatope);
-		
+		String tarjetasQL =  filtrarIngresos(fechatope);	//deja afuera los ingresos posteriores a la fecha tope.
+						//filtrarEgresos deja afuera los egresos del último mes del ejercicio.
 		tarjetasQL += tarjetasQL.equals("")? filtrarEgresos(aniomes2):tarjetasQL + ", " + filtrarEgresos(aniomes2);
 		
 		try{
 			BigDecimal sumaNumerales = BigDecimal.ZERO;
+			
 			if(tarjetasQL.isEmpty()) {
+							// Obtiene la suma total de los numerales (base de distribución) del mes final
+							// del ejercicio
 				sumaNumerales = distribucionUtilidadesService.getSumaNumeralesSinDistribucion(aniomes2);				
 			}
 			else {
+						// Si hubo egresos se obtiene la base de distribución sin tomar en cuenta los egresos.
 				sumaNumerales = distribucionUtilidadesService.getSumaNumeralesPeriodoyTarjetas(aniomes2, tarjetasQL);
 			}
+
 			BigDecimal bdSuma = distribForm.getTotalAdistrib();
 			
 			DatosDistribucion datosDistrib = new DatosDistribucion();
 
-			if(distribucionUtilidadesService.distribucionRealizada(mesFinEjercicio)){
+			if(distribucionUtilidadesService.distribucionRealizada(aniomes2)){
 				model.addAttribute("ditribForm", new DistribForm());
 				model.addAttribute("outputMode", false);
 				model.addAttribute("formError", "ya se realizó la distribución correspondiente a mes: " + litMesFinEjercicio);
 				return("/distribucion-utilidades/distribucion-form");		
 			}
 			else{
-				datosDistrib = distribucionUtilidadesService.salvarDatosDistribucion(mesFinEjercicio, bdSuma, sumaNumerales);
+				datosDistrib = distribucionUtilidadesService.salvarDatosDistribucion(aniomes2, bdSuma, sumaNumerales);
 			}
 
 			List<ResultadoDistribSummary> resultado = distribucionUtilidadesService.distribuirUtilidades(tarjetasQL, aniomes1, aniomes2, datosDistrib);
@@ -243,146 +248,7 @@ public class DistribucionUtilidadesController {
 
 	}
 	
-	private String anioMesDistrib(String anioMesFinal) {
-		
-		String anioMesDistrib;
-		/*
-		 * se construye el año mes al que corresponde la distribución
-		 * que es un mes más del último indicado en el período.
-		 */
-		Integer nmes2 = Integer.valueOf(anioMesFinal.substring(0, 2));
-		Integer nanio2 = Integer.valueOf(anioMesFinal.substring(3));
-		String smesfinej;
-		String saniofinej;
-		if(nmes2 == 12){
-			smesfinej = "01";
-			saniofinej = String.valueOf(nanio2 + 1);
-		}
-		else{
-			if(nmes2 < 9){
-				smesfinej = "0" + String.valueOf(nmes2 + 1);
-			}
-			else{
-				smesfinej = String.valueOf(nmes2 + 1);
-			}
-			saniofinej = String.valueOf(nanio2);
-		}
-		anioMesDistrib = saniofinej.concat(smesfinej);
 	
-		return anioMesDistrib;
-	}
-	
-	private Date convertirFecha(String dia, String mes, String anio){
-		String fechatope = dia + "-" + mes + "-" + anio;
-		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-		Date dfecha = new Date();
-		try{
-			dfecha = sdf.parse(fechatope);
-			return dfecha;
-		}
-		catch(Exception ex){
-			return null;
-		}
-	}
-
-	
-	private String ultimodia(String mes, String anio){
-		Integer month = Integer.valueOf(mes);
-		Integer year = Integer.valueOf(anio);
-		int numdays = 0;
-		
-		switch(month){
-		case 1: case 3: case 5:
-		case 7: case 8: case 10:
-		case 12:{
-			numdays = 31;
-			break;
-		}
-		case 4: case 6: case 9:
-		case 11:{
-			numdays = 30;
-			break;
-		}
-		case 2:{
-			if(((year % 4 == 0) && !(year % 100 == 0))
-				|| (year % 400 == 0)){
-				numdays = 29;
-			}
-			else{
-				numdays = 28;
-			}
-			break;
-		}
-		}
-		return String.valueOf(numdays);
-	}
-
-	private String literalMesAnio(String mes, String anio){
-		Integer imes = Integer.valueOf(mes);
-		String smes = "";
-		switch(imes){
-		case 1:{
-			smes = "Enero de ";
-			break;
-		}
-		case 2:{
-			smes = "Febrero de ";
-			break;
-		}
-		case 3:{
-			smes = "Marzo de ";
-			break;
-		}
-		case 4:{
-			smes= "Abril de ";
-			break;
-		}
-		case 5:{
-			smes = "Mayo de ";
-			break;
-		}
-		case 6:{
-			smes = "Junio de ";
-			break;
-		}
-		case 7:{
-			smes = "Julio de ";
-			break;
-		}
-		case 8: {
-			smes = "Agosto de ";
-			break;
-		}
-		case 9:{
-			smes = "Setiembre de ";
-			break;
-		}
-		case 10:{
-			smes = "Octubre de ";
-			break;
-		}
-		case 11:{
-			smes = "Noviembre de ";
-			break;
-		}
-		case 12:{
-			smes = "Diciembre de ";
-			break;
-		}
-		}
-		return (smes + anio);
-	}
-	
-	private List<String> mesesConForma(List<String> meses){
-		List<String> lstmeses = new ArrayList<String>();
-		String mm;
-		for(String mes:meses) {
-			mm = mes.substring(4) + "/" + mes.substring(0, 4);
-			lstmeses.add(mm);
-		}		
-		return lstmeses;
-	}
-
 	@GetMapping("/consultaDistribucion")
 	public String getListaMeses(Model model) {
 		String clave = "fconsUtil";
@@ -390,7 +256,7 @@ public class DistribucionUtilidadesController {
 			List<String> meses = distribucionUtilidadesService.getMesesDistribucion();
 			
 			model.addAttribute("help", ayudaService.getByClave(clave));
-			model.addAttribute("mesesList", mesesConForma(meses));
+			model.addAttribute("mesesList", FuncionesUtiles.mesesConForma(meses));
 			model.addAttribute("resultD", new ResultDistribucion());
 			model.addAttribute("outputMode", false);
 			
@@ -409,13 +275,6 @@ public class DistribucionUtilidadesController {
 	public String getResultDistrib(final ResultDistribucion resultD, final BindingResult result, Model model) {
 		try {
 			String mesDistrib = resultD.getAnioMesDistrib().substring(3) + resultD.getAnioMesDistrib().substring(0, 2);
-			String mesAnterior = String.valueOf(Integer.valueOf(mesDistrib) - 1);
-			String dia2 = ultimodia(mesAnterior.substring(4), mesAnterior.substring(0,4));
-			Date fechatope = convertirFecha(dia2, mesAnterior.substring(4), mesAnterior.substring(0,4));
-			
-			String tarjetasQL =  filtrarIngresos(fechatope);
-			
-			tarjetasQL += tarjetasQL.equals("")? filtrarEgresos(mesAnterior):tarjetasQL + ", " + filtrarEgresos(mesAnterior);
 		
 			if(result.hasErrors()) {
 				model.addAttribute("formError", result.getAllErrors().toString());
@@ -423,18 +282,14 @@ public class DistribucionUtilidadesController {
 			else {
 				try {
 					List<String> meses = distribucionUtilidadesService.getMesesDistribucion();
-					if(tarjetasQL.isEmpty()) {
-						resultD.setTotalNumeralesAnt(distribucionUtilidadesService.getSumaNumeralesSinDistribucion(mesAnterior));				
-					}
-					else {
-						resultD.setTotalNumeralesAnt(distribucionUtilidadesService.getSumaNumeralesPeriodoyTarjetas(mesAnterior, tarjetasQL));
-					}
+					DatosDistribucion datosDistrib = distribucionUtilidadesService.getDatosDistribucion(mesDistrib);
 					resultD.setTotalNumeralesAct(distribucionUtilidadesService.getSumaNumeralesConDistribucion(mesDistrib));
-					resultD.setSumaADistribuir(distribucionUtilidadesService.getSumaADistribuir(mesDistrib));
+					resultD.setTotalNumeralesAnt(datosDistrib.getTotBaseDistrib());
+					resultD.setSumaADistribuir(datosDistrib.getResultadoADistrib());
 					model.addAttribute("lstResult", distribucionUtilidadesService.obtenerResultados(mesDistrib));
 					model.addAttribute("outputMode", true);
 					model.addAttribute("resultD", resultD);
-					model.addAttribute("mesesList", mesesConForma(meses));				
+					model.addAttribute("mesesList", FuncionesUtiles.mesesConForma(meses));				
 				}
 				catch(Exception e) {
 					System.out.println("Exception SumaNumeralesSinDistrib " + e.getMessage());
@@ -453,12 +308,12 @@ public class DistribucionUtilidadesController {
 	public void exportResultadoDistribucion(HttpServletResponse response, @RequestParam(value="mesdistrib", required=true) String mesDist, Model model) 
 			throws DocumentException, IOException, Exception{
 		String mesDistrib = mesDist.substring(3) + mesDist.substring(0, 2);
-		String mesAnterior = String.valueOf(Integer.valueOf(mesDistrib) - 1);
 
+		DatosDistribucion datosDistrib = distribucionUtilidadesService.getDatosDistribucion(mesDistrib);
 		List<ResultadoDistribSummary> lstResult = distribucionUtilidadesService.obtenerResultados(mesDistrib);
-		BigDecimal totalNumeralesAnt = distribucionUtilidadesService.getSumaNumeralesSinDistribucion(mesAnterior);
+		BigDecimal totalNumeralesAnt = datosDistrib.getTotBaseDistrib();
 		BigDecimal totalNumeralesAct = distribucionUtilidadesService.getSumaNumeralesConDistribucion(mesDistrib);
-		BigDecimal sumaAdistrib = distribucionUtilidadesService.getSumaADistribuir(mesDistrib);
+		BigDecimal sumaAdistrib = datosDistrib.getResultadoADistrib();
 		DateFormat sdf = new SimpleDateFormat("dd-MM-yyyy_HH-mm");
 		String currDate = sdf.format(new Date());
 		
@@ -475,12 +330,12 @@ public class DistribucionUtilidadesController {
 	@GetMapping("/excelDistribucion")
 	public void excelResultadoDistribucion(HttpServletResponse response, @RequestParam(value="mesdistrib", required=true) String mesDist, Model model) throws IOException, Exception {
 		String mesDistrib = mesDist.substring(3) + mesDist.substring(0, 2);
-		String mesAnterior = String.valueOf(Integer.valueOf(mesDistrib) - 1);
 
+		DatosDistribucion datosDistrib = distribucionUtilidadesService.getDatosDistribucion(mesDistrib);
 		List<ResultadoDistribSummary> lstResult = distribucionUtilidadesService.obtenerResultados(mesDistrib);
-		BigDecimal totalNumeralesAnt = distribucionUtilidadesService.getSumaNumeralesSinDistribucion(mesAnterior);
+		BigDecimal totalNumeralesAnt = datosDistrib.getTotBaseDistrib();
 		BigDecimal totalNumeralesAct = distribucionUtilidadesService.getSumaNumeralesConDistribucion(mesDistrib);
-		BigDecimal sumaAdistrib = distribucionUtilidadesService.getSumaADistribuir(mesDistrib);
+		BigDecimal sumaAdistrib = datosDistrib.getResultadoADistrib();
 		DateFormat sdf = new SimpleDateFormat("dd-MM-yyyy_HH-mm");
 		String currDate = sdf.format(new Date());
 

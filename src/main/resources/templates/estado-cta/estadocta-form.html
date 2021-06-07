@@ -133,6 +133,17 @@
 	 							</div>
 	 						</td>
 	 					</tr>
+	 					<tr>
+	 						<td>
+	 							<div class="row d-flex">
+	 								<label class="col-lg-6 col-form-label form-control-label" th:if="estadoDeCta.conDistribucion">
+	 									<span th:text="${labelBalance}"> </span>
+	 									<span th:text="${#temporals.format(fechaBalance, 'dd-MM-yyyy')}"></span>
+	 								</label>
+	 								<span class="col-lg-6" th:text="${#numbers.formatDecimal(estadoDeCta.importeDistribucion, 1, 'POINT', 2, 'COMMA')}"></span>
+	 							</div>
+	 						</td>
+	 					</tr>
 	 				</table>
 	 			</div>
 	 		</div>

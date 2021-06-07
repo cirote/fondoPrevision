@@ -50,6 +50,13 @@ public class EstadoDeCta implements Serializable{
 	
 	private Gplanta funcionario;
 	
+	private BigDecimal importeDistribucion;
+	
+	private Boolean conDistribucion;
+	
+	private String mesDistribucion;
+	
+	
 	public EstadoDeCta() {
 		super();
 	}
@@ -188,5 +195,29 @@ public class EstadoDeCta implements Serializable{
 
 	public void setLstAportes(List<AportesSummary> lstAportes) {
 		this.lstAportes = lstAportes;
+	}
+
+	public BigDecimal getImporteDistribucion() {
+		return importeDistribucion;
+	}
+
+	public void setImporteDistribucion(BigDecimal importeDistribucion) {
+		this.importeDistribucion = importeDistribucion;
+	}
+
+	public Boolean getConDistribucion() {
+		return conDistribucion;
+	}
+
+	public void setConDistribucion(Boolean conDistribucion) {
+		this.conDistribucion = conDistribucion;
+	}
+
+	public String getMesDistribucion() {
+		return mesDistribucion;
+	}
+
+	public void setMesDistribucion(String mesDistribucion) {
+		this.mesDistribucion = mesDistribucion;
 	}
 }

@@ -284,6 +284,8 @@ public class UserController {
 				model.addAttribute("passwordForm",new ChangePasswordForm(user.getId()));
 			}
 		}
+		model.addAttribute("plantaList", gplantaService.getAllPlanta());
+		model.addAttribute("userList", userService.getAllUsers());
 		model.addAttribute("allRoles",roleRepository.findAll());
 		return "user-form/user-datos-form";
 	}

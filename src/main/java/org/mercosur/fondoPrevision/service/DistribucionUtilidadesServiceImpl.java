@@ -89,8 +89,7 @@ public class DistribucionUtilidadesServiceImpl implements DistribucionUtilidades
 		Date fecha = calendar.getTime();
 		java.sql.Date fechaHoy = new java.sql.Date(fecha.getTime());
 		
-		String mesLiquidacion = paramService.getMesliquidacion();
-		String mesDistribucion = getMesDistrib(mesLiquidacion, anioMes2);
+		String mesDistribucion = anioMes2;
 		
 		Iterable<Gplanta> lstFuncs = gplantaRepository.getFuncsNotInGroup(tarjetasQL);
 		BigDecimal bdSuma = datos.getTotBaseDistrib();
@@ -163,7 +162,7 @@ public class DistribucionUtilidadesServiceImpl implements DistribucionUtilidades
 			saldosH = saldosHistoriaRepository.getByTarjetaAndMesDistribucion(frd.getTarjeta(), mesDistribucion);
 			}
 			catch(Exception e) {
-				System.out.println(e.getMessage());
+				System.out.println(e.getMessage() + "tarjeta: " + frd.getTarjeta().toString());
 			}
 			ResultadoDistribSummary resDis = new ResultadoDistribSummary();
 			resDis.setTarjeta(frd.getTarjeta());
@@ -186,19 +185,7 @@ public class DistribucionUtilidadesServiceImpl implements DistribucionUtilidades
 		}
 		return lstDistribucion;
 	}
-	
-	private String getMesDistrib(String anioMesParam, String anioMes2) {
-		String anioMesRet = anioMesParam;
-		Integer mp = Integer.valueOf(anioMesParam);
-		Integer ms = Integer.valueOf(anioMes2);
-		if(mp == ms) {
-			anioMesRet = String.valueOf(mp + 1);
-		}
-		return anioMesRet;
-	}
-	
-
-	
+		
 	private Boolean actualizacionSaldos(BigDecimal bdLeToca, Integer tarjeta, Date fechaHoy, String mesDistribucion){
 		Optional<Saldos> saldos = saldosRepository.findByTarjeta(tarjeta);
 		Saldos saldospresent = new Saldos();
@@ -294,6 +281,11 @@ public class DistribucionUtilidadesServiceImpl implements DistribucionUtilidades
 	@Override
 	public BigDecimal getSumaNumeralesConDistribucionPorTarjetas(String aniomes, String tarjetas) throws Exception {
 		return saldosHistoriaRepository.totalNumeralesPorTarjetasConDistribucion(aniomes, tarjetas);
+	}
+
+	@Override
+	public DatosDistribucion getDatosDistribucion(String mesDistribucion) throws Exception {
+		return datosDistribucionRepository.getPorMesDistribucion(mesDistribucion);
 	}
 
 }

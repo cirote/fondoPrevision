@@ -327,31 +327,21 @@ public class AportesController {
 		return "aportes/aportes-view";
 	}
 	
-	private List<String> mesesConForma(List<String> meses){
-		List<String> lstmeses = new ArrayList<String>();
-		String mm;
-		for(String mes:meses) {
-			mm = mes.substring(4) + "/" + mes.substring(0, 4);
-			lstmeses.add(mm);
-		}		
-		return lstmeses;
-	}
-
 	@GetMapping("/consultaAportes")
 	public String getConsultaAportes(ModelMap model) {
 
-		List<String> meses = movimientosRepository.getMesesLiquidacion();
+		List<String> meses = movimientosRepository.getMesesLiquidacionDesc();
 		try {
 			model.addAttribute("outputMode", false);
 			model.addAttribute("anotherview", false);
 			model.addAttribute("capitalesForm", new CapitalesForm());
-			model.addAttribute("meseslist", mesesConForma(meses));
+			model.addAttribute("meseslist", FuncionesUtiles.mesesConForma(meses));
 		}
 		catch(Exception e) {
 			model.addAttribute("outputMode", false);
 			model.addAttribute("anotherview", false);
 			model.addAttribute("capitalesForm", new CapitalesForm());
-			model.addAttribute("meseslist", mesesConForma(meses));
+			model.addAttribute("meseslist", FuncionesUtiles.mesesConForma(meses));
 			model.addAttribute("formError", e.getMessage());
 		}
 
@@ -360,7 +350,7 @@ public class AportesController {
 
 	@RequestMapping(value= {"/resultAportes"}, params= {"getInfo"})
 	public String getInformacionAportes(final CapitalesForm capForm, final BindingResult result, ModelMap model) {
-		List<String> meses = movimientosRepository.getMesesLiquidacion();
+		List<String> meses = movimientosRepository.getMesesLiquidacionDesc();
 
 		try {
 			String mesliquidacion = capForm.getMesliquidacion().substring(3) + capForm.getMesliquidacion().substring(0, 2);
@@ -368,7 +358,7 @@ public class AportesController {
 			if(lstAportes == null || lstAportes.isEmpty()) {
 				model.addAttribute("formError", "No se encontraron aportes para el mes elegido");
 			}
-			model.addAttribute("meseslist", mesesConForma(meses));
+			model.addAttribute("meseslist", FuncionesUtiles.mesesConForma(meses));
 			model.addAttribute("capitalesForm", capForm);
 			model.addAttribute("outputMode", true);
 			model.addAttribute("anotherview", false);
@@ -380,7 +370,7 @@ public class AportesController {
 			model.addAttribute("outputMode", false);
 			model.addAttribute("anotherview", false);
 			model.addAttribute("capitalesForm", capForm);
-			model.addAttribute("meseslist", mesesConForma(meses));
+			model.addAttribute("meseslist", FuncionesUtiles.mesesConForma(meses));
 			model.addAttribute("formError", e.getMessage());
 			
 		}

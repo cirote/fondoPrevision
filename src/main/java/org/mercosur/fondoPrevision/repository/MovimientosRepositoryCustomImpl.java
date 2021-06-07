@@ -92,6 +92,14 @@ public class MovimientosRepositoryCustomImpl implements MovimientosRepositoryCus
 		return lst;
 	}
 
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getMesesLiquidacionDesc() {
+		List<String> lst = entityManager.createQuery("select distinct m.mesliquidacion from Movimientos m order by m.mesliquidacion desc").getResultList();
+		return lst;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Movimientos> getSumasByCodigosAndMes(String lstcod, String mesliquidacion) throws Exception {

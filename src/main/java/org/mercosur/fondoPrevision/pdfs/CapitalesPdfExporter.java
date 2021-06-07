@@ -50,7 +50,7 @@ public class CapitalesPdfExporter {
 		cell.setBackgroundColor(Color.GRAY);
 		cell.setPadding(5);
 
-		cell.setPhrase(new Phrase("Nro.", font));		
+		cell.setPhrase(new Phrase("N°", font));		
 		table.addCell(cell);
 		
 		cell.setPhrase(new Phrase("Nombre", font));
@@ -188,7 +188,7 @@ public class CapitalesPdfExporter {
 		if(conDistribucion) {
 			table = new PdfPTable(13);
 			table.setWidthPercentage(100.0f);
-			table.setWidths(new float[] {1.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f});
+			table.setWidths(new float[] {0.5f, 2.0f, 1.2f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.8f, 1.0f, 1.2f, 1.2f});
 			table.setSpacingBefore(10);
 		}
 		else {

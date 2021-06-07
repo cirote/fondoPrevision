@@ -3,7 +3,6 @@ package org.mercosur.fondoPrevision.controller;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -68,40 +67,30 @@ public class CapitalesDisponiblesController {
 	public String getCapitalesForm(ModelMap model) {
 		
 		String clave = "fconscap";
-		List<String> meses = movimientosRepository.getMesesLiquidacion();
+		List<String> meses = movimientosRepository.getMesesLiquidacionDesc();
 		try {
 			model.addAttribute("help", ayudaRepository.findByClave(clave));
 			model.addAttribute("outputMode", false);
 			model.addAttribute("procname", "Ajustes");
 			model.addAttribute("capitalesForm", new CapitalesForm());
-			model.addAttribute("meseslist", mesesConForma(meses));
+			model.addAttribute("meseslist", FuncionesUtiles.mesesConForma(meses));
 			model.addAttribute("capForDisplay", new CapitalesForDisplay());
 		}
 		catch(Exception e) {
 			model.addAttribute("help", ayudaRepository.findByClave(clave));
 			model.addAttribute("outputMode", false);
 			model.addAttribute("capitalesForm", new CapitalesForm());
-			model.addAttribute("meseslist", mesesConForma(meses));
+			model.addAttribute("meseslist", FuncionesUtiles.mesesConForma(meses));
 			model.addAttribute("formError", e.getMessage());
 		}
 
 		return "consultas/capitales-form";
 	}
-	
-	private List<String> mesesConForma(List<String> meses){
-		List<String> lstmeses = new ArrayList<String>();
-		String mm;
-		for(String mes:meses) {
-			mm = mes.substring(4) + "/" + mes.substring(0, 4);
-			lstmeses.add(mm);
-		}		
-		return lstmeses;
-	}
-	
+		
 	@RequestMapping(value= {"/getCapitales"}, params= {"getInfo"})
 	public String traerInformacion(final CapitalesForm capForm, final BindingResult result, Model model) {
 		String clave = "fconscap";
-		List<String> meses = movimientosRepository.getMesesLiquidacion();
+		List<String> meses = movimientosRepository.getMesesLiquidacionDesc();
 		List<String> mesesDist = resultadoDistribRepository.getMesesDistribucion();
 		try {
 			String mesliquidacion = capForm.getMesliquidacion().substring(3) + capForm.getMesliquidacion().substring(0, 2);
@@ -116,7 +105,7 @@ public class CapitalesDisponiblesController {
 			else {
 				model.addAttribute("conDistribucion", false);
 			}
-			model.addAttribute("meseslist", mesesConForma(meses));
+			model.addAttribute("meseslist", FuncionesUtiles.mesesConForma(meses));
 			model.addAttribute("capitalesForm", capForm);
 			model.addAttribute("outputMode", true);
 			model.addAttribute("procname", "Ajustes");
@@ -128,7 +117,7 @@ public class CapitalesDisponiblesController {
 			model.addAttribute("help", ayudaRepository.findByClave(clave));
 			model.addAttribute("outputMode", false);
 			model.addAttribute("capitalesForm", capForm);
-			model.addAttribute("meseslist", mesesConForma(meses));
+			model.addAttribute("meseslist", FuncionesUtiles.mesesConForma(meses));
 			model.addAttribute("conDistribucion", false);
 			model.addAttribute("formError", e.getMessage());
 			
@@ -147,7 +136,7 @@ public class CapitalesDisponiblesController {
 			model.addAttribute("outputMode", false);
 			model.addAttribute("procname", "Ajustes");
 			model.addAttribute("capitalesForm", new CapitalesForm());
-			model.addAttribute("meseslist", mesesConForma(meses));
+			model.addAttribute("meseslist", FuncionesUtiles.mesesConForma(meses));
 			model.addAttribute("conDistribucion", false);
 			model.addAttribute("formError", "Solo se admiten ajuste sobre el último mes procesado!");	
 			return "consultas/capitales-form";
@@ -168,7 +157,7 @@ public class CapitalesDisponiblesController {
 			else {
 				model.addAttribute("conDistribucion", false);
 			}
-			model.addAttribute("meseslist", mesesConForma(meses));
+			model.addAttribute("meseslist", FuncionesUtiles.mesesConForma(meses));
 			model.addAttribute("capitalesForm", capForm);
 			model.addAttribute("outputMode", true);
 			model.addAttribute("procname", "Ajustes");
@@ -180,7 +169,7 @@ public class CapitalesDisponiblesController {
 			model.addAttribute("help", ayudaRepository.findByClave(clave));
 			model.addAttribute("outputMode", false);
 			model.addAttribute("capitalesForm", capForm);
-			model.addAttribute("meseslist", mesesConForma(meses));
+			model.addAttribute("meseslist", FuncionesUtiles.mesesConForma(meses));
 			model.addAttribute("conDistribucion", false);
 			model.addAttribute("formError", e.getMessage());
 			

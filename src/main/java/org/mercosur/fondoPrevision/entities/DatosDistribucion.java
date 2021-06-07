@@ -32,8 +32,7 @@ public class DatosDistribucion implements Serializable{
 	
 	@Column
 	private BigDecimal TotBaseDistrib;
-	
-	
+		
 	public DatosDistribucion() {
 		super();
 	}
@@ -77,4 +76,6 @@ public class DatosDistribucion implements Serializable{
 	public void setTotBaseDistrib(BigDecimal totBaseDistrib) {
 		TotBaseDistrib = totBaseDistrib;
 	}
+
+
 }

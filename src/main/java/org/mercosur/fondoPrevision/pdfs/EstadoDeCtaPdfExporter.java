@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
@@ -41,11 +42,13 @@ public class EstadoDeCtaPdfExporter {
 	private EstadoDeCta estadoDeCta;
 	
 	private String mesLiquidacion;
+	private LocalDate fechaBalance;
 	
-	public EstadoDeCtaPdfExporter(EstadoDeCta estadoDeCta, String mesLiquidacion) {
+	public EstadoDeCtaPdfExporter(EstadoDeCta estadoDeCta, String mesLiquidacion, LocalDate fechaBalance) {
 		super();
 		this.estadoDeCta = estadoDeCta;
 		this.mesLiquidacion = mesLiquidacion;
+		this.fechaBalance = fechaBalance;
 	}
 
 	private void writeTableNombre(PdfPTable table) {
@@ -123,13 +126,13 @@ public class EstadoDeCtaPdfExporter {
 		cell.setPhrase(new Phrase("Sueldo: ", BOLD));
 		tablee.addCell(cell);
 
-		cell.setPhrase(new Phrase(getAsString(estadoDeCta.getBasico()), NORMAL10));
+		cell.setPhrase(new Phrase("U$S " + getAsString(estadoDeCta.getBasico()), NORMAL10));
 		tablee.addCell(cell);
 
 		cell.setPhrase(new Phrase("40% :", BOLD));
 		tablee.addCell(cell);
 
-		cell.setPhrase(new Phrase(getAsString(estadoDeCta.getCuarentaPorCiento()), NORMAL10));
+		cell.setPhrase(new Phrase("U$S " + getAsString(estadoDeCta.getCuarentaPorCiento()), NORMAL10));
 		tablee.addCell(cell);
 
 		cell.setPhrase(new Phrase(Chunk.NEWLINE));
@@ -147,7 +150,7 @@ public class EstadoDeCtaPdfExporter {
 		cell.setPhrase(new Phrase("Capital Integrado Actual: ", BOLD));
 		tablee.addCell(cell);
 
-		cell.setPhrase(new Phrase(getAsString(estadoDeCta.getCapIntegActual()), NORMAL10));
+		cell.setPhrase(new Phrase("U$S " + getAsString(estadoDeCta.getCapIntegActual()), NORMAL10));
 		tablee.addCell(cell);
 
 		cell.setPhrase(new Phrase("Pct. de Reserva: ", BOLD));
@@ -159,18 +162,18 @@ public class EstadoDeCtaPdfExporter {
 		cell.setPhrase(new Phrase("Capital Integrado Operable: ", BOLD));
 		tablee.addCell(cell);
 		
-		cell.setPhrase(new Phrase(getAsString(estadoDeCta.getCapDispOperable()), NORMAL10));
+		cell.setPhrase(new Phrase("U$S " + getAsString(estadoDeCta.getCapDispOperable()), NORMAL10));
 		tablee.addCell(cell);
 		
 		
 		cell.setPhrase(new Phrase("Saldo Disponible: ", BOLD));
 		tablee.addCell(cell);
 
-		cell.setPhrase(new Phrase(getAsString(estadoDeCta.getSaldoDisponible()), NORMAL10));
+		cell.setPhrase(new Phrase("U$S " + getAsString(estadoDeCta.getSaldoDisponible()), NORMAL10));
 		tablee.addCell(cell);
+		
 
-	
-		if(estadoDeCta.getLstPrst() != null) {
+		if(estadoDeCta.getLstPrst() != null && !estadoDeCta.getLstPrst().isEmpty()) {
 			cell.setPhrase(new Phrase(Chunk.NEWLINE));
 			tablee.addCell(cell);
 			
@@ -185,16 +188,40 @@ public class EstadoDeCtaPdfExporter {
 			cell.setPhrase(new Phrase("Suma de Cuotas Comprometidas: ", BOLD));
 			tablee.addCell(cell);
 
-			cell.setPhrase(new Phrase(getAsString(estadoDeCta.getSumaDeCuotas()), NORMAL10));
+			cell.setPhrase(new Phrase("U$S " + getAsString(estadoDeCta.getSumaDeCuotas()), NORMAL10));
 			tablee.addCell(cell);
 			
 			cell.setPhrase(new Phrase("Saldo de Préstamos Acumulado: ", BOLD));
 			tablee.addCell(cell);
 
-			cell.setPhrase(new Phrase(getAsString(estadoDeCta.getSaldoPrstAcum()), NORMAL10));
+			cell.setPhrase(new Phrase("U$S " + getAsString(estadoDeCta.getSaldoPrstAcum()), NORMAL10));
 			tablee.addCell(cell);			
 		}
 		
+		if(estadoDeCta.getConDistribucion()) {
+			cell.setPhrase(new Phrase(Chunk.NEWLINE));
+			tablee.addCell(cell);
+			
+			cell.setPhrase(new Phrase(Chunk.NEWLINE));
+			tablee.addCell(cell);
+
+			cell.setPhrase(new Phrase(Chunk.NEWLINE));
+			tablee.addCell(cell);
+			
+			cell.setPhrase(new Phrase(Chunk.NEWLINE));
+			tablee.addCell(cell);
+
+			cell.setPhrase(new Phrase("Asignación de Intereses por Distribución de Utilidades al ", BOLD));
+			tablee.addCell(cell);
+			cell.setPhrase(new Phrase(" " + fechaBalance.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), NORMAL10));
+			tablee.addCell(cell);
+			cell.setPhrase(new Phrase("U$S " +getAsString(estadoDeCta.getImporteDistribucion()), NORMAL10));
+			tablee.addCell(cell);
+			cell.setPhrase(new Phrase(Chunk.NEWLINE));
+			tablee.addCell(cell);
+		}
+	
+
 	}
 	
 	private void writeTableHeader(PdfPTable table) {
@@ -349,7 +376,7 @@ public class EstadoDeCtaPdfExporter {
 		writeTableEstadoFinanciero(tablee);
 		document.add(tablee);
 		
-		if(estadoDeCta.getLstPrst() != null) {
+		if(estadoDeCta.getLstPrst() != null && !estadoDeCta.getLstPrst().isEmpty()) {
 			title = new Paragraph("Prestamos Vigentes", font);
 			title.setSpacingBefore(18);
 			

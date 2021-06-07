@@ -71,7 +71,7 @@ public class MovimientosController {
 		
 		String clave = "fmovs";
 		try {
-			List<String> meses = movimientosRepository.getMesesLiquidacion();
+			List<String> meses = movimientosRepository.getMesesLiquidacionDesc();
 			model.addAttribute("help", ayudaRepository.findByClave(clave));
 			model.addAttribute("outputMode", false);
 			model.addAttribute("movimientosForm", new MovimientosForm());
@@ -81,7 +81,7 @@ public class MovimientosController {
 			model.addAttribute("help", ayudaRepository.findByClave(clave));
 			model.addAttribute("outputMode", false);
 			model.addAttribute("movimientosForm", new MovimientosForm());
-			model.addAttribute("meseslist", movimientosRepository.getMesesLiquidacion());
+			model.addAttribute("meseslist", movimientosRepository.getMesesLiquidacionDesc());
 			model.addAttribute("formError", e.getMessage());
 		}
 		return "consultas/movimientos-form";
@@ -99,7 +99,7 @@ public class MovimientosController {
 	
 	@RequestMapping(value= {"/movimientosFuncionario"}, params= {"getInfo"})
 	public String traerInformacion(final MovimientosForm movForm, final BindingResult result, Model model) {
-		List<String> meses = movimientosRepository.getMesesLiquidacion();
+		List<String> meses = movimientosRepository.getMesesLiquidacionDesc();
 		try {
 			String desde = movForm.getMesdesde().substring(3) + movForm.getMesdesde().substring(0, 2);
 			String hasta = movForm.getMeshasta().substring(3) + movForm.getMeshasta().substring(0, 2);
@@ -134,13 +134,13 @@ public class MovimientosController {
 			MovimientosForm movForm = new MovimientosForm();
 			movForm.setFuncionario(funcionario);
 			movForm.setIdfuncionario(funcionario.getIdgplanta());
-			List<String> meses = movimientosRepository.getMesesLiquidacion();
+			List<String> meses = movimientosRepository.getMesesLiquidacionDesc();
 			model.addAttribute("outputMode", false);
 			model.addAttribute("movimientosForm", movForm);
 			model.addAttribute("meseslist", mesesConForma(meses));
 		}
 		catch(Exception e) {
-			List<String> meses = movimientosRepository.getMesesLiquidacion();
+			List<String> meses = movimientosRepository.getMesesLiquidacionDesc();
 			model.addAttribute("outputMode", false);
 			model.addAttribute("movimientosForm", new MovimientosForm());
 			model.addAttribute("meseslist", mesesConForma(meses));
@@ -179,7 +179,7 @@ public class MovimientosController {
 	public String getDescuentoCuotasForm(ModelMap model) {
 		
 		try {
-			List<String> meses = movimientosRepository.getMesesLiquidacion();
+			List<String> meses = movimientosRepository.getMesesLiquidacionDesc();
 			model.addAttribute("outputMode", false);
 			model.addAttribute("consultaForm", new CapitalesForm());
 			model.addAttribute("meseslist", mesesConForma(meses));
@@ -196,7 +196,7 @@ public class MovimientosController {
 	
 	@RequestMapping(value= {"/descuentoCuotas"}, params= {"getInfo"})
 	public String traerInfoDescuentos(final CapitalesForm infoForm, final BindingResult result, Model model) {
-		List<String> meses = movimientosRepository.getMesesLiquidacion();
+		List<String> meses = movimientosRepository.getMesesLiquidacionDesc();
 
 		
 		try {
@@ -272,7 +272,7 @@ public class MovimientosController {
 	public String getAportesNomina(ModelMap model) {
 		
 		try {
-			List<String> meses = movimientosRepository.getMesesLiquidacion();
+			List<String> meses = movimientosRepository.getMesesLiquidacionDesc();
 			model.addAttribute("outputMode", false);
 			model.addAttribute("aportesForm", new CapitalesForm());
 			model.addAttribute("meseslist", mesesConForma(meses));
@@ -280,7 +280,7 @@ public class MovimientosController {
 		catch(Exception e) {
 			model.addAttribute("outputMode", false);
 			model.addAttribute("aportesForm", new CapitalesForm());
-			model.addAttribute("meseslist", movimientosRepository.getMesesLiquidacion());
+			model.addAttribute("meseslist", movimientosRepository.getMesesLiquidacionDesc());
 			model.addAttribute("formError", e.getMessage());
 		}
 
@@ -289,7 +289,7 @@ public class MovimientosController {
 	
 	@RequestMapping(value= {"/aportesNomina"}, params= {"getInfo"})
 	public String traerInfoAportes(final CapitalesForm infoForm, final BindingResult result, Model model) {
-		List<String> meses = movimientosRepository.getMesesLiquidacion();
+		List<String> meses = movimientosRepository.getMesesLiquidacionDesc();
 
 		
 		try {

@@ -79,43 +79,18 @@ public class SaldosHistoriaRepositoryCustomImpl implements SaldosHistoriaReposit
 	@Override
 	public BigDecimal numeralesFuncionario(String anioMes2,
 			Integer tarjeta) throws Exception {
-		
-		BigDecimal numerales = (BigDecimal) entityManager.createNativeQuery("select MAX(x.numerales) from (select * from fsaldoshistoria sh " + 
-				"where sh.mesliquidacion =:ml and sh.tarjeta =:t order by sh.idFSaldosHistoria desc) as x group by tarjeta")
-				.setParameter("ml", anioMes2)
-				.setParameter("t", tarjeta)
-				.getSingleResult();
 					
+		BigDecimal numerales = (BigDecimal) entityManager.createNativeQuery("select sh.numerales from fsaldoshistoria sh where " + 
+				"sh.idfsaldoshistoria IN (select max(fsh.idfsaldoshistoria) from fsaldoshistoria fsh where " + 
+				"fsh.mesliquidacion =:ml and fsh.tarjeta =:tarjeta group by fsh.tarjeta)")
+				.setParameter("ml", anioMes2)
+				.setParameter("tarjeta", tarjeta)
+				.getSingleResult();
+
 		return numerales;
 	}
 
-
 	@SuppressWarnings("unchecked")
-	@Override
-	public BigDecimal numeralesPorPeriodoyTarjetas(String aniomes2, String tarjetas) throws Exception {
-		List<BigDecimal> valores = entityManager.createQuery("select sh.numerales " +
-				"from SaldosHistoria sh where sh.mesliquidacion = :mes2 and " +
-				"sh.tarjeta NOT IN (" + tarjetas +")")
-				.setParameter("mes2", aniomes2)
-				.getResultList();
-		return valores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-	}
-
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public BigDecimal numeralesPorPeriodo(String aniomes2) throws Exception {
-		List<BigDecimal> valores = entityManager.createNativeQuery("select x.numerales from (select * from fsaldoshistoria " + 
-				" where sh.mesliquidacion =:ml order by sh.idFSaldosHistoria desc) as x group by tarjeta")
-								.setParameter("ml", aniomes2)
-								.getResultList();
-		return valores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-
-	}
-
-
-	@SuppressWarnings("unchecked")
-	@Override
 	public BigDecimal totalNumeralesConDistribucion(String aniomes) throws Exception {
 		List<BigDecimal> valores = entityManager.createQuery("select sh.numerales from " +
 				"SaldosHistoria sh where sh.mesliquidacion = :aniomes and sh.motivo like '%Distribución de utilidades%'")
@@ -138,26 +113,43 @@ public class SaldosHistoriaRepositoryCustomImpl implements SaldosHistoriaReposit
 	}
 
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public BigDecimal totalNumeralesPorTajetasSinDistribucion(String aniomes, String tarjetas) throws Exception {
-		List<BigDecimal> valores = entityManager.createNativeQuery("select MAX(x.numerales) from (select * from fsaldoshistoria sh " + 
+/*		List<BigDecimal> valores = entityManager.createNativeQuery("select MAX(x.numerales) from (select * from fsaldoshistoria sh " + 
 				"where sh.mesliquidacion =:ml and sh.tarjeta NOT IN (" + tarjetas + ") order by sh.idFSaldosHistoria desc) as x " + 
 				"group by tarjeta")
 				.setParameter("ml", aniomes)
-				.getResultList();
-		return valores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+				.getResultList();  
+		return valores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);*/
+
+		BigDecimal sumaNumerales = (BigDecimal) entityManager.createNativeQuery("select SUM(x.numerales) from " + 
+				"(select sh.idfsaldoshistoria, sh.tarjeta, sh.numerales from fsaldoshistoria sh where " + 
+				"sh.idfsaldoshistoria IN (select max(fsh.idfsaldoshistoria) from fsaldoshistoria fsh where " + 
+				"fsh.mesliquidacion =:ml and fsh.tarjeta NOT IN (" + tarjetas + ") group by fsh.tarjeta)) as x")
+				.setParameter("ml", aniomes)
+				.getSingleResult();
+		
+		return sumaNumerales;
 	}
 
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public BigDecimal totalNumeralesSinDistribucion(String aniomes) throws Exception {
-		List<BigDecimal> valores = entityManager.createNativeQuery("select MAX(x.numerales) from (select * from fsaldoshistoria sh " + 
+		/*List<BigDecimal> valores = entityManager.createNativeQuery("select MAX(x.numerales) from (select * from fsaldoshistoria sh " + 
 				"where sh.mesliquidacion =:ml order by sh.idFSaldosHistoria desc) as x group by tarjeta")
 				.setParameter("ml", aniomes)
 				.getResultList();
-		return valores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+		return valores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);*/
+		
+		BigDecimal sumaNumerales = (BigDecimal) entityManager.createNativeQuery("select SUM(x.numerales) from " + 
+				"(select sh.idfsaldoshistoria, sh.tarjeta, sh.numerales from fsaldoshistoria sh where " + 
+				"sh.idfsaldoshistoria IN (select max(fsh.idfsaldoshistoria) from fsaldoshistoria fsh where " + 
+				"fsh.mesliquidacion =:ml group by fsh.tarjeta)) as x")
+				.setParameter("ml", aniomes)
+				.getSingleResult();
+		
+		return sumaNumerales;
+
 	}
 
 

@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.mercosur.fondoPrevision.controller.FuncionesUtiles;
 import org.mercosur.fondoPrevision.dto.AportesSummary;
 import org.mercosur.fondoPrevision.dto.EstadoDeCta;
 import org.mercosur.fondoPrevision.entities.Gplanta;
@@ -17,10 +18,12 @@ import org.mercosur.fondoPrevision.entities.Prestamo;
 import org.mercosur.fondoPrevision.entities.SaldoPrestamosAcum;
 import org.mercosur.fondoPrevision.entities.Saldos;
 import org.mercosur.fondoPrevision.entities.SueldoMes;
+import org.mercosur.fondoPrevision.repository.DatosDistribucionRepository;
 import org.mercosur.fondoPrevision.repository.GplantaRepository;
 import org.mercosur.fondoPrevision.repository.MovimientosRepository;
 import org.mercosur.fondoPrevision.repository.ParametroRepository;
 import org.mercosur.fondoPrevision.repository.PrestamoRepository;
+import org.mercosur.fondoPrevision.repository.ResultadoDistribucionRepository;
 import org.mercosur.fondoPrevision.repository.SaldoPrestamosAcumRepository;
 import org.mercosur.fondoPrevision.repository.SaldosRepository;
 import org.mercosur.fondoPrevision.repository.SueldoMesRepository;
@@ -41,6 +44,15 @@ public class EstadoDeCtaServiceImpl implements EstadoDeCtaService{
 	ParametroRepository parametroRepository;
 	
 	@Autowired
+	ParamService paramService;
+	
+	@Autowired
+	DatosDistribucionRepository datosDistribRepository;
+	
+	@Autowired
+	ResultadoDistribucionRepository resultDistribRepository;
+	
+	@Autowired
 	SaldosRepository saldosRepository;
 	
 	@Autowired
@@ -53,6 +65,10 @@ public class EstadoDeCtaServiceImpl implements EstadoDeCtaService{
 	public EstadoDeCta getEstadoDeCtabyFuncionario(Long idfuncionario) throws Exception {
 		EstadoDeCta estadocta = new EstadoDeCta();
 		Parametro param = parametroRepository.getOneByDesc("Pct de Reserva");
+		String mesLiquidacion = paramService.getMesliquidacion();
+		String mesDistrib = datosDistribRepository.getUltimoMesDistrib();
+		String mesDistribSiguiente = FuncionesUtiles.mesLiquidacionSiguiente(mesDistrib);
+		Boolean conDist = mesLiquidacion.equals(mesDistrib) || mesLiquidacion.equals(mesDistribSiguiente)? true:false;
 		
 		estadocta.setPctReserva(param.getValor().divide(new BigDecimal("100")));
 		
@@ -60,11 +76,20 @@ public class EstadoDeCtaServiceImpl implements EstadoDeCtaService{
 		BigDecimal saldoPrst = BigDecimal.ZERO;
 		BigDecimal sumaCuotas = BigDecimal.ZERO;
 		BigDecimal saldoDisponible = BigDecimal.ZERO;
+		BigDecimal importeDistribucion = BigDecimal.ZERO;
 		
 		Gplanta funcionario = new Gplanta();
 		funcionario = gplantaRepository.getOne(idfuncionario);
 		estadocta.setFuncionario(funcionario);
 		estadocta.setIdfuncionario(funcionario.getIdgplanta());
+		estadocta.setConDistribucion(false);
+		estadocta.setMesDistribucion(mesDistrib);
+		
+		if(conDist) {
+			importeDistribucion = resultDistribRepository.getByTarjetaAndMesliquidacion(funcionario.getTarjeta(), mesDistrib).getDistribucionFuncionario();
+			estadocta.setImporteDistribucion(importeDistribucion);
+			estadocta.setConDistribucion(true);
+		}
 		
 		List<Prestamo> lstPrst = prestamoRepository.findByFuncionario(idfuncionario);
 		if(!lstPrst.isEmpty()) {
@@ -85,6 +110,8 @@ public class EstadoDeCtaServiceImpl implements EstadoDeCtaService{
 		}
 		estadocta.setLstPrst(lstPrst);
 		estadocta.setSaldoPrstAcum(saldoPrst);
+		
+		
 		Optional<Saldos> saldosfunc = saldosRepository.findByTarjeta(funcionario.getTarjeta());
 		if(saldosfunc.isPresent()) {
 			BigDecimal pctReserva = saldosfunc.get().getCapitalIntegActual().multiply(param.getValor()).divide(new BigDecimal("100")).setScale(2, RoundingMode.HALF_UP);
