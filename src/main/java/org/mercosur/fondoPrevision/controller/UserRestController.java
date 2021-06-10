@@ -17,12 +17,11 @@ import org.mercosur.fondoPrevision.dto.ChangePasswordForm;
 import org.mercosur.fondoPrevision.service.UserService;
 
 @RestController
-@RequestMapping("/api/user")
 public class UserRestController {
 	@Autowired
 	UserService userService;
 	
-	@PostMapping(value = "/changePassword")
+	@PostMapping(value = "/api/user/changePassword")
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER', 'ROLE_SUPERVISOR')")
 	public ResponseEntity<String> postEditUserChangePassword(@Valid @RequestBody ChangePasswordForm form, Errors errors) {
 		try {

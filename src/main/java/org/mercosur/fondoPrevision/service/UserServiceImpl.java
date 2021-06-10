@@ -199,7 +199,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User changePassword(ChangePasswordForm form) throws Exception {
 		User user = userRepository.findById(form.getId()) .orElseThrow(() -> new Exception("Usuario no encontrado en ChangePassword - " + this.getClass().getName()));
-		
+		System.out.println("userService.changePassword User: " + user.getApellido());
 		if ( !isLoggedUserADMIN() && !bCryptPasswordEncoder.matches(form.getCurrentPassword(), user.getPassword())) {
 			throw new Exception ("Current Password invalido.");
 		}
@@ -215,7 +215,6 @@ public class UserServiceImpl implements UserService {
 		String encodePass = bCryptPasswordEncoder.encode(form.getNewPassword());
 		user.setPassword(encodePass);
 		logfondoService.agregarLog("Cambio de Password", " del Usuario: " + user.getUsername());
-		
 		return userRepository.save(user);
 	}
 
