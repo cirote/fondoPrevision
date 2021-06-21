@@ -1,39 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="/fragments/header :: head(titulo='Respaldo y Restauraci&oacute;n', plantilla='backup')">
+</head>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">    
-	<link rel="icon" 
-      type="ico" 
-      href="/img/favicon.ico"/>
-	<title>Restauraci&oacute;n</title>
-		<!--JQUERY-->
-	<script
- 		src="https://code.jquery.com/jquery-3.3.1.min.js"
- 			integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
- 			crossorigin="anonymous"></script>
-
-	<!-- FRAMEWORK BOOTSTRAP para el estilo de la pagina-->
-	<link rel="stylesheet" 
-		href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-	
-	<!-- Los iconos tipo Solid de Fontawesome-->
-	<link rel="stylesheet"
-		href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css">
-	<script src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
-	
-	<!-- Nuestro css-->
-	<link rel="stylesheet" type="text/css" href="static/css/user-form.css"
-		th:href="@{/css/loglist.css}">
-	
-	<!-- DATA TABLE -->
-	<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-	<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css">	
-	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
-	
 	<script type="text/javascript">
 	    $(document).ready(function() {
 	        $('#procsList').DataTable();

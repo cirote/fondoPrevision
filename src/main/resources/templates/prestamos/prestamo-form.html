@@ -249,7 +249,7 @@
 			              <tbody>
 							<tr th:each="prst: ${estadoDeCta.lstPrst}">
 								<td class="text-right" th:text="${prst.nroprestamo}"></td>
-								<td th:text="${#dates.format(prst.fechaPrestamo, 'dd-MM-yyyy')}"></td>
+								<td th:text="${#temporals.format(prst.fechaPrestamo, 'dd-MM-yyyy')}"></td>
 								<td th:text="${prst.tipoPrestamo.descripcion}"></td>
 								<td class="text-right" th:text="${#numbers.formatDecimal(prst.capitalPrestamo,3,'POINT',2,'COMMA')}"></td>
 								<td class="text-right" th:text="${#numbers.formatDecimal(prst.interesPrestamo, 1, 'POINT',2,'COMMA')}"></td>

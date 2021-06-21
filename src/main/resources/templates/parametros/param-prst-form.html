@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 	<script type="text/javascript">
 		window.setTimeout(function() {
 		    $("#formError").fadeTo(500, 0).slideUp(500, function(){
@@ -20,7 +20,7 @@
                <label class="col-lg-4 text-left">Mes Liquidaci&oacute;n</label>
                <div class="col-lg-3">
                    <input class="form-control" type="text" th:field="*{parPrestamo.mesliquidacion}" >
-                   <div class="alert-danger" th:if="${#fields.hasErrors('parPrestamo.mesliquidacion')}" th:errors="*{parPrestamo.mesliquidacion}">Mesliquidación Error</div>
+                   <div class="alert-danger" th:if="${#fields.hasErrors('parPrestamo.mesliquidacion')}" th:errors="*{parPrestamo.mesliquidacion}">Mesliquidaciï¿½n Error</div>
                </div>
            </div>
 			<div class="form-group row">

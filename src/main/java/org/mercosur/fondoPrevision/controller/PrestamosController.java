@@ -230,16 +230,16 @@ public class PrestamosController {
 			newEstado.setFuncionario(funcionario);
 			model.addAttribute("estadoDeCta", newEstado);
 			model.addAttribute("outputMode", true);
-			TipoPrestamo tipo = tipoPrestamoService.getById(form.getIdtipoprst());
-			model.addAttribute("tipoPrst", tipo);
+			String uri = request.getRequestURI();
+			if(uri.equals("/editPrst")) {
+				TipoPrestamo tipo = tipoPrestamoService.getById(form.getIdtipoprst());
+				model.addAttribute("tipoPrst", tipo);
+				model.addAttribute("editMode", true);
+			}
 		}
 		catch(Exception e) {
 			model.addAttribute("estadoDeCta", new EstadoDeCta());
 			model.addAttribute("formError", e.getMessage());
-		}
-		String uri = request.getRequestURI();
-		if(uri.equals("/editPrst")) {
-			model.addAttribute("editMode", true);
 		}
 		model.addAttribute("prstNuevoForm", form);
 		model.addAttribute("funcionario", funcionario);

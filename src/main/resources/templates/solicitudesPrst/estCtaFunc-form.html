@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
      <div class="card">
 		<div class="card-body" th:if="${estadoDeCta}">
@@ -74,7 +76,7 @@
 	 		<div class="panel panel-default" th:if="${not(#lists.isEmpty(estadoDeCta.lstPrst))}">
 	 			<div class="panel-heading" >
 					<a class="nav-link" data-toggle="collapse" href="#prstPendientes" role="button" aria-expanded="true" aria-controls="prstPendientes">
-		 				<h5>Sus Pr&eacute;stamos vigentes</h5>
+		 				<span><h5>Sus Pr&eacute;stamos vigentes</h5></span>
 					</a>	 				
 	 			</div>
 	 			<div id="prstPendientes" class="panel-body collapse show" >
@@ -112,3 +114,4 @@
 			</div>
 		</div>
 	</div>
+</html>

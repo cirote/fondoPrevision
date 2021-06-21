@@ -76,6 +76,7 @@ public class EstadoDeCtaController {
 				String mes = newEstado.getMesDistribucion().substring(4);
 				String anio = newEstado.getMesDistribucion().substring(0, 4);
 				LocalDate fechaBalance = FuncionesUtiles.strfechaTolocaldate(FuncionesUtiles.ultimoDiadelMes(mes, anio), mes, anio);
+				model.addAttribute("labelBalance", "Asignación de Intereses por Distribución de Utilidades al ");
 				model.addAttribute("fechaBalance", fechaBalance);
 			}
 			model.addAttribute("estadoDeCta", newEstado);
