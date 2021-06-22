@@ -12,10 +12,12 @@ import org.mercosur.fondoPrevision.dto.MovimientosForDisplay;
 import org.mercosur.fondoPrevision.entities.Gplanta;
 import org.mercosur.fondoPrevision.entities.Movimientos;
 import org.mercosur.fondoPrevision.entities.Prestamo;
+import org.mercosur.fondoPrevision.entities.Prestamohist;
 import org.mercosur.fondoPrevision.entities.SueldoMes;
 import org.mercosur.fondoPrevision.repository.GplantaRepository;
 import org.mercosur.fondoPrevision.repository.MovimientosRepository;
 import org.mercosur.fondoPrevision.repository.PrestamoRepository;
+import org.mercosur.fondoPrevision.repository.PrestamohistRepository;
 import org.mercosur.fondoPrevision.repository.SueldoMesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,9 @@ public class MovimientosServiceImpl implements MovimientosService {
 	
 	@Autowired
 	PrestamoRepository prestRepository;
+	
+	@Autowired
+	PrestamohistRepository prestHistRepository;
 	
 	@Autowired
 	GplantaRepository gplantaRepository;
@@ -84,19 +89,30 @@ public class MovimientosServiceImpl implements MovimientosService {
 		List<CuotasPagas> lstCuotas = new ArrayList<CuotasPagas>();
 		CuotasPagas cuota;
 		Optional<Prestamo> prst;
+
+		
+		
 		for(Movimientos m : lstMovs) {
 			if(m.getFuncionario().getUnidad().equals(unidad)) {
 				cuota = new CuotasPagas();
 				prst = prestRepository.findByNroprestamo(m.getNroPrestamo());
-				if(prst.isPresent()) {
+				Prestamo prstpresent = prst.isPresent() ? prst.get():null;
+				if(prstpresent == null) {
+					Prestamohist prsth = prestHistRepository.findByNroprestamo(m.getNroPrestamo());
+					cuota.setCantCuotas(prsth.getCantCuotas());
+					cuota.setCuotasPagas(prsth.getCuotasPagas());
+					cuota.setFechaPrestamo(prsth.getFechaPrestamo());
+					cuota.setNroPrestamo(prsth.getNroprestamo());
+				}
+				else {
 					cuota.setCantCuotas(prst.get().getCantCuotas());
 					cuota.setCuotasPagas(prst.get().getCuotasPagas());
 					cuota.setFechaPrestamo(prst.get().getFechaPrestamo());
 					cuota.setNroPrestamo(prst.get().getNroprestamo());
-					cuota.setNombre(m.getFuncionario().getNombre());
-					cuota.setCuotaTotal(m.getImporteMov());
-					lstCuotas.add(cuota);
-				}				
+				}
+				cuota.setNombre(m.getFuncionario().getNombre());
+				cuota.setCuotaTotal(m.getImporteMov());
+				lstCuotas.add(cuota);
 			}
 		}
 		return lstCuotas;
