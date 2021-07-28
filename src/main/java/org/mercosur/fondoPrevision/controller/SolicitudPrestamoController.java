@@ -109,6 +109,7 @@ public class SolicitudPrestamoController {
 			solicitudPrstForm.setUser(user);
 			
 			model.addAttribute("sinPrst", true);
+			model.addAttribute("editMode", false);
 			model.addAttribute("pprstList", paramPrestamoRepository.findAllOrderBymeses());
 			model.addAttribute("listPendientes", new ArrayList<SolicitudPrestamo>());
 			model.addAttribute("help", help);
@@ -616,10 +617,16 @@ public class SolicitudPrestamoController {
 			return "/solicitudesPrst/solicitud-view"; 
 		}
 
-		Long idfunc = form.getIdfuncionario();
-		
+		Long idfunc = form.getIdfuncionario();		
 		SolicitudPrestamo solicitud = new SolicitudPrestamo();
-		Gplanta fun = gplantaRepository.getOne(idfunc);
+		Gplanta fun = new Gplanta(); 
+		Optional<Gplanta> f =	gplantaRepository.findById(idfunc);
+		if(f.isPresent()) {
+			fun = f.get();
+		}
+		else {
+			fun.setIdgplanta(idfunc);
+		}
 		model.addAttribute("nombre", fun.getNombre());
 		model.addAttribute("tarjeta", fun.getTarjeta());
 		
@@ -688,7 +695,6 @@ public class SolicitudPrestamoController {
 			return "/solicitudesPrst/solicitud-view"; 
 		}
 
-		Long idfunc = form.getIdfuncionario();
 		if(form.getIdfsolicitud() == null) {
 			model.addAttribute("formError", "Se perdió la identificacion de la solicitud");
 			model.addAttribute("solicitudPrstForm", form);
@@ -696,7 +702,15 @@ public class SolicitudPrestamoController {
 			return "/solicitudesPrst/solicitud-view";
 		}
 		SolicitudPrestamo solicitud = solicitudPrestamoRepository.getOne(form.getIdfsolicitud());
-		Gplanta fun = gplantaRepository.getOne(idfunc);
+		Long idfunc = form.getIdfuncionario();
+		Gplanta fun = new Gplanta(); 
+		Optional<Gplanta> f =	gplantaRepository.findById(idfunc);
+		if(f.isPresent()) {
+			fun = f.get();
+		}
+		else {
+			fun.setIdgplanta(idfunc);
+		}
 		
 		model.addAttribute("nombre", fun.getNombre());
 		model.addAttribute("tarjeta", fun.getTarjeta());
@@ -762,7 +776,16 @@ public class SolicitudPrestamoController {
 			if(form.getIdfsolicitud() != null) {
 				solicitud = solicitudPrestamoRepository.getOne(form.getIdfsolicitud());
 			}
-			Gplanta fun = gplantaRepository.getOne(idfunc);
+			
+			Gplanta fun = new Gplanta(); 
+			Optional<Gplanta> f =	gplantaRepository.findById(idfunc);
+			if(f.isPresent()) {
+				fun = f.get();
+			}
+			else {
+				fun.setIdgplanta(idfunc);
+			}
+			
 			model.addAttribute("nombre", fun.getNombre());
 			model.addAttribute("tarjeta", fun.getTarjeta());
 			model.addAttribute("funcionario", fun);
@@ -830,13 +853,18 @@ public class SolicitudPrestamoController {
 			model.addAttribute("tarjeta", solicitud.getTarjeta());
 			model.addAttribute("nombre", solicitud.getFuncionario().getNombre());
 			model.addAttribute("listPendientes", solicitudPrestamoService.getByTarjetaSinEnviar(solicitud.getTarjeta()));
+			model.addAttribute("tiposPrstList", tipoPrestamoRepository.findAll());
 			model.addAttribute("formSuccess", "La solicitud ha quedado ha disposición de la Administración del fondo");
 		} catch (Exception e) {
 			model.addAttribute("formError", e.getMessage());
 			e.printStackTrace();
 		}
-		
-		return getSolicitudForm(model);
+		if(userService.isLoggedUserADMIN()) {
+			return getSolicitudByAdmin(model);
+		}
+		else {
+			return getSolicitudForm(model);			
+		}
 	}
 
 	private BigDecimal sumaSaldosACancelar(String cancelPrst) {
@@ -900,7 +928,7 @@ public class SolicitudPrestamoController {
 		}
 		return ret;
 	}
-	
+		
 	private Boolean puedeOperar(Gplanta funcionario) throws ParamNotFoundException {
 		try {
 			Parametro cantcuotasMin = paramService.getParametroByDescripcion("Cuotas a pagar");
@@ -1071,7 +1099,27 @@ public class SolicitudPrestamoController {
 
 		return solicitudparaautorizar(solicitud.getIdfsolicitud(), model);
 	}
+
+	@RequestMapping(value="/consistenciaCuota")
+	public ResponseEntity<String> verConsistencia(@Valid @RequestBody SolicitudPrstForm param, Errors errors){
 	
+		try {
+	        if (errors.hasErrors()) {
+	            String result = errors.getAllErrors()
+	                        .stream().map(x -> x.getDefaultMessage())
+	                        .collect(Collectors.joining(""));
+
+	            throw new Exception(result);
+	        }
+
+		}
+		catch(Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+		return ResponseEntity.ok("Success");		
+
+	}
+
 	@RequestMapping(value="/actualizarSolicitud")
 	public ResponseEntity<String> actualizarSolicitud(@Valid @RequestBody SolicitudPrstForm param, Errors errors){
 

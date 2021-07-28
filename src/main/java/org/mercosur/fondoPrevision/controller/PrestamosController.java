@@ -41,6 +41,7 @@ import org.mercosur.fondoPrevision.exceptions.ParamNotFoundException;
 import org.mercosur.fondoPrevision.exceptions.TipoPrestamoNotFoundException;
 import org.mercosur.fondoPrevision.pdfs.PrestamosPdfExporter;
 import org.mercosur.fondoPrevision.repository.GplantaRepository;
+import org.mercosur.fondoPrevision.repository.ParamPrestamoRepository;
 import org.mercosur.fondoPrevision.repository.PrestamoRepository;
 import org.mercosur.fondoPrevision.repository.PrestamohistRepository;
 import org.mercosur.fondoPrevision.repository.SolicitudPrestamoRepository;
@@ -92,6 +93,9 @@ public class PrestamosController {
 	PrestamohistRepository prestamoHistRepository;
 	
 	@Autowired
+	ParamPrestamoRepository paramPrstRepository;
+	
+	@Autowired
 	AyudaService ayudaService;
 	
 	@SuppressWarnings("unchecked")
@@ -119,6 +123,8 @@ public class PrestamosController {
 			model.addAttribute("help", help);			
 			model.addAttribute("prstCancelList", prestamoService.getPrestCancelados());
 			model.addAttribute("prstNuevoForm", new PrstNuevoForm(prestamoService.getProxNroPrst()));
+			model.addAttribute("pprstList", paramPrstRepository.findAllOrderBymeses());
+
 			model.addAttribute("editMode", false);
 			if(userService.isLoggedUserADMIN()) {
 				model.addAttribute("solicitudesList", solicitudPrestamoService.getdevueltasDeComision());
@@ -144,13 +150,15 @@ public class PrestamosController {
 			model.addAttribute("editMode", false);
 
 			Optional<SolicitudPrestamo> solicitud = solicitudPrestamoRepository.findById(idsol); 
-			Gplanta funcionario = solicitud.get().getFuncionario();
+			Integer tarjeta = solicitud.get().getTarjeta();
+			Gplanta funcionario = gplantaService.getFuncionarioByTarjeta(tarjeta);
 			model.addAttribute("funcionario", funcionario);
 			PrstNuevoForm prstNuevoForm = new PrstNuevoForm(prestamoService.getProxNroPrst());
 			prstNuevoForm.setFechaprestamo(solicitud.get().getFechaSolicitud());
 			prstNuevoForm.setCantCuotas(solicitud.get().getCantCuotas());
 			prstNuevoForm.setCapitalPrst(solicitud.get().getCapitalPrestamo());
 			prstNuevoForm.setCuotaPrst(solicitud.get().getCuota());
+			prstNuevoForm.setIdparamPrst(solicitud.get().getParamPrestamo().getIdfparamprst());
 			prstNuevoForm.setTasa(solicitud.get().getInteresPrestamo());
 			prstNuevoForm.setSaldoPrst(solicitud.get().getCapitalPrestamo());
 			prstNuevoForm.setTarjeta(solicitud.get().getTarjeta());
@@ -160,10 +168,13 @@ public class PrestamosController {
 			prstNuevoForm.setIdtipoprst(solicitud.get().getTipoPrestamo().getIdftipoprestamo());
 			
 			model.addAttribute("prstNuevoForm", prstNuevoForm);
+			model.addAttribute("disabledFields", true);
+			model.addAttribute("tipoPrestamo", solicitud.get().getTipoPrestamo().getDescripcion());
 			model.addAttribute("plantaList", gplantaService.getAllPlanta());
 			model.addAttribute("prestamosList", prestamoService.getAllPrst());
 			model.addAttribute("prstCancelList", prestamoService.getPrestCancelados());
 			model.addAttribute("solicitudesList", solicitudPrestamoService.getdevueltasDeComision());
+			model.addAttribute("pprstList", paramPrstRepository.findAllOrderBymeses());
 			
 		}
 		catch(Exception e) {
@@ -204,6 +215,7 @@ public class PrestamosController {
 			model.addAttribute("tipoPrst", tipo);
 			model.addAttribute("plantaList", gplantaService.getAllPlanta());
 			model.addAttribute("prestamosList", prestamoService.getAllPrst());
+			model.addAttribute("pprstList", paramPrstRepository.findAllOrderBymeses());
 			model.addAttribute("solicitudesList", solicitudPrestamoService.getdevueltasDeComision());
 			model.addAttribute("prstNewTab", "active");
 			
@@ -242,6 +254,7 @@ public class PrestamosController {
 			model.addAttribute("formError", e.getMessage());
 		}
 		model.addAttribute("prstNuevoForm", form);
+		model.addAttribute("pprstList", paramPrstRepository.findAllOrderBymeses());
 		model.addAttribute("funcionario", funcionario);
 		model.addAttribute("prstNewTab", "active");
 		return("prestamos/prestamos-view");
@@ -312,6 +325,7 @@ public class PrestamosController {
 			form.setCuotaPrst(valorCuota);
 		}
 		model.addAttribute("prstNuevoForm", form);
+		model.addAttribute("pprstList", paramPrstRepository.findAllOrderBymeses());
 		model.addAttribute("prstNewTab", "active");
 		return("prestamos/prestamos-view");
 	}
@@ -420,7 +434,7 @@ public class PrestamosController {
 						}
 						Prestamo prst = new Prestamo(form.getCapitalPrst(), form.getTasa(), form.getCantCuotas(), form.getCuotaPrst());
 							// Si hay prestamos para cancelar....
-						if(!form.getPrstAcancelar().isEmpty()) {
+						if(!form.getPrstAcancelar().isEmpty()) {							
 							String[] cancelprst = form.getPrstAcancelar().split(",");
 							List<String> lstcancel = Arrays.asList(cancelprst);
 							for(String nro : lstcancel) {
@@ -434,6 +448,10 @@ public class PrestamosController {
 						prst.setFechaPrestamo(form.getFechaprestamo());
 						prst.setNroprestamo(form.getNroprestamo());
 						prst = prestamoService.savePrst(prst, form.getIdfuncionario(), form.getIdtipoprst());
+						TipoPrestamo tipoPrst = tipoPrestamoService.getById(form.getIdtipoprst());
+						model.addAttribute("tipoPrestamo", tipoPrst.getDescripcion());
+						Gplanta funcionario = gplantaService.getFuncionarioByTarjeta(form.getTarjeta());
+						model.addAttribute("funcionario", funcionario);
 						model.addAttribute("prstNuevoForm", new PrstNuevoForm(prestamoService.getProxNroPrst()));
 						model.addAttribute("prestamosList", prestamoService.getAllPrst());
 						model.addAttribute("prstCancelList", prestamoService.getPrestCancelados());
@@ -449,6 +467,7 @@ public class PrestamosController {
 			}
 		}
 		model.addAttribute("procname", "Intermedio");
+		model.addAttribute("pprstList", paramPrstRepository.findAllOrderBymeses());
 
 		return("prestamos/prestamos-view");
 	}
@@ -466,6 +485,7 @@ public class PrestamosController {
 			model.addAttribute("prestamosList", prestamoService.getAllPrst());
 			model.addAttribute("prstCancelList", prestamoService.getPrestCancelados());
 			model.addAttribute("solicitudesList", solicitudPrestamoService.getdevueltasDeComision());
+			model.addAttribute("pprstList", paramPrstRepository.findAllOrderBymeses());
 			model.addAttribute("formSuccess", "El préstamo ha sido eliminado exitosamente");
 		}
 		catch(Exception pnf) {
@@ -481,6 +501,7 @@ public class PrestamosController {
 			model.addAttribute("prestamosList", prestamoService.getAllPrst());
 			model.addAttribute("prstCancelList", prestamoService.getPrestCancelados());
 			model.addAttribute("solicitudesList", solicitudPrestamoService.getdevueltasDeComision());
+			model.addAttribute("pprstList", paramPrstRepository.findAllOrderBymeses());
 			model.addAttribute("formSuccess", "El préstamo ha sido cancelado exitosamente!");
 		}
 		catch(Exception e) {
@@ -500,6 +521,8 @@ public class PrestamosController {
 				model.addAttribute("editMode", false);
 				model.addAttribute("plantaList", gplantaService.getAllPlanta());
 				model.addAttribute("prestamosList", prestamoService.getAllPrst());
+				model.addAttribute("pprstList", paramPrstRepository.findAllOrderBymeses());
+				model.addAttribute("pprstList", paramPrstRepository.findAllOrderBymeses());
 				model.addAttribute("procname", "Intermedio");
 				model.addAttribute("prstCancelTab", "active");
 				

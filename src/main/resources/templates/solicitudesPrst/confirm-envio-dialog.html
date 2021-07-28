@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalTitle" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="confirmModalLongTitle">Confirmarci&oacute;n</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true"><i class="fas fa-window-close"></i></span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	      	<div class="panel-body">
+	      		<span th:text="#{cuota.inconsistente}"></span>
+	      		<table>
+	      			<tr>
+	      				<td>
+							<label class="form-labbel col-form-label">Capital solicitado: </label>
+	      				</td>
+	      				<td>
+			      			<div id="capsolicitado" class="text-right"></div>
+	      				</td>
+	      			</tr>
+	      			<tr>
+	      				<td>
+							<label class="form-labbel col-form-label">Tasa: </label>
+	      				</td>
+	      				<td>
+			      			<div id="tasamodal" class="text-right"></div>
+	      				</td>
+	      			</tr>
+					<tr>
+	      				<td>
+							<label class="form-labbel col-form-label">Plazo: </label>
+	      				</td>
+					
+	      				<td>
+			      			<div id="plazomodal" class="text-right"></div>
+	      				</td>
+	      			</tr>
+	      			<tr>
+	      				<td>
+							<label class="form-labbel col-form-label">Cuota Modificada: </label>
+	      				</td>
+	      				<td>
+			      			<div id="cuotaEdit" class="text-right"></div>
+	      				</td>
+	      			</tr>
+					<tr>
+	      				<td>
+							<label class="form-labbel col-form-label">Cuota Calculada: </label>
+	      				</td>
+	      				<td>
+	    		  			<div id="calculada" class="text-right"></div>
+	      				</td>
+	      			</tr>
+	      		</table>
+		        <input type="hidden" id="hiddenInput" name="hiddenInput"/>
+	      	</div>	        
+	      </div>
+	      <div class="modal-footer">
+		        <button class="btn btn-secondary" data-dismiss="modal" onclick="return false;">Cerrar</button>
+			   	<button class="btn btn-primary" onclick="accionConfirmada()">Confirmar</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+</html>

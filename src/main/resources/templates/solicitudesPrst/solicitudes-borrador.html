@@ -66,7 +66,7 @@ function deleteSolicitud(){
 			    						<a href="#" th:href="@{'/editSolicitud/'+ ${sol.idfsolicitud}}"><i class="fas fa-edit" title="Editar"></i></a>
 									</span>
 									<span >
-										| <a href="#" th:href="@{'/enviarSolicitud/' + ${sol.idfsolicitud}}"><i class="fas fa-paper-plane" title="Enviar"></i></a>
+										| <a id="enviarSol" href="#" th:href="@{'/enviarSolicitud/' + ${sol.idfsolicitud}}"><i class="fas fa-paper-plane" title="Enviar"></i></a>
 									</span>
 									<span >
 										| <a href="#" th:onclick="'javascript:confirmDelete(\''+ ${sol.idfsolicitud} +'\');'"><i class="fas fa-eraser" title="Eliminar"></i></a>

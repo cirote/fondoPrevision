@@ -41,6 +41,14 @@ public class SolicitudPrstForm implements Serializable {
 	private String obsComision;
 	
 	private String accion;
+	
+	private BigDecimal capital;
+	
+	private BigDecimal tasa;
+	
+	private BigDecimal cuota;
+	
+	private Integer plazo;
 		
 	public SolicitudPrstForm() {
 		super();
@@ -168,6 +176,46 @@ public class SolicitudPrstForm implements Serializable {
 
 	public void setAccion(String accion) {
 		this.accion = accion;
+	}
+
+
+	public BigDecimal getCapital() {
+		return capital;
+	}
+
+
+	public void setCapital(BigDecimal capital) {
+		this.capital = capital;
+	}
+
+
+	public BigDecimal getTasa() {
+		return tasa;
+	}
+
+
+	public void setTasa(BigDecimal tasa) {
+		this.tasa = tasa;
+	}
+
+
+	public BigDecimal getCuota() {
+		return cuota;
+	}
+
+
+	public void setCuota(BigDecimal cuota) {
+		this.cuota = cuota;
+	}
+
+
+	public Integer getPlazo() {
+		return plazo;
+	}
+
+
+	public void setPlazo(Integer plazo) {
+		this.plazo = plazo;
 	}
 	
 }

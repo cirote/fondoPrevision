@@ -47,7 +47,7 @@
 		<form id="prstnuevoForm" th:object="${prstNuevoForm}" th:action="${editMode}? @{/editPrst}:@{/prestnuevoForm}" method="post"
 			class="form" role="form" autocomplete="off">
 			<input type="hidden" th:field="*{idfprestamos}" th:if="${editMode}">
-			<input type="hidden" th:field="*{idfuncionario}" >
+			<input type="hidden" th:field="*{idfuncionario}" th:if="${editMode}">
 			<input type="hidden" th:field="*{saldoPrst}" th:if="${editMode}">
 			<input type="hidden" th:field="*{cuotasPagas}" th:if="${editMode}">
 			<input type="hidden" th:field="*{idsolicitud}">
@@ -56,8 +56,16 @@
 					<td>
 						<div class="form-group row">
 			   				<label class="col-lg-4 col-form-label form-control-label">Funcionario</label>
-				           <div class="col-lg-6" >
-				           		<input type="hidden" th:field="*{tarjeta}" >
+			   				<div class="col-lg-6" th:unless="${editMode}">
+								<select id="selfunc" th:field="${prstNuevoForm.idfuncionario}" th:disabled="${disabledFields}">
+									<option value=""> Seleccionar una opci&oacute;n </option>
+									<option th:each="funcionario :${plantaList}" th:value="${funcionario.idgplanta}" 
+										th:text="${funcionario.nombre}"></option>
+								</select>
+				           		<input type="hidden" th:field="*{idfuncionario}">
+				           </div>
+				           <div class="col-lg-6" th:if="${editMode}">
+				           		<input type="hidden" th:field="*{tarjeta}" th:if="${editMode}">
 				           		<span th:text="${funcionario.nombre}"></span>
 				           </div>
 						</div>
@@ -78,19 +86,29 @@
 					<td>
 						<div class="form-group row">
 		    				<label class="col-lg-4 col-form-label form-control-label">Tipo Pr&eacute;stamo</label>
-		    				<div class="col-lg-6">
+		    				<div class="col-lg-6" th:unless="${editMode}">
+		    					<select th:field="${prstNuevoForm.idtipoprst}" th:disabled="${disabledFields}">
+		    						<option value=""> Seleccionar una opci&oacute;n </option>
+		    						<option th:each="tipo :${tiposPrstList}" th:value="${tipo.idftipoprestamo}" th:text="${tipo.descripcion}"></option>
+		    					</select>
 		    					<input type="hidden" th:field="*{idtipoprst}" >
-		           				<span th:text="${tipoPrestamo}"></span>
+		    				</div>
+		    				<div class="col-lg-6" th:if="${editMode}">
+		    					<input type="hidden" th:field="*{idtipoprst}" >
+		           				<span th:text="${tipoPrst.descripcion}"></span>
 		    				</div>
 						</div>
 					</td>
 					<td>
 						<div class="form-group row">
 							<label class="col-lg-4 text-left">Plazo</label>
-							<div class="col-lg-4">
-								<span th:text="*{cantCuotas} + ' meses'" th:classappend="text-cuota"></span>						
-								<input type="hidden" id="plazo" th:field="*{cantCuotas}">
+							<div class="col-lg-6">
+								<select th:field="*{idparamPrst}"  id="par-select"  th:disabled="${disabledFields}">
+									<option value=""> Seleccionar una opci&oacute;n </option>
+									<option th:each="parametro :${pprstList}" th:value="${parametro.idfparamprst}" th:text="${parametro.descripcion}" ></option>
+								</select>
 							</div>
+							<input type="hidden" id="plazo" th:field="*{cantCuotas}">
 						</div>				
 					</td>				
 				</tr>

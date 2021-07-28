@@ -13,11 +13,113 @@
 	        $(this).remove(); 
 	    });
 	}, 2000);
+	
+	function borradorAdminOk(){
+		if(validarCuotaAdmin('borrador')){
+			$('#borrador').click();
+			return true;
+		}
+	}
+	
+	function enviarAdminOk(){
+		if(validarCuotaAdmin('enviar')){
+			$('#enviar').click();
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+
+	function borradorOk(){
+		if(validarCuota()){
+			$('#borrador').click();
+			return true;
+		}
+		else{
+			$('#cuotaModal').modal('show');
+		}
+	}
+	
+	function enviarOk(){
+		if(validarCuota()){
+			$('#enviar').click();
+			return true;
+		}
+		else{
+			$('#cuotaModal').modal('show');
+		}
+	}
+
+	function validarCuota(){
+		var capital = $("#capital").val();
+		var tasa = $("#tasa").val();
+		var cuota = $("#cuota").val();
+		var plazo = $("#plazo").val();
+		
+		var meses = 1200;
+		var interes = parseFloat(tasa) / meses;
+		var factor = Math.pow((1 + interes), parseInt(plazo));
+		var numerador = interes * factor;
+		var denominador = factor - 1;
+		var coeficiente = numerador / denominador;
+		var capxcoef = parseFloat(capital) * coeficiente;
+		var valorcuota = Math.round(capxcoef * 100 + Number.EPSILON) / 100;
+		
+		if(cuota == valorcuota){
+			return true;
+		}
+		else{
+			return false;
+			
+		}
+	}
+
+	function validarCuotaAdmin(accion){
+		var capital = $("#capital").val();
+		var tasa = $("#tasa").val();
+		var cuota = $("#cuotaEditable").val();
+		var plazo = $("#plazo").val();
+		
+		var meses = 1200;
+		var interes = parseFloat(tasa) / meses;
+		var factor = Math.pow((1 + interes), parseInt(plazo));
+		var numerador = interes * factor;
+		var denominador = factor - 1;
+		var coeficiente = numerador / denominador;
+		var capxcoef = parseFloat(capital) * coeficiente;
+		var valorcuota = Math.round(capxcoef * 100 + Number.EPSILON) / 100;
+		
+		if(cuota == valorcuota){
+			return true;
+		}
+		else{
+			$("#mensaje").html("Confirma el env&iacute;o de la solicitud?");
+			$("#capsolicitado").html(capital);
+			$("#tasamodal").html(tasa);
+			$("#plazomodal").html(plazo);
+			$("#cuotaEdit").html(cuota);
+			$("#calculada").html(valorcuota);
+
+			$('#hiddenInput').val(accion);
+			$('#confirmModal').modal('show');
+		}	
+	}
+
+	function accionConfirmada(){
+		var accion = $('#hiddenInput').val();
+		if(accion === 'enviar'){
+			$('#enviar').click();			
+		}
+		else if(accion === 'borrador'){
+			$('#borrador').click();
+		}
+	}
+	
 </script>
 </head>
 <body>
-	<form id="solicitudAdminForm" th:object="${solicitudPrstForm}" th:action="${editMode}? @{/editSolicitud}:@{/solicitudNuevaForm}" method="post"
-		class="form" role="form" autocomplete="off">
+	<form id="solicitudAdminForm" th:object="${solicitudPrstForm}"  method="post" class="form" role="form" autocomplete="off">
 		<input type="hidden" th:field="*{user.id}">
 		<input type="hidden" th:field="*{idfuncionario}">
 		<input type="hidden" th:field="*{idfsolicitud}">
@@ -29,7 +131,7 @@
 					<div class="form-group row">
 		   				<label class="col-lg-4 text-left">Funcionario</label>
 		   				<div class="col-lg-4" >
-							<select th:field="*{idfuncionario}" onchange="submitfuncionario()" id="func-select">
+							<select th:field="*{idfuncionario}" id="func-select">
 								<option value=""> Seleccionar una opci&oacute;n </option>
 								<option th:each="funcionario :${plantaList}" th:value="${funcionario.idgplanta}" th:text="${funcionario.nombre}"></option>
 							</select>
@@ -55,7 +157,7 @@
 					<div class="form-group row">
 						<label class="col-lg-4 text-left">Plazo</label>
 						<div class="col-lg-6" >
-							<select id="parametro" th:field="*{idparamPrst}"  onchange="submitparametro()" >
+							<select id="parametro" th:field="*{idparamPrst}" >
 								<option value=""> Seleccionar una opci&oacute;n </option>
 								<option th:each="parametro : ${pprstList}" th:value="${parametro.idfparamprst}" th:text="${parametro.descripcion}" ></option>
 							</select>
@@ -102,9 +204,8 @@
 					<div class="form-group row">
 						<label class="col-lg-6 col-form-label form-control-label">Valor de la Cuota: </label>
 						<div class="col-lg-6">
-<!-- 							<span th:text="*{prestamo.cuota}" th:classappend="text-cuota"></span> -->
-							<input type="text" class="form-control" th:field="*{prestamo.cuota}" th:value="*{prestamo.cuota}">
-							<div class="alert-danger" th:if="${#fields.hasErrors('prestamo.cuota')}" th:errors="*{prestamo.cuota}">fecha prestamo</div>
+							<span th:text="*{prestamo.cuota}" th:classappend="text-cuota"></span>
+							<input id="cuota" type="hidden" th:field="*{prestamo.cuota}">
 						</div>
 					</div>
 					<div class="form-group row">
@@ -132,22 +233,25 @@
 			</div>
 			<br>
 			<div class="col-lg-12 text-center">
- 		   		<button class="btn btn-secondary" type="submit" name="calculoCuota">Calcular Cuota</button>
-		   		<button class="btn btn-secondary" type="submit" name="borrador">Guardar Borrador</button>
-			   	<button class="btn btn-primary" type="submit" name="enviarAComision">Enviar A Comisi&oacute;n</button>
+				<a href="#" class="btn btn-secondary" th:href="@{/newSolFormByAdmin}">Limpiar</a>
+ 		   		<button class="btn btn-secondary" th:formaction="${editMode}? @{/editSolicitud}:@{/solicitudNuevaForm}" type="submit" name="calculoCuota">Calcular Cuota</button>
+		        <span class="btn btn-secondary"  onclick="borradorOk();" >Guardar Borrador</span>
+		   		<button id="borrador" class="d-none" th:formaction="${editMode}? @{/editSolicitud}:@{/solicitudNuevaForm}" type="submit" name="borrador"></button>
+		        <span class="btn btn-primary"  onclick="enviarOk();" >Enviar a Comisi&oacute;n</span>
+		        <button id="enviar" class="d-none" th:formaction="${editMode}? @{/editSolicitud}:@{/solicitudNuevaForm}" type="submit" name="enviarAComision"></button>
 			</div>
 		</div>
 	</form>
 </body>
 	<script type="text/javascript">
-		$('#func-select').change(function submitfuncionario(){
+		$('#func-select').change(function (){
 			var idfunc = $(this).val();
 			window.location = "/fondoPrevision/completeInfo/"+idfunc;
 		});
 		
 	</script>
 	<script th:inline="javascript">
-		$('#parametro').change(function submitparametro(){   
+		$('#parametro').change(function (){   
 		    var id = $(this).val();
 			
 		    var lst = [[${pprstList}]];
@@ -159,6 +263,6 @@
 					var tasa = [[${pprstList}]][i]["tasa"];		    		
 		    	}
 		    }
-		});		
+		});	
 	</script>
 </html>

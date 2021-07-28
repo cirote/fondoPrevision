@@ -14,6 +14,7 @@ public class PrstNuevoForm {
 	@NotNull
 	private Long idfuncionario;
 	private Integer idtipoprst;
+	private Integer idparamPrst;
 	private Long idfprestamos;
 	private Integer nroprestamo;
 	private String tipoprestamo;
@@ -195,6 +196,14 @@ public class PrstNuevoForm {
 
 	public void setFechaprestamo(LocalDate fechaprestamo) {
 		this.fechaprestamo = fechaprestamo;
+	}
+
+	public Integer getIdparamPrst() {
+		return idparamPrst;
+	}
+
+	public void setIdparamPrst(Integer idparamPrst) {
+		this.idparamPrst = idparamPrst;
 	}
 
 }

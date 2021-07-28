@@ -60,10 +60,6 @@ function cancelPrst(){
 					<td class="text-right" th:text="${prst.cuotasPagas}"></td>
 					<td class="text-right" th:text="${#numbers.formatDecimal(prst.saldoPrestamo,3,'POINT',2,'COMMA')}"></td>
 					<td>
-						<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')} and ${prst.prestamoNuevo}">
-    						<a href="#" th:href="@{'/editPrst/'+ ${prst.idfprestamos}}">
-    						<i class="fas fa-edit" title="Editar Prst."></i></a>
-						</span>
 						<span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')} and ${prst.prestamoNuevo}" >
 							<a href="#" th:onclick="'javascript:confirmDelete(\''+ ${prst.idfprestamos} +'\');'">
 							<i class="fas fa-trash" title="Eliminar Prst."></i></a>

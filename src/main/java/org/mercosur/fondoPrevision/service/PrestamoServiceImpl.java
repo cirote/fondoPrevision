@@ -293,6 +293,7 @@ public class PrestamoServiceImpl implements PrestamoService {
 	@Override
 	public void deletePrst(Long idprst) throws Exception {
 		Prestamo prst = prestamoRepository.getOne(idprst);
+		Integer nroPrst = prst.getNroprestamo();
 		Gplanta func = prst.getFuncionario();
 		Optional<Saldos> saldosfunc = saldosRepository.findByTarjeta(func.getTarjeta());
 		Optional<SaldoPrestamosAcum> saldosAcum = saldoPrestacumRepository.findByTarjeta(func.getTarjeta());
@@ -328,6 +329,20 @@ public class PrestamoServiceImpl implements PrestamoService {
 		movimientosRepository.delete(mov);
 		prestamoRepository.delete(prst);
 		
+			//4 - Si el nro. de préstamo es el último ingresado se actualiza en parámetros
+		
+		try {
+			List<Parametro> param = (List<Parametro>)parametroRepository.getSomeByDesc("Ultimo Nro. de Préstamo");
+			if(param.size() == 1 && param.get(0).getValor().intValue() == nroPrst) {
+				Parametro par = parametroRepository.getOne(param.get(0).getIdfparametros());				
+				par.setValor(new BigDecimal((String.valueOf(nroPrst -1))));
+				parametroRepository.save(par);
+			}
+		}
+		catch(Exception ex) {
+			throw new ParamNotFoundException("No se encontró el último Nro. de Prestamo");
+		}
+
 		logfondoService.agregarLog("Eliminación de Préstamo", "Prestamo nro.: " + prst.getNroprestamo().toString());
 	}
 
