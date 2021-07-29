@@ -124,7 +124,7 @@ public class PrestamosController {
 			model.addAttribute("prstCancelList", prestamoService.getPrestCancelados());
 			model.addAttribute("prstNuevoForm", new PrstNuevoForm(prestamoService.getProxNroPrst()));
 			model.addAttribute("pprstList", paramPrstRepository.findAllOrderBymeses());
-
+			model.addAttribute("menu", true);
 			model.addAttribute("editMode", false);
 			if(userService.isLoggedUserADMIN()) {
 				model.addAttribute("solicitudesList", solicitudPrestamoService.getdevueltasDeComision());

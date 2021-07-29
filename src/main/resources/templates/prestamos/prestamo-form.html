@@ -58,7 +58,7 @@
 			   				<label class="col-lg-4 col-form-label form-control-label">Funcionario</label>
 				           <div class="col-lg-6" >
 				           		<input type="hidden" th:field="*{tarjeta}" >
-				           		<span th:text="${funcionario.nombre}"></span>
+				           		<span th:text="${funcionario.nombre}" th:unless=${menu}></span>
 				           </div>
 						</div>
 					</td>
