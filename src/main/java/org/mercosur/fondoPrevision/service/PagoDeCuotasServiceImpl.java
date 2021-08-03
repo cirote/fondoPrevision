@@ -91,9 +91,29 @@ public class PagoDeCuotasServiceImpl implements PagoDeCuotasService{
 		if(chequeoDeEjecucion(mesliquidacion) == (long)-1) {
 			throw new Exception("No fue posible determinar si ya se ejecutó el pago de cuotas...");
 		}
-		else if(chequeoDeEjecucion(mesliquidacion) > (long)0) {
+		else if (chequeoDeEjecucion(mesliquidacion) > (long) 0) {
 			throw new Exception("Ya se ejecutó el pago de cuotas en el mes : " + mesliquidacion);
 		}
+		
+		// Quita marca de nuevo a las refinanciaciones otorgadas antes del día 20
+		List<Prestamo> lstPrstNuevos = prestamoRepository.getNuevos();
+		if (!lstPrstNuevos.isEmpty()) 
+		{
+			for (Prestamo p : lstPrstNuevos) 
+			{
+				if (p.getTipoPrestamo().getIdftipoprestamo() == 11)
+				{
+					LocalDate fechaPrestamo = p.getFechaPrestamo();
+					int dia = fechaPrestamo.getDayOfMonth();
+					if (dia <= 20)
+					{
+						p.setPrestamoNuevo(false);
+						prestamoRepository.save(p);
+					}
+				}
+			}
+		}
+
 		List<Prestamo> lstPrst = prestamoRepository.getNoNuevos();
 		for(Prestamo fp : lstPrst) {
 			Short cuotasPagas = fp.getCuotasPagas();
