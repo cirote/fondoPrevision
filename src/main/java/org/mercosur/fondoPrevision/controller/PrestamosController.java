@@ -432,23 +432,43 @@ public class PrestamosController {
 								sol = solicitudPrestamoRepository.save(sol);
 							}
 						}
+
+						// Modificacion por refinanciacion
+						Boolean refinanciacion = false;
+
 						Prestamo prst = new Prestamo(form.getCapitalPrst(), form.getTasa(), form.getCantCuotas(), form.getCuotaPrst());
 							// Si hay prestamos para cancelar....
 						if(!form.getPrstAcancelar().isEmpty()) {							
 							String[] cancelprst = form.getPrstAcancelar().split(",");
 							List<String> lstcancel = Arrays.asList(cancelprst);
-							for(String nro : lstcancel) {
-								Optional<Prestamo> pp = prestamoRepository.findByNroprestamo(Integer.valueOf(nro));	
-								if(pp.isPresent()) {
+							for (String nro : lstcancel) {
+								Optional<Prestamo> pp = prestamoRepository.findByNroprestamo(Integer.valueOf(nro));
+								if (pp.isPresent()) {
 									prestamoService.cancelPrst(pp.get().getIdfprestamos());
 								}
 							}
+
+							// Modificacion por refinanciacion
+							refinanciacion = true;
 						}
+
 						prst.setPrestamoNuevo(true);
 						prst.setFechaPrestamo(form.getFechaprestamo());
 						prst.setNroprestamo(form.getNroprestamo());
-						prst = prestamoService.savePrst(prst, form.getIdfuncionario(), form.getIdtipoprst());
-						TipoPrestamo tipoPrst = tipoPrestamoService.getById(form.getIdtipoprst());
+
+						// Modificacion por refinanciacion
+						int getIdtipoprst = 10;
+						if (refinanciacion)
+						{
+							getIdtipoprst = 11;
+						}
+						prst = prestamoService.savePrst(prst, form.getIdfuncionario(), getIdtipoprst);
+
+						// prst = prestamoService.savePrst(prst, form.getIdfuncionario(), form.getIdtipoprst());
+
+						// TipoPrestamo tipoPrst = tipoPrestamoService.getById(form.getIdtipoprst());
+						TipoPrestamo tipoPrst = tipoPrestamoService.getById(getIdtipoprst);
+
 						model.addAttribute("tipoPrestamo", tipoPrst.getDescripcion());
 						Gplanta funcionario = gplantaService.getFuncionarioByTarjeta(form.getTarjeta());
 						model.addAttribute("funcionario", funcionario);
