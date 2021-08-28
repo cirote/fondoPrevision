@@ -2,8 +2,8 @@ package org.mercosur.fondoPrevision.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -91,9 +91,10 @@ public class PagoDeCuotasServiceImpl implements PagoDeCuotasService{
 		String mesliquidacion = paramService.getMesliquidacion();
 
         // Calcula fecha de corte para las refinanciaciones
-        String mesydialiquidacion = mesliquidacion + "20";
-        Date fechacorte = new SimpleDateFormat("yyyyMMdd").parse(mesydialiquidacion);
-
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+		String mesydialiquidacion = mesliquidacion + "21";
+		LocalDate fechacorte = LocalDate.parse(mesydialiquidacion, formatter);
+		
 		if(chequeoDeEjecucion(mesliquidacion) == (long)-1) {
 			throw new Exception("No fue posible determinar si ya se ejecutó el pago de cuotas...");
 		}
@@ -110,8 +111,7 @@ public class PagoDeCuotasServiceImpl implements PagoDeCuotasService{
 				if (p.getTipoPrestamo().getIdftipoprestamo() == 11)
 				{
 					LocalDate fechaPrestamo = p.getFechaPrestamo();
-					int dia = fechaPrestamo.getDayOfMonth();
-					if (dia <= 20)
+					if (fechaPrestamo.isBefore(fechacorte))
 					{
 						p.setPrestamoNuevo(false);
 						prestamoRepository.save(p);
